@@ -1035,16 +1035,10 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     """
     gender, match_type, flight = key
 
-    # --- STEP 0: drop anyone with fewer than MIN_MATCHES matches in this
-    #     group, BEFORE any ranking logic (h2h, transitivity, etc.) runs.
-    #     Matches against a dropped player are removed entirely so they
-    #     can't leak into anyone else's head-to-head, common-opponent, or
-    #     transitive-win data either.
-    #
-    #     This minimum is based on the FULL match count (records still
-    #     count single-set / "2-0 2-0" matches), so a player isn't
-    #     unfairly dropped just because some of their matches happen to
-    #     be ranking-excluded. ---
+    # ── STEP 0a: iteratively drop players with fewer than MIN_MATCHES
+    #    total matches in the group. Records still count ranking-excluded
+    #    matches so a player isn't unfairly dropped just because some of
+    #    their matches are single-set / "2-0 2-0". ──────────────────────
     MIN_MATCHES = getattr(_config, "MIN_MATCHES", 5)
     for _ in range(len(group_matches) + 1):
         idx = build_results_index(group_matches)
@@ -1059,6 +1053,50 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         if len(filtered) == len(group_matches):
             break
         group_matches = filtered
+
+    # ── STEP 0b: per-school deduplication within this slot.
+    #
+    #    process_group() is called per-bucket, so all matches here already
+    #    share the same (match_type, flight). After the MIN_MATCHES filter
+    #    a school can still have multiple players/pairs that both survived —
+    #    e.g. two singles players from the same school both have 5+ matches
+    #    at Flight 2. The ranking pipeline and team-scoring system expect at
+    #    most one representative per school per slot, so we keep only the
+    #    player/pair whose most recent match date is the latest, then remove
+    #    all matches involving the eliminated player(s) so they don't bleed
+    #    into anyone else's head-to-head or common-opponent data.
+    full_idx_for_dedup = build_results_index(group_matches)
+    school_map_pre = build_school_map(group_matches)
+
+    school_to_players: dict[str, list[str]] = defaultdict(list)
+    for p in players_in_group(group_matches):
+        school = school_map_pre.get(p, "")
+        if school:
+            school_to_players[school].append(p)
+
+    drop_players: set[str] = set()
+    for school, candidates in school_to_players.items():
+        if len(candidates) <= 1:
+            continue
+
+        def _last_date(p: str, _idx=full_idx_for_dedup) -> datetime:
+            ms = _idx.get(p, [])
+            return max((m["date"] for m in ms), default=datetime.min)
+
+        best = max(candidates, key=_last_date)
+        dropped = [p for p in candidates if p != best]
+        drop_players.update(dropped)
+        log.info(
+            "Dedup (%s %s flight=%s): school=%r  kept=%r  dropped=%s",
+            gender, match_type, flight, school, best,
+            ", ".join(repr(p) for p in dropped),
+        )
+
+    if drop_players:
+        group_matches = [
+            m for m in group_matches
+            if m["winner"] not in drop_players and m["loser"] not in drop_players
+        ]
 
     players = players_in_group(group_matches)
     school_map = build_school_map(group_matches)
