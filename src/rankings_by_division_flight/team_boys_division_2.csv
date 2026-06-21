@@ -1,68 +1,66 @@
-﻿rank,school,players_counted,wins,losses,win_pct,TGRS,TGRS_scaled,ts_rating,sos,quality_wins
-1,Birmingham Seaholm,8,155,49,0.76,553.82,100.0,28.17,31.7,107
-2,Midland Dow,8,209,28,0.882,544.99,98.4,30.04,28.44,113
-3,Grosse Pointe South,8,157,56,0.737,518.32,93.6,25.68,28.89,93
-4,Portage Central,8,164,59,0.735,504.17,91.0,25.68,28.41,86
-5,Grand Rapids Forest Hills Northern,9,89,46,0.659,465.53,84.0,21.65,30.05,47
-6,Byron Center,9,151,41,0.786,446.21,80.5,23.54,29.39,94
-7,Birmingham Groves,10,87,100,0.465,435.49,78.5,18.34,32.62,45
-8,Grand Rapids Forest Hills Central,12,109,105,0.509,395.58,71.3,18.56,31.44,60
-9,Traverse City Central,8,115,117,0.496,391.86,70.6,19.93,27.92,36
-10,Detroit U-D Jesuit,13,85,82,0.509,377.56,68.0,17.21,31.67,38
-11,Zeeland West,8,87,72,0.547,357.46,64.4,17.79,27.07,28
-12,Berkley,8,85,94,0.475,353.41,63.6,17.53,28.01,28
-13,Mattawan,8,65,89,0.422,303.44,54.5,14.8,27.97,25
-14,Midland,8,112,52,0.683,299.86,53.9,19.55,25.93,29
-15,South Lyon East,9,118,48,0.711,291.19,52.3,20.43,25.45,44
-16,Muskegon Mona Shores,9,111,79,0.584,258.57,46.4,17.27,24.76,28
-17,Dexter,8,64,52,0.552,245.09,44.0,15.27,25.62,12
-18,Grand Rapids Northview,8,64,84,0.432,233.92,41.9,12.12,24.49,4
-19,Warren De La Salle Collegiate,8,76,38,0.667,218.61,39.2,17.52,24.48,14
-20,Southgate Anderson,8,124,40,0.756,206.7,37.0,19.72,22.96,23
-21,Battle Creek Lakeview,8,66,113,0.369,206.3,36.9,12.05,26.12,16
-22,Portage Northern,9,62,104,0.373,191.54,34.2,11.1,24.4,4
-23,Greenville,8,79,89,0.47,190.07,34.0,13.27,23.27,5
-24,Gibraltar Carlson,8,81,75,0.519,186.48,33.3,16.43,24.63,10
-25,Bay City Western,9,111,78,0.587,178.17,31.8,15.65,24.58,10
-26,Walled Lake Western,7,42,37,0.532,176.34,31.5,12.67,24.28,10
-27,Traverse City West,11,70,111,0.387,171.02,30.5,8.47,28.27,17
-28,Wyandotte Roosevelt,8,81,53,0.604,169.52,30.2,16.06,23.82,12
-29,South Lyon,8,39,42,0.481,163.48,29.1,13.89,25.23,5
-30,Royal Oak,8,57,56,0.504,161.16,28.7,12.64,24.15,7
-31,Flushing,8,69,101,0.406,149.86,26.7,11.3,24.53,6
-32,East Lansing,7,21,65,0.244,147.14,26.2,7.3,28.29,4
-33,North Farmington,8,34,74,0.315,144.84,25.8,9.07,27.43,8
-34,Jackson,8,44,59,0.427,136.37,24.2,11.6,20.94,10
-35,Dearborn Divine Child,10,79,53,0.598,127.6,22.6,14.58,21.83,4
-36,Walled Lake Central,8,56,76,0.424,120.69,21.4,10.69,23.74,9
-37,Muskegon Reeths-Puffer,12,43,99,0.303,118.89,21.0,5.43,25.15,12
-38,Mount Pleasant,10,44,55,0.444,104.45,18.4,10.16,25.14,2
-39,Temperance Bedford,8,45,67,0.402,103.5,18.3,11.84,25.14,2
-40,Riverview Gabriel Richard,8,28,74,0.275,93.82,16.5,9.38,25.55,3
-41,Milford,8,51,51,0.5,90.27,15.9,12.6,23.34,4
-42,Grosse Pointe North,9,29,135,0.177,89.67,15.7,7.47,29.4,4
-43,Lowell,8,31,94,0.248,86.15,15.1,6.81,23.06,2
-44,Ypsilanti Lincoln,6,20,30,0.4,74.74,13.0,9.32,24.31,1
-45,St Clair Shores Lakeview,8,45,49,0.479,37.36,6.2,8.93,19.92,0
-46,Ferndale,5,26,25,0.51,35.99,6.0,8.69,18.26,0
-47,Allen Park,7,17,47,0.266,35.61,5.9,5.51,23.14,0
-48,Hamtramck,8,32,32,0.5,35.19,5.9,7.43,17.67,1
-49,Livonia Churchill,9,21,66,0.241,31.56,5.2,4.61,23.94,0
-50,White Lake Lakeland,9,24,70,0.255,29.73,4.9,3.24,23.77,1
-51,Livonia Franklin,7,25,72,0.258,28.44,4.6,6.2,21.78,0
-52,Warren Mott,8,23,66,0.258,25.12,4.0,4.08,21.33,0
-53,Sterling Heights,8,19,46,0.292,24.43,3.9,2.99,20.95,0
-54,Alpena,10,11,71,0.134,24.24,3.9,-0.23,28.05,1
-55,Grand Rapids Ottawa Hills,4,7,25,0.219,22.53,3.6,1.8,21.49,0
-56,Harrison Township L'ANSE CREUSE,9,12,97,0.11,21.34,3.3,1.15,23.11,0
-57,Redford Thurston,4,8,26,0.235,19.51,3.0,1.38,18.16,0
-58,Hemlock,1,0,52,0.0,17.91,2.7,0.83,34.16,0
-59,Warren Cousino,1,1,4,0.2,16.96,2.5,2.95,22.03,0
-60,Carleton Airport,8,13,116,0.101,15.72,2.3,-0.52,22.73,0
-61,Lincoln Park,2,0,11,0.0,12.3,1.7,-0.92,26.44,0
-62,Dearborn Heights Crestwood,4,6,30,0.167,10.66,1.4,-0.53,18.79,0
-63,Wyoming,5,1,38,0.026,10.35,1.3,-1.91,22.26,0
-64,Yale,1,0,12,0.0,9.09,1.1,-1.35,20.88,0
-65,Warren Woods Tower,8,8,66,0.108,8.56,1.0,-0.77,15.31,0
-66,Battle Creek Central,8,2,62,0.031,6.06,0.6,-1.09,13.38,0
-67,Durand,1,0,22,0.0,2.94,0.0,-3.99,13.85,0
+﻿rank,school,total_points,slots_counted,s1_pts,s2_pts,s3_pts,s4_pts,d1_pts,d2_pts,d3_pts,d4_pts,reason_below
+1st,Midland Dow,75.0,8,5.0,12.5,7.5,7.5,12.5,5.0,12.5,12.5,—
+2nd,Birmingham Seaholm,75.0,8,7.5,7.5,10.0,12.5,10.0,10.0,7.5,10.0,−0.0 pts (Singles F2: 1st vs 4th; Doubles F1: 1st vs 2nd; Doubles F3: 1st vs 3rd)
+3rd,Byron Center,56.0,8,1.0,5.0,5.0,7.5,7.5,12.5,10.0,7.5,−19.0 pts (Singles F1: 4th vs 19th; Singles F2: 4th vs 7th; Singles F3: 2nd vs 6th)
+4th,Portage Central,47.5,8,10.0,5.0,5.0,10.0,5.0,5.0,2.5,5.0,−8.5 pts (Doubles F1: 3rd vs 5th; Doubles F2: 1st vs 7th; Doubles F3: 2nd vs 9th)
+5th,Grand Rapids Forest Hills Northern,47.5,8,5.0,10.0,5.0,2.5,5.0,5.0,7.5,7.5,−0.0 pts (Singles F1: 2nd vs 7th; Singles F4: 2nd vs 12th)
+6th,Grosse Pointe South,42.5,8,5.0,5.0,7.5,5.0,5.0,5.0,5.0,5.0,−5.0 pts (Singles F2: 2nd vs 5th; Doubles F3: 4th vs 7th; Doubles F4: 4th vs 6th)
+7th,Grand Rapids Forest Hills Central,39.5,8,1.0,7.5,5.0,5.0,7.5,7.5,1.0,5.0,−3.0 pts (Singles F1: 6th vs 20th; Singles F3: 3rd vs 5th; Doubles F3: 7th vs 18th)
+8th,Birmingham Groves,31.0,8,1.0,2.5,2.5,5.0,2.5,7.5,5.0,5.0,−8.5 pts (Singles F2: 3rd vs 13th; Singles F3: 5th vs 9th; Doubles F1: 4th vs 10th)
+9th,Detroit U-D Jesuit,31.0,8,2.5,2.5,12.5,2.5,2.5,2.5,5.0,1.0,−0.0 pts (Singles F4: 6th vs 10th; Doubles F2: 4th vs 9th; Doubles F4: 5th vs 24th)
+10th,South Lyon East,26.5,8,12.5,1.0,2.5,1.0,2.5,1.0,5.0,1.0,−4.5 pts (Singles F2: 12th vs 21st; Singles F3: 1st vs 10th; Singles F4: 10th vs 24th)
+11th,Muskegon Mona Shores,22.0,7,7.5,5.0,2.5,2.5,1.0,1.0,0.0,2.5,−4.5 pts (Singles F1: 1st vs 3rd; Doubles F1: 9th vs 28th; Doubles F3: 8th vs 34th)
+12th,Traverse City Central,21.0,8,1.0,2.5,2.5,5.0,2.5,2.5,2.5,2.5,−1.0 pts (Singles F1: 3rd vs 18th; Singles F2: 6th vs 16th)
+13th,Zeeland West,17.0,8,1.0,2.5,2.5,2.5,1.0,2.5,2.5,2.5,−4.0 pts (Singles F4: 7th vs 13th; Doubles F1: 13th vs 17th)
+14th,Berkley,16.5,8,5.0,1.0,1.0,2.5,1.0,1.0,2.5,2.5,−0.5 pts (Singles F2: 9th vs 20th; Singles F3: 12th vs 18th; Doubles F2: 11th vs 17th)
+15th,Midland,15.5,8,2.5,1.0,2.5,1.0,1.0,2.5,2.5,2.5,−1.0 pts (Singles F1: 5th vs 15th; Singles F4: 15th vs 30th)
+16th,Mattawan,13.0,6,2.5,0.0,0.0,1.0,5.0,1.0,2.5,1.0,−2.5 pts (Singles F2: 19th vs 34th; Singles F3: 13th vs 33rd; Doubles F2: 14th vs 22nd)
+17th,Traverse City West,13.0,7,1.0,2.5,1.0,1.0,0.0,2.5,2.5,2.5,−0.0 pts (Singles F1: 9th vs 23rd; Doubles F1: 8th vs 56th)
+18th,Dexter,11.5,7,0.0,2.5,2.5,1.0,1.0,1.0,2.5,1.0,−1.5 pts (Singles F1: 23rd vs 39th; Doubles F2: 16th vs 18th; Doubles F4: 13th vs 21st)
+19th,Bay City Western,11.0,8,1.0,1.0,1.0,2.5,2.5,1.0,1.0,1.0,−0.5 pts (Singles F2: 10th vs 29th; Singles F3: 11th vs 29th; Doubles F3: 11th vs 25th)
+20th,Grand Rapids Northview,9.5,8,1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.5,−1.5 pts (Singles F4: 9th vs 29th; Doubles F1: 14th vs 24th)
+21st,Warren De La Salle Collegiate,9.0,6,0.0,1.0,1.0,2.5,0.0,2.5,1.0,1.0,−0.5 pts (Singles F1: 30th vs 35th; Doubles F1: 24th vs 33rd; Doubles F4: 15th vs 26th)
+22nd,Walled Lake Western,8.0,5,2.5,0.0,1.0,1.0,2.5,0.0,1.0,0.0,−1.0 pts (Singles F2: 24th vs 48th; Singles F4: 11th vs 32nd; Doubles F2: 13th vs 45th)
+23rd,Portage Northern,8.0,5,0.0,0.0,1.0,0.0,1.0,2.5,1.0,2.5,−0.0 pts (Singles F1: 16th vs 40th; Singles F4: 32nd vs 38th; Doubles F1: 12th vs 29th)
+24th,Southgate Anderson,8.0,8,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,−0.0 pts (Doubles F2: 15th vs 29th; Doubles F4: 14th vs 29th)
+25th,Battle Creek Lakeview,7.0,4,2.5,2.5,0.0,0.0,1.0,0.0,0.0,1.0,−1.0 pts (Singles F3: 20th vs 46th; Singles F4: 23rd vs 36th; Doubles F2: 29th vs 51st)
+26th,Gibraltar Carlson,7.0,7,1.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,−0.0 pts (Singles F1: 12th vs 29th; Singles F2: 15th vs 31st)
+27th,South Lyon,6.5,5,0.0,1.0,1.0,0.0,2.5,0.0,1.0,1.0,−0.5 pts (Singles F1: 29th vs 34th; Singles F4: 27th vs 40th; Doubles F2: 23rd vs unranked)
+28th,Greenville,6.5,5,1.0,1.0,0.0,0.0,1.0,2.5,1.0,0.0,−0.0 pts (Singles F3: 24th vs 51st; Doubles F1: 11th vs 27th; Doubles F4: 18th vs 35th)
+29th,Royal Oak,6.5,5,1.0,0.0,1.0,2.5,0.0,1.0,0.0,1.0,−0.0 pts (Singles F2: 18th vs 37th; Doubles F1: 27th vs 36th; Doubles F2: 12th vs 31st)
+30th,North Farmington,6.5,5,1.0,1.0,2.5,1.0,0.0,1.0,0.0,0.0,−0.0 pts (Singles F4: 16th vs 31st; Doubles F4: 23rd vs 39th)
+31st,Wyandotte Roosevelt,6.0,6,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,−0.5 pts (Singles F1: 32nd vs 38th; Singles F3: 16th vs 22nd)
+32nd,Dearborn Divine Child,6.0,6,0.0,1.0,1.0,1.0,0.0,1.0,1.0,1.0,−0.0 pts
+33rd,Muskegon Reeths-Puffer,5.0,2,2.5,2.5,0.0,0.0,0.0,0.0,0.0,0.0,−1.0 pts (Singles F3: 23rd vs 45th; Singles F4: 26th vs 49th; Doubles F2: 25th vs 46th)
+34th,East Lansing,4.5,3,1.0,0.0,0.0,0.0,2.5,0.0,0.0,1.0,−0.5 pts (Singles F1: 13th vs 24th; Singles F2: 11th vs unranked)
+35th,Jackson,4.5,3,2.5,0.0,0.0,1.0,1.0,0.0,0.0,0.0,−0.0 pts (Doubles F1: 16th vs 22nd; Doubles F4: 20th vs unranked)
+36th,Walled Lake Central,4.5,3,2.5,1.0,1.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts (Singles F4: 21st vs 41st; Doubles F1: 22nd vs 42nd)
+37th,Mount Pleasant,4.0,4,1.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,−0.5 pts (Singles F1: 10th vs 28th; Singles F2: 32nd vs 51st; Singles F3: 30th vs 56th)
+38th,Riverview Gabriel Richard,4.0,4,0.0,1.0,0.0,0.0,0.0,1.0,1.0,1.0,−0.0 pts (Singles F1: 28th vs 52nd; Singles F4: 28th vs 42nd; Doubles F1: 25th vs 40th)
+39th,Flushing,3.0,3,1.0,1.0,0.0,0.0,1.0,0.0,0.0,0.0,−1.0 pts (Doubles F2: 30th vs 37th; Doubles F3: 21st vs 38th; Doubles F4: 28th vs 49th)
+40th,Milford,3.0,3,0.0,0.0,1.0,1.0,0.0,0.0,1.0,0.0,−0.0 pts (Singles F1: 26th vs 42nd; Singles F2: 27th vs 35th; Doubles F1: 18th vs 34th)
+41st,Lowell,2.0,2,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,−1.0 pts (Singles F3: 31st vs 50th; Doubles F3: 30th vs 43rd)
+42nd,Grosse Pointe North,2.0,2,0.0,0.0,0.0,0.0,1.0,0.0,0.0,1.0,−0.0 pts (Singles F4: 20th vs 43rd)
+43rd,Temperance Bedford,2.0,2,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,−0.0 pts (Doubles F1: 30th vs 35th; Doubles F4: 30th vs 34th)
+44th,Hamtramck,1.0,1,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,−1.0 pts (Doubles F2: 19th vs 44th)
+45th,White Lake Lakeland,1.0,1,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts (Doubles F3: 23rd vs 48th)
+46th,Alpena,1.0,1,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+47th,Sterling Heights,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−1.0 pts (Singles F3: 27th vs 42nd)
+48th,Livonia Churchill,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+49th,Livonia Franklin,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+50th,Harrison Township L'ANSE CREUSE,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+51st,St Clair Shores Lakeview,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+52nd,Ferndale,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+53rd,Wyoming,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+54th,Allen Park,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+55th,Ypsilanti Lincoln,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+56th,Warren Mott,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+57th,Carleton Airport,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+58th,Redford Thurston,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+59th,Battle Creek Central,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+60th,Grand Rapids Ottawa Hills,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+61st,Warren Woods Tower,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+62nd,Warren Cousino,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+63rd,Lincoln Park,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+64th,Dearborn Heights Crestwood,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
+65th,Durand,0.0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,−0.0 pts
