@@ -1087,10 +1087,10 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         best = max(candidates, key=_last_date)
         dropped = [p for p in candidates if p != best]
         drop_players.update(dropped)
-        log.info(
-            "Dedup (%s %s flight=%s): school=%r  kept=%r  dropped=%s",
-            gender, match_type, flight, school, best,
-            ", ".join(repr(p) for p in dropped),
+        print(
+            f"  Dedup ({gender} {match_type} flight={flight}): "
+            f"school={school!r}  kept={best!r}  "
+            f"dropped={', '.join(repr(p) for p in dropped)}"
         )
 
     if drop_players:
