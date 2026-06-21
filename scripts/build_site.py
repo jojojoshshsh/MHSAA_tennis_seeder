@@ -24,7 +24,7 @@ csv_dir.mkdir(exist_ok=True)
 
 ALLOWED_FLIGHTS = {"1", "2", "3", "4"}
 
-# ── Team rankings ────────────────────────────────────────────
+# ── Team rankings ─────────────────────────────────────────────────────────────
 team_data = []
 for csv_path in sorted(src_dir.glob("team_*.csv")):
     df = pd.read_csv(csv_path)
@@ -51,29 +51,66 @@ def _html_escape_py(value):
         .replace("'", "&#39;")
     )
 
+# ── Build team HTML with special styling for reason_below and rank columns ──
 team_html = ""
 for entry in team_data:
     label = f"Top 10 Teams · {entry['gender']} Division {entry['division']}"
     anchor = f"team_{entry['gender'].lower()}_div{entry['division'].replace(' ','')}"
     df = entry["df"]
 
+    # Column display names
+    COL_LABELS = {
+        "rank": "Rank",
+        "school": "School",
+        "total_points": "Total Pts",
+        "slots_counted": "Slots",
+        "s1_pts": "S-F1",
+        "s2_pts": "S-F2",
+        "s3_pts": "S-F3",
+        "s4_pts": "S-F4",
+        "d1_pts": "D-F1",
+        "d2_pts": "D-F2",
+        "d3_pts": "D-F3",
+        "d4_pts": "D-F4",
+        "reason_below": "Why ranked below team above",
+    }
+
+    cols = list(df.columns)
     thead = "<thead><tr>" + "".join(
-        f'<th onclick="sortTable(this)">{_html_escape_py(col)}</th>'
-        for col in df.columns
+        f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">'
+        f'{_html_escape_py(COL_LABELS.get(col, col))}</th>'
+        for col in cols
     ) + "</tr></thead>"
-    tbody = "<tbody>" + "".join(
-        "<tr>" + "".join(f"<td>{_html_escape_py(row[col])}</td>" for col in df.columns) + "</tr>"
-        for _, row in df.iterrows()
-    ) + "</tbody>"
+
+    tbody_rows = ""
+    for _, row in df.iterrows():
+        cells = ""
+        for col in cols:
+            val = _html_escape_py(row[col])
+            if col == "reason_below":
+                cells += f'<td class="reason-cell">{val}</td>'
+            elif col == "rank":
+                cells += f'<td class="rank-cell">{val}</td>'
+            elif col == "total_points":
+                cells += f'<td class="pts-cell">{val}</td>'
+            else:
+                cells += f"<td>{val}</td>"
+        tbody_rows += f"<tr>{cells}</tr>"
 
     team_html += f"""
     <section id="{anchor}">
-      <div class="section-header"><h2>{_html_escape_py(label)}</h2></div>
-      <div class="table-wrap"><table class="rankings-table">{thead}{tbody}</table></div>
+      <div class="section-header">
+        <h2>{_html_escape_py(label)}</h2>
+        <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
+      </div>
+      <div class="table-wrap"><table class="rankings-table team-table"><thead><tr>{"".join(
+          f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">{_html_escape_py(COL_LABELS.get(col, col))}</th>'
+          for col in cols
+      )}</tr></thead><tbody>{tbody_rows}</tbody></table></div>
     </section>
     """
 
-# ── Load all individual CSVs ─────────────────────────────────
+# ── Load all individual CSVs ──────────────────────────────────────────────────
 all_data = []
 all_rows_for_search = []
 
@@ -177,7 +214,7 @@ for entry in all_data:
     """
     nav_groups[f"Division {division}"].append((label, anchor))
 
-# ── Build full CSV data as JSON for JS search ────────────────
+# ── Build full CSV data as JSON for JS search ─────────────────────────────────
 csv_full_data = {}
 for csv_path in sorted(src_dir.glob("*.csv")):
     if csv_path.stem.startswith("team_"):
@@ -243,8 +280,9 @@ html = f"""<!DOCTYPE html>
   .nav-tool:hover {{ background: rgba(168,230,192,.1); }}
   main {{ max-width: 1400px; margin: auto; padding: 1.5rem; }}
   section {{ background: white; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }}
-  .section-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }}
+  .section-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem; }}
   h2 {{ font-size: 1.05rem; font-weight: 600; color: #1a3a5c; }}
+  .scoring-note {{ font-size: .72rem; color: #5a7a9a; background: #eef4fb; border: 1px solid #c0d4e8; border-radius: 5px; padding: .25rem .6rem; white-space: nowrap; }}
   .dl-btn {{ font-size: .8rem; color: #1a3a5c; text-decoration: none; border: 1px solid #c0d4e8; border-radius: 6px; padding: .3rem .7rem; }}
   .dl-btn:hover {{ background: #e8f0f8; }}
   .table-wrap {{ overflow-x: auto; }}
@@ -258,6 +296,26 @@ html = f"""<!DOCTYPE html>
   .rankings-table tr:hover td {{ background: #eef4fb; }}
   .rankings-table td:first-child {{ font-weight: 600; color: #1a3a5c; width: 36px; }}
   .highlight-row td {{ background: #fff3cd !important; font-weight: 600; }}
+
+  /* Team table specific */
+  .team-table .rank-cell {{ font-weight: 700; color: #1a3a5c; font-size: .85rem; min-width: 48px; }}
+  .team-table .pts-cell {{ font-weight: 700; color: #0a7c42; }}
+  .team-table .reason-cell {{
+    font-size: .72rem;
+    color: #7a5800;
+    background: #fffbee;
+    border-left: 3px solid #ffd580;
+    padding-left: 8px;
+    max-width: 320px;
+    white-space: normal;
+    line-height: 1.4;
+  }}
+  .team-table tr:first-child .reason-cell {{
+    color: #888;
+    background: transparent;
+    border-left: none;
+  }}
+
   footer {{ text-align: center; color: #888; font-size: .78rem; padding: 2rem; }}
 
   .tool-panel {{ display: none; }}
@@ -327,7 +385,7 @@ html = f"""<!DOCTYPE html>
 {team_html}
 {tables_html}
 </main>
-<footer>Rankings computed using TrueSkill + Graph Reachability (TGRS). Data from TennisReporting.com.</footer>
+<footer>Individual rankings computed using TrueSkill + Graph Reachability (TGRS). Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
 
 <script>
 const SCHOOLS = {schools_json};
