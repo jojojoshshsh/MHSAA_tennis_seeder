@@ -94,7 +94,8 @@ adjacent fix-up, CSV loading, division normalisation, school lookup) is
 unchanged from the previous version. Only section 12 (output helpers)
 and run() (section 11) were rewritten.
 """
-
+import logging
+log = logging.getLogger(__name__)
 import csv
 import json
 import os
