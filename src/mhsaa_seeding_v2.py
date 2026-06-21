@@ -78,7 +78,11 @@ OUTPUT LAYER (UPDATED)
     rank, name / pair_name, school, division, flight, wins, losses,
     TGRS, TGRS_scaled, ts_rating, ts_mu, local_ts_mu, ts_sigma,
     reachability, local_reachability, sos, local_sos, quality_wins,
-    last_match_date
+    last_match_date, reason_below
+
+  "reason_below" is a human-readable explanation of why this player is
+  seeded below the player immediately above them (e.g. "Lost head-to-head",
+  "Fewer wins vs common opponents"). Empty for the #1 seed.
 
   "local_*" columns are computed within just that player's division/
   flight group (the existing per-division ranking pass); the non-local
@@ -1056,16 +1060,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         group_matches = filtered
 
     # ── STEP 0b: per-school deduplication within this slot.
-    #
-    #    process_group() is called per-bucket, so all matches here already
-    #    share the same (match_type, flight). After the MIN_MATCHES filter
-    #    a school can still have multiple players/pairs that both survived —
-    #    e.g. two singles players from the same school both have 5+ matches
-    #    at Flight 2. The ranking pipeline and team-scoring system expect at
-    #    most one representative per school per slot, so we keep only the
-    #    player/pair whose most recent match date is the latest, then remove
-    #    all matches involving the eliminated player(s) so they don't bleed
-    #    into anyone else's head-to-head or common-opponent data.
     full_idx_for_dedup = build_results_index(group_matches)
     school_map_pre = build_school_map(group_matches)
 
@@ -1103,15 +1097,9 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     school_map = build_school_map(group_matches)
     division_map = build_division_map(group_matches)
 
-    # ── Records use ALL matches (including ranking-excluded ones) — those
-    #    matches still count toward matches/wins/losses. ──────────────────
     full_results_idx = build_results_index(group_matches)
     records = build_records(players, full_results_idx)
 
-    # ── Everything below this point (head-to-head, common opponents,
-    #    recency, margins, cycle removal, transitive closure, TrueSkill)
-    #    operates ONLY on ranking-eligible matches — single-set results
-    #    and "2-0 2-0" scores are excluded from all of it. ────────────────
     ranking_matches = [m for m in group_matches if not m.get("is_ranking_excluded")]
 
     h2h = build_h2h_index(ranking_matches)
@@ -1120,17 +1108,12 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     recency = precompute_recency(players, ranking_results_idx)
     margins = precompute_margins(players, ranking_results_idx)
 
-    # ── TrueSkill ratings (last-resort tiebreaker, and the basis for the
-    #    sos / TGRS / display columns the site shows) ────────────────────
     match_pairs = [
         (m["winner"], m["loser"])
         for m in sorted(ranking_matches, key=lambda x: x["date"])
     ]
     trueskill_ratings = compute_trueskill(match_pairs)
 
-    # ── Cross-division (pre-split) sos / quality-wins, for the "sos" /
-    #    "quality_wins" columns (the "local_sos" version is recomputed
-    #    per-division below, scoped to just that division's matches) ────
     sos_full = precompute_sos(players, ranking_results_idx, trueskill_ratings)
     quality_wins_full = precompute_quality_wins(players, ranking_results_idx, trueskill_ratings)
 
@@ -1145,9 +1128,7 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         players, reach, recency, margins, trueskill_ratings, random_tiebreak
     )
 
-    # --- STEP 3: split into divisions, preserving the transitivity-only
-    #     order from step 2. The adjacent fix-up pass runs AFTER this, so
-    #     it only ever compares players within the same division/flight. ---
+    # --- STEP 3: split into divisions ---
     div_players: dict[str, list[str]] = defaultdict(list)
     for player in seed_order:
         d = division_map.get(player, "")
@@ -1157,9 +1138,7 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     for division in sorted(div_players):
         division_roster = div_players[division]
 
-        # --- STEP 4: adjacent fix-up (h2h -> common opponents ->
-        #     dominance -> trueskill), run to a fully stable pass, but
-        #     ONLY among players already confined to this division/flight. ---
+        # --- STEP 4: adjacent fix-up within division ---
         div_ranked, swap_log = adjacent_fixup(
             division_roster, h2h, opp_sets, reach, trueskill_ratings
         )
@@ -1167,8 +1146,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
             div_ranked, h2h, opp_sets, reach, trueskill_ratings
         )
 
-        # ── "local_*" columns: same metrics, scoped to just this
-        #    division's ranking-eligible matches ────────────────────────
         div_ranking_matches = [
             m for m in ranking_matches
             if m["winner"] in div_ranked and m["loser"] in div_ranked
@@ -1177,7 +1154,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         local_sos = precompute_sos(div_ranked, div_ranking_idx, trueskill_ratings)
         local_quality_wins = precompute_quality_wins(div_ranked, div_ranking_idx, trueskill_ratings)
 
-        # TGRS (display/sort composite — NOT used by the ranking core)
         tgrs_raw: dict[str, float] = {}
         for p in div_ranked:
             rec = records.get(p, {"matches": 0, "wins": 0, "losses": 0})
@@ -1248,13 +1224,29 @@ def run(csv_path: str) -> list[dict]:
 
 
 # ============================================================================
-# 12.  Output helpers  (REWRITTEN — writes directly into the shape
-#      scripts/build_site.py expects: one CSV per (category, gender,
-#      division) containing ALL flights, plus team_*.csv files)
+# 12.  Output helpers
 # ============================================================================
 
 def _safe_filename(text: str) -> str:
     return re.sub(r"[^\w\-]", "_", str(text or "")).strip("_") or "unknown"
+
+
+# Human-readable labels for each raw reason_below value written by
+# build_adjacency_explanations / compare_adjacent.
+_REASON_LABELS: dict[str, str] = {
+    "head-to-head":              "Lost head-to-head vs player above",
+    "common-opponents-wins":     "Fewer wins vs common opponents",
+    "common-opponents-margin":   "Worse score margin vs common opponents",
+    "dominance":                 "Transitively beaten by player above",
+    "trueskill":                 "Lower TrueSkill rating",
+    "tied":                      "Tied — no deciding criterion found",
+}
+
+
+def _format_reason(raw: str) -> str:
+    """Return a human-readable explanation for a raw decided_by string,
+    falling back to the raw value itself if it's not in the table."""
+    return _REASON_LABELS.get(raw, raw)
 
 
 _INDIVIDUAL_FIELDS = [
@@ -1265,6 +1257,7 @@ _INDIVIDUAL_FIELDS = [
     "reachability", "local_reachability",
     "sos", "local_sos", "quality_wins",
     "last_match_date",
+    "reason_below",   # ← why this player is ranked below the one above them
 ]
 
 # Doubles rows use "pair_name" instead of "name" so build_site.py's
@@ -1281,7 +1274,10 @@ def _category_filename_stem(match_type: str, gender: str) -> str:
 def _result_rows_for_division(r: dict) -> list[dict]:
     """One row per seeded player/pair in this division/flight result,
     using the column names build_site.py looks for."""
-    expl = {e["seed_below"]: e["decided_by"] for e in r["explanations"]}
+    # expl maps player -> raw decided_by string for why they sit below
+    # the player immediately above them in the final ranking.
+    expl_raw = {e["seed_below"]: e["decided_by"] for e in r["explanations"]}
+
     school_map = r.get("school_map", {})
     records = r.get("records", {})
     reach = r.get("reach", {})
@@ -1302,6 +1298,13 @@ def _result_rows_for_division(r: dict) -> list[dict]:
         ts = trueskill_ratings.get(player)
         last_dt = rec.get("last_match_date")
 
+        # reason_below: empty for the #1 seed; human-readable label for everyone else.
+        if seed == 1:
+            reason_below = ""
+        else:
+            raw_reason = expl_raw.get(player, "")
+            reason_below = _format_reason(raw_reason) if raw_reason else ""
+
         row = {
             "rank": seed,
             name_field: player,
@@ -1314,7 +1317,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
             "TGRS_scaled": tgrs_scaled.get(player, 0.0),
             "ts_rating": round(ts.conservative, 2) if ts else "",
             "ts_mu": round(ts.mu, 2) if ts else "",
-            "local_ts_mu": round(ts.mu, 2) if ts else "",  # same model, division-scoped seed order
+            "local_ts_mu": round(ts.mu, 2) if ts else "",
             "ts_sigma": round(ts.sigma, 2) if ts else "",
             "reachability": len(reach.get(player, ())),
             "local_reachability": len(reach.get(player, ())),
@@ -1322,6 +1325,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
             "local_sos": round(local_sos.get(player, 0.0), 2),
             "quality_wins": quality_wins.get(player, 0),
             "last_match_date": last_dt.date().isoformat() if last_dt and last_dt.year > 1 else "",
+            "reason_below": reason_below,
         }
         if not is_doubles:
             row.pop("pair_name", None)
@@ -1348,8 +1352,6 @@ def write_division_csvs(results: list[dict], out_dir: str) -> list[str]:
     written = []
     for (category, gender_l, division), rows in sorted(buckets.items()):
         fields = _DOUBLES_FIELDS if category == "doubles" else _INDIVIDUAL_FIELDS
-        # re-rank within the merged file isn't needed: each flight's "rank"
-        # column already reflects its own division/flight seed order.
         rows.sort(key=lambda row: (row["flight"], row["rank"]))
 
         filename = f"{category}_{gender_l}_division_{_safe_filename(division)}.csv"
@@ -1368,13 +1370,10 @@ def write_team_csvs(results: list[dict], out_dir: str) -> list[str]:
     Builds team_{gender}_division_{division}.csv files by aggregating all
     seeded players/pairs for each school within a (gender, division),
     across every match_type and flight. Delegates the actual aggregation
-    math to team_aggregation.build_team_rankings() — see that module for
-    the exact formula.
+    math to team_aggregation.build_team_rankings().
     """
     os.makedirs(out_dir, exist_ok=True)
 
-    # Group raw per-player rows by (gender, division) regardless of
-    # category/flight — team rankings are gender+division wide.
     buckets: dict[tuple, list[dict]] = defaultdict(list)
     for r in results:
         _, gender_l = _category_filename_stem(r["match_type"], r["gender"])
