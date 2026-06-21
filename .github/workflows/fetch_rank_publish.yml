@@ -1,0 +1,57 @@
+name: Fetch + Rank + Publish
+
+# Full refresh: crawls tennisreporting.com for the season set in
+# src/config.py (YEAR), re-ranks it, and rebuilds the website.
+# This is the slow path (many HTTP calls) — use "Rank + Publish" instead
+# if you only need to re-run the ranking logic on data you already have.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'   # daily at 06:00 UTC; remove if you don't want this
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-rank-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── Fetch: crawl matches for config.YEAR into historical/{YEAR}/ ──────
+      - name: Run fetch phase
+        working-directory: src
+        env:
+          TENNIS_EMAIL: ${{ secrets.TENNIS_EMAIL }}
+          TENNIS_PASSWORD: ${{ secrets.TENNIS_PASSWORD }}
+        run: python main_fetch.py
+
+      # ── Rank: read historical/{YEAR}/, write src/rankings_by_division_flight/ ──
+      - name: Run rank phase
+        working-directory: src
+        run: python run_ranking.py
+
+      # ── Site: build static HTML from the ranking CSVs ─────────────────────
+      - name: Build HTML site
+        run: python scripts/build_site.py
+
+      # ── Persist: commit all changed artefacts ──────────────────────────────
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/ historical/ src/rankings_by_division_flight/
+          git diff --staged --quiet || \
+            git commit -m "Fetch + rank + publish $(TZ='America/Detroit' date +'%Y-%m-%d %I:%M %p EDT')"
+          git push

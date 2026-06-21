@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+
+# Local secrets (use environment variables / GitHub Secrets instead)
+.env
+
+# NOTE: historical/, src/rankings_by_division_flight/, and docs/ are
+# intentionally NOT ignored — they are committed by the GitHub Actions
+# workflows so the published site and raw match data persist between runs.

@@ -1,0 +1,52 @@
+name: Rank + Publish
+
+# Fast path: re-runs ONLY the ranking engine and site build, reusing
+# whatever is already checked in under historical/{YEAR}/ (no network
+# calls to tennisreporting.com). Use this after a tiebreaker fix,
+# correct_divisions.csv edit, or any change to mhsaa_seeding_v2.py /
+# team_aggregation.py — much faster than the full fetch workflow.
+#
+# Requires historical/{YEAR}/all_matches_excluding_state.csv (and
+# school_meta.json) to already exist for the season set in
+# src/config.py. Run "Fetch + Rank + Publish" first if it doesn't.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rank-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── Rank: read historical/{YEAR}/, write src/rankings_by_division_flight/ ──
+      - name: Run rank phase
+        working-directory: src
+        run: python run_ranking.py
+
+      # ── Site: build static HTML from the ranking CSVs ─────────────────────
+      - name: Build HTML site
+        run: python scripts/build_site.py
+
+      # ── Persist: commit all changed artefacts ──────────────────────────────
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/ src/rankings_by_division_flight/
+          git diff --staged --quiet || \
+            git commit -m "Re-rank + publish $(TZ='America/Detroit' date +'%Y-%m-%d %I:%M %p EDT')"
+          git push
