@@ -51,14 +51,13 @@ def _html_escape_py(value):
         .replace("'", "&#39;")
     )
 
-# ── Build team HTML with special styling for reason_below and rank columns ──
+# ── Build team HTML ────────────────────────────────────────────────────────────
 team_html = ""
 for entry in team_data:
     label = f"Top 10 Teams · {entry['gender']} Division {entry['division']}"
     anchor = f"team_{entry['gender'].lower()}_div{entry['division'].replace(' ','')}"
     df = entry["df"]
 
-    # Column display names
     COL_LABELS = {
         "rank": "Rank",
         "school": "School",
@@ -76,11 +75,6 @@ for entry in team_data:
     }
 
     cols = list(df.columns)
-    thead = "<thead><tr>" + "".join(
-        f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">'
-        f'{_html_escape_py(COL_LABELS.get(col, col))}</th>'
-        for col in cols
-    ) + "</tr></thead>"
 
     tbody_rows = ""
     for _, row in df.iterrows():
@@ -171,6 +165,17 @@ all_schools = sorted(set(r["school"] for r in all_rows_for_search if r["school"]
 
 nav_groups = defaultdict(list)
 
+# Column order for individual ranking tables — reason_below last so it
+# doesn't crowd the important numeric columns on the left.
+_PREVIEW_COL_ORDER = [
+    "rank", "name", "pair_name", "school",
+    "division", "flight", "wins", "losses",
+    "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "local_ts_mu", "ts_sigma",
+    "reachability", "local_reachability",
+    "sos", "local_sos", "quality_wins",
+    "last_match_date", "reason_below",
+]
+
 tables_html = ""
 for entry in all_data:
     division = entry["division"]
@@ -180,14 +185,7 @@ for entry in all_data:
     filename = entry["filename"]
     df = entry["df"]
 
-    preview_cols = [c for c in [
-        "rank", "name", "pair_name", "school",
-        "division", "flight", "wins", "losses",
-        "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "local_ts_mu", "ts_sigma",
-        "reachability", "local_reachability",
-        "sos", "local_sos", "quality_wins",
-        "last_match_date"
-    ] if c in df.columns]
+    preview_cols = [c for c in _PREVIEW_COL_ORDER if c in df.columns]
 
     anchor = f"div{division}_flight{flight}_{gender.lower()}_{category.lower()}"
     label = f"Div {division} · Flight {flight} · {gender} {category}"
@@ -196,8 +194,15 @@ for entry in all_data:
         f'<th onclick="sortTable(this)">{_html_escape_py(col)}</th>'
         for col in preview_cols
     ) + "</tr></thead>"
+
+    def _render_cell(col, val):
+        escaped = _html_escape_py(val)
+        if col == "reason_below":
+            return f'<td class="reason-cell">{escaped}</td>'
+        return f"<td>{escaped}</td>"
+
     tbody = "<tbody>" + "".join(
-        "<tr>" + "".join(f"<td>{_html_escape_py(row[col])}</td>" for col in preview_cols) + "</tr>"
+        "<tr>" + "".join(_render_cell(col, row[col]) for col in preview_cols) + "</tr>"
         for _, row in df.head(32).iterrows()
     ) + "</tbody>"
 
@@ -225,14 +230,7 @@ for csv_path in sorted(src_dir.glob("*.csv")):
     if df.empty:
         continue
 
-    preview_cols = [c for c in [
-        "rank", "name", "pair_name", "school",
-        "division", "flight", "wins", "losses",
-        "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "local_ts_mu", "ts_sigma",
-        "reachability", "local_reachability",
-        "sos", "local_sos", "quality_wins",
-        "last_match_date"
-    ] if c in df.columns]
+    preview_cols = [c for c in _PREVIEW_COL_ORDER if c in df.columns]
 
     df = df[preview_cols].fillna("")
     csv_full_data[csv_path.stem] = {
@@ -297,19 +295,21 @@ html = f"""<!DOCTYPE html>
   .rankings-table td:first-child {{ font-weight: 600; color: #1a3a5c; width: 36px; }}
   .highlight-row td {{ background: #fff3cd !important; font-weight: 600; }}
 
-  /* Team table specific */
-  .team-table .rank-cell {{ font-weight: 700; color: #1a3a5c; font-size: .85rem; min-width: 48px; }}
-  .team-table .pts-cell {{ font-weight: 700; color: #0a7c42; }}
-  .team-table .reason-cell {{
+  /* reason_below column — shared by individual and team tables */
+  .reason-cell {{
     font-size: .72rem;
     color: #7a5800;
     background: #fffbee;
     border-left: 3px solid #ffd580;
-    padding-left: 8px;
-    max-width: 320px;
+    padding-left: 8px !important;
+    max-width: 280px;
     white-space: normal;
     line-height: 1.4;
   }}
+
+  /* Team table specific */
+  .team-table .rank-cell {{ font-weight: 700; color: #1a3a5c; font-size: .85rem; min-width: 48px; }}
+  .team-table .pts-cell {{ font-weight: 700; color: #0a7c42; }}
   .team-table tr:first-child .reason-cell {{
     color: #888;
     background: transparent;
@@ -464,6 +464,12 @@ document.getElementById('school-search-input').addEventListener('input', functio
   if (this.value.trim().length > 1) doSchoolSearch(this.value.trim());
 }});
 
+function renderCell(col, val) {{
+  const escaped = escapeHtml(val);
+  if (col === 'reason_below') return `<td class="reason-cell">${{escaped}}</td>`;
+  return `<td>${{escaped}}</td>`;
+}}
+
 function doSchoolSearch(school) {{
   if (!school) return;
   const q = school.trim().toLowerCase();
@@ -509,7 +515,7 @@ function doSchoolSearch(school) {{
     const tbody = '<tbody>' +
       data.rows.map(r =>
         '<tr class="highlight-row">' +
-          r.map(v => `<td>${{escapeHtml(v)}}</td>`).join('') +
+          r.map((v, i) => renderCell(data.cols[i], v)).join('') +
         '</tr>'
       ).join('') +
     '</tbody>';
@@ -575,6 +581,8 @@ function runCompare() {{
   const dataB   = getBestPerFlight(b);
   const allKeys = [...new Set([...Object.keys(dataA), ...Object.keys(dataB)])].sort();
 
+  // reason_below is context-specific to each table and not meaningful
+  // in a side-by-side compare view, so exclude it here.
   const SHOW_COLS = [
     'rank', 'name', 'pair_name',
     'wins', 'losses',
