@@ -9,7 +9,14 @@
 # full "Fetch + Rank + Publish" workflow if you need fresh data) to
 # regenerate everything for that season.
 
-YEAR = 2025
+import datetime
+
+today = datetime.date.today()
+# Stay on the previous year until April 1 (adjust month as needed)
+if today.month < 8:
+    YEAR = today.year - 1
+else:
+    YEAR = today.year
 
 IS_NOT_VARSITY = 0           # 0 = varsity only
 TARGET_STATE   = "MI"        # or None for no filter
