@@ -188,7 +188,12 @@ def load_correct_divisions(csv_path: str) -> dict[str, str]:
     """
     script_dir = Path(__file__).parent.resolve()
     csv_dir = Path(csv_path).parent.resolve()
-    for candidate in [csv_dir / "correct_divisions.csv", script_dir / "correct_divisions.csv"]:
+    repo_root = script_dir.parent.resolve()
+    for candidate in [
+        csv_dir / "correct_divisions.csv",
+        script_dir / "correct_divisions.csv",
+        repo_root / "data" / "correct_divisions.csv",
+    ]:
         if candidate.exists():
             overrides: dict[str, str] = {}
             with open(candidate, newline="", encoding="utf-8") as f:
