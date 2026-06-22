@@ -7,8 +7,6 @@ name: Fetch + Rank + Publish
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 6 * * *'   # daily at 06:00 UTC; remove if you don't want this
 
 permissions:
   contents: write
