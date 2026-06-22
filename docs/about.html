@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About the Rankings — Michigan High School Tennis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.7; }
+  header { background: #1a3a5c; color: white; padding: 2rem 1.5rem 1.5rem; }
+  header h1 { font-size: 1.6rem; font-weight: 600; margin-bottom: .4rem; }
+  header p { opacity: .8; font-size: .9rem; }
+  nav { background: #132d47; padding: .75rem 1.5rem; display: flex; gap: 1rem; }
+  nav a { color: #7fb8e8; text-decoration: none; font-size: .9rem; }
+  nav a:hover { text-decoration: underline; }
+  main { max-width: 860px; margin: auto; padding: 2rem 1.5rem; }
+  section { background: white; border-radius: 10px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+  h2 { font-size: 1.2rem; font-weight: 600; color: #1a3a5c; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid #e8f0f8; }
+  h3 { font-size: 1rem; font-weight: 600; color: #2c5f8a; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .85rem; font-size: .95rem; }
+  ul, ol { margin: .5rem 0 .85rem 1.5rem; font-size: .95rem; }
+  li { margin-bottom: .4rem; }
+  .formula-box {
+    background: #f0f5fb; border-left: 4px solid #1a3a5c;
+    border-radius: 0 8px 8px 0; padding: 1rem 1.25rem;
+    font-family: "Courier New", monospace; font-size: .88rem;
+    margin: 1rem 0; line-height: 2; overflow-x: auto;
+  }
+  .component-table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+  .component-table th { background: #1a3a5c; color: white; padding: 8px 12px; text-align: left; font-weight: 500; }
+  .component-table td { padding: 7px 12px; border-bottom: 1px solid #eef0f3; vertical-align: top; }
+  .component-table tr:nth-child(even) td { background: #f8fafc; }
+  .component-table td:first-child { font-family: monospace; font-size: .82rem; white-space: nowrap; color: #1a3a5c; font-weight: 600; }
+  .component-table td:nth-child(2) { width: 60px; text-align: right; font-weight: 600; color: #2c5f8a; }
+  .step-badge {
+    display: inline-block; background: #1a3a5c; color: white;
+    border-radius: 50%; width: 1.6rem; height: 1.6rem;
+    line-height: 1.6rem; text-align: center; font-size: .8rem;
+    font-weight: 700; margin-right: .5rem; vertical-align: middle;
+  }
+  .caveat { background: #fff8e6; border-left: 4px solid #e6a817; border-radius: 0 8px 8px 0; padding: .9rem 1.1rem; margin: 1rem 0; font-size: .9rem; }
+  .caveat strong { color: #b07d0a; }
+  .note { background: #eef4fb; border-left: 4px solid #4a90c4; border-radius: 0 8px 8px 0; padding: .9rem 1.1rem; margin: 1rem 0; font-size: .9rem; }
+  .reason-table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+  .reason-table th { background: #1a3a5c; color: white; padding: 8px 12px; text-align: left; font-weight: 500; }
+  .reason-table td { padding: 7px 12px; border-bottom: 1px solid #eef0f3; vertical-align: top; }
+  .reason-table tr:nth-child(even) td { background: #f8fafc; }
+  .reason-table td:first-child { font-family: monospace; font-size: .82rem; color: #7a5800; background: #fffbee; border-left: 3px solid #ffd580; padding-left: 10px; white-space: nowrap; }
+  footer { text-align: center; color: #888; font-size: .78rem; padding: 2rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Michigan High School Tennis Rankings</h1>
+  <p>How the rankings work</p>
+</header>
+<nav>
+  <a href="index.html">← Back to Rankings</a>
+  <a href="about.html">About</a>
+</nav>
+<main>
+
+  <section>
+    <h2>Overview</h2>
+    <p>
+      These rankings aim to estimate the seed a player would receive at the MHSAA state tournament
+      based on the full body of match results available on TennisReporting.com. The system is built
+      around the idea that <strong>who you beat matters more than how many you beat</strong> — a win
+      over a player who in turn beat many others carries more weight than a win over someone with no
+      competitive record.
+    </p>
+    <p>
+      Rankings are computed separately for <strong>Singles</strong> and <strong>Doubles</strong>,
+      across all four MHSAA divisions and all four flights. The algorithm runs in two layers:
+      a graph-based seed ordering pipeline that determines the final ranked order, and a composite
+      display score (TGRS) that gives each player a single at-a-glance number.
+    </p>
+    <div class="note">
+      <strong>Important:</strong> TGRS is a display score only — it does <em>not</em> determine
+      the ranked order. The actual seed positions come entirely from the pipeline described in
+      Steps 1–4 below. TGRS is computed afterward so the site has something easy to sort by.
+    </div>
+  </section>
+
+  <section>
+    <h2>The Ranking Pipeline</h2>
+    <p>
+      Each gender + match type + flight combination is ranked as one cross-division group, then
+      split into divisions afterward. The pipeline runs four steps.
+    </p>
+
+    <h3><span class="step-badge">1</span> Cycle Removal</h3>
+    <p>
+      Match results are loaded into a directed win graph: an arrow points from winner to loser.
+      Before any ranking can happen, every cycle in this graph must be broken — a cycle means
+      player A beat B, B beat C, and C beat A, which makes a strict ordering impossible.
+    </p>
+    <p>
+      The engine finds every cycle (of any length, including simple head-to-head upsets) and
+      removes the <strong>oldest match</strong> on each cycle. This preserves the most recent
+      competitive evidence and discards results that have been superseded by more recent play.
+      This process repeats until the graph is fully acyclic (a DAG).
+    </p>
+    <p>
+      Matches that ended after only one set, or with a score of exactly "2-0 2-0" (a short-set
+      placeholder), are excluded from the ranking graph entirely — they still count toward
+      win/loss records but are not used for ordering.
+    </p>
+
+    <h3><span class="step-badge">2</span> Transitive Closure &amp; Initial Order</h3>
+    <p>
+      On the acyclic graph, each player's <strong>transitive win set</strong> is computed: every
+      player they can reach by following any chain of win-edges. If you beat A and A beat B, your
+      transitive win set includes both A and B.
+    </p>
+    <p>
+      Players are sorted by the <strong>size of this set</strong>, descending. Beating players
+      who have themselves beaten many others produces a larger reachable set and a higher seed.
+      When two players' reachable sets are the same size (because they're incomparable in the
+      graph), ties fall back in this order:
+    </p>
+    <ol>
+      <li>More recent match activity (recency-weighted win/loss score)</li>
+      <li>Better average score margin across all matches</li>
+      <li>Higher TrueSkill conservative rating (μ − 3σ)</li>
+      <li>A fixed random tiebreak (for full determinism within a run)</li>
+    </ol>
+
+    <h3><span class="step-badge">3</span> Division Split</h3>
+    <p>
+      The cross-division order from Step 2 is partitioned into the four MHSAA divisions,
+      preserving the relative order within each division. No new comparisons are made at this
+      stage — the split is a pure filter on an already-settled order.
+    </p>
+
+    <h3><span class="step-badge">4</span> Adjacent Fix-Up Pass</h3>
+    <p>
+      Within each division, the engine walks adjacent pairs top-to-bottom and checks whether
+      the lower-ranked player should actually outrank the one above them. Four criteria are
+      checked in strict priority order:
+    </p>
+    <table class="component-table">
+      <thead><tr><th>Priority</th><th>Criterion</th><th>How it's decided</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>Head-to-head</td>
+          <td>Most recent match between the two players</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Common opponents — wins</td>
+          <td>Who won more matches against shared opponents</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Common opponents — margin</td>
+          <td>If tied on wins: cumulative score margin against shared opponents</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Transitive dominance</td>
+          <td>Does one player's transitive win set contain the other?</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>TrueSkill rating</td>
+          <td>Higher conservative TrueSkill rating (μ − 3σ) as a last resort</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      If the lower-ranked player wins any of these checks, the two are swapped. The pass repeats
+      from the top until a full pass produces zero swaps (the order is fully stable). The
+      <strong>"Why ranked below"</strong> column shown on the site reflects whichever criterion
+      decided each adjacent pair in the final stable order.
+    </p>
+  </section>
+
+  <section>
+    <h2>Why Ranked Below — Legend</h2>
+    <p>
+      Each player (except the #1 seed) shows a reason explaining why they sit below the player
+      immediately above them. Here's what each label means:
+    </p>
+    <table class="reason-table">
+      <thead><tr><th>Label</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Lost head-to-head vs player above</td>
+          <td>The two players met directly, and the player above won the most recent match between them.</td>
+        </tr>
+        <tr>
+          <td>Fewer wins vs common opponents</td>
+          <td>No head-to-head match exists (or it was excluded). Among opponents both players have faced, the player above won more of those shared matchups.</td>
+        </tr>
+        <tr>
+          <td>Worse score margin vs common opponents</td>
+          <td>Wins against common opponents were equal, but the player above had a better cumulative score margin (games won minus games lost) against those opponents.</td>
+        </tr>
+        <tr>
+          <td>Transitively beaten by player above</td>
+          <td>The player above can reach this player through a chain of wins in the match graph — e.g. A beat B who beat C, so A transitively beats C.</td>
+        </tr>
+        <tr>
+          <td>Lower TrueSkill rating</td>
+          <td>No head-to-head, common-opponent, or dominance data separated the two. The player above has a higher TrueSkill conservative rating (μ − 3σ).</td>
+        </tr>
+        <tr>
+          <td>Tied — no deciding criterion found</td>
+          <td>All five criteria were inconclusive. Order was determined by the initial transitive closure sort (reachability, recency, margin) with a random tiebreak for full determinism.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>TrueSkill Rating</h2>
+    <p>
+      TrueSkill (Herbrich et al., 2007) is a Bayesian skill rating system originally developed at
+      Microsoft Research. Each player is modelled as a Gaussian: <strong>μ (mu)</strong> is the
+      estimated skill mean and <strong>σ (sigma)</strong> is the uncertainty. After every match
+      both players' ratings are updated — the winner's μ rises and the loser's μ falls, with
+      larger updates when the outcome was surprising given the current ratings.
+    </p>
+    <p>
+      σ starts high and shrinks as more matches are played. The <strong>conservative rating</strong>
+      used for ranking and display is <strong>μ − 3σ</strong>, which is a lower-confidence bound —
+      players with few matches are penalised for uncertainty rather than rewarded for it.
+    </p>
+    <p>
+      TrueSkill ratings are computed from the ranking-eligible match set (the same matches used
+      in the win graph, after excluding single-set and "2-0 2-0" scores). They serve as a
+      last-resort tiebreaker in the seed ordering, and as components of the TGRS display score.
+    </p>
+  </section>
+
+  <section>
+    <h2>TGRS — Display Score</h2>
+    <p>
+      TGRS ("Group Ranking Score") is a composite number computed after the seed order is
+      finalised. It is not used for ranking — it exists purely so the site has a single
+      sortable number per player. The formula is:
+    </p>
+    <div class="formula-box">
+TGRS = (2.0 × reachability)
+     + (1.0 × ts_rating)
+     + (0.5 × sos)
+     + (1.5 × quality_wins)
+     + (5.0 × win_pct)
+    </div>
+    <table class="component-table">
+      <thead><tr><th>Component</th><th>Weight</th><th>What it measures</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>reachability</td>
+          <td>2.0</td>
+          <td>Number of players reachable through chains of wins in the cross-division match graph</td>
+        </tr>
+        <tr>
+          <td>ts_rating</td>
+          <td>1.0</td>
+          <td>TrueSkill conservative rating (μ − 3σ) from the full cross-division model</td>
+        </tr>
+        <tr>
+          <td>sos</td>
+          <td>0.5</td>
+          <td>Average TrueSkill μ of all opponents faced (strength of schedule)</td>
+        </tr>
+        <tr>
+          <td>quality_wins</td>
+          <td>1.5</td>
+          <td>Count of wins against opponents whose TrueSkill μ is at or above the starting value (25.0) — i.e. "at least average" opponents</td>
+        </tr>
+        <tr>
+          <td>win_pct</td>
+          <td>5.0</td>
+          <td>Wins ÷ total matches played in this group</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>TGRS Scaled</h3>
+    <p>
+      The raw TGRS is min-max scaled to a 0–100 band within each division+flight group,
+      so the top player scores 100 and the bottom player scores 0. This makes it easy to
+      compare players within the same bracket without worrying about the absolute numbers.
+    </p>
+    <div class="caveat">
+      <strong>Note:</strong> Because TGRS is a display score and not the ranking criterion,
+      a player's TGRS rank and their seed rank may differ slightly — especially for adjacent
+      pairs that were separated by head-to-head or common-opponent results rather than
+      the composite score.
+    </div>
+  </section>
+
+  <section>
+    <h2>Team Rankings</h2>
+    <p>
+      Team scores aggregate each school's best-ranked player or pair across all eight lineup slots
+      (Singles flights 1–4, Doubles flights 1–4). Only one entry per school per slot counts — the
+      highest-seeded player or pair from that school in that flight.
+    </p>
+    <p>Point values by finishing position:</p>
+    <table class="component-table">
+      <thead><tr><th>Finish</th><th>Points</th></tr></thead>
+      <tbody>
+        <tr><td>1st</td><td>12.5</td></tr>
+        <tr><td>2nd</td><td>10.0</td></tr>
+        <tr><td>3rd – 4th</td><td>7.5</td></tr>
+        <tr><td>5th – 8th</td><td>5.0</td></tr>
+        <tr><td>9th – 16th</td><td>2.5</td></tr>
+        <tr><td>17th – 32nd</td><td>1.0</td></tr>
+        <tr><td>33rd+</td><td>0</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Total points are summed across all eight slots for a maximum of 100 (12.5 × 8). A school
+      with no ranked player in a slot scores 0 for that slot. The team table shows the top 10
+      schools per gender+division combination, along with the deciding reason why each school
+      sits below the one ranked above it.
+    </p>
+    <div class="caveat">
+      <strong>Note:</strong> team rankings are experimental. Because individual rankings require
+      a minimum match count (default: 5), some schools may be missing players in certain slots
+      even if they competed in that flight.
+    </div>
+  </section>
+
+  <section>
+    <h2>Eligibility &amp; Filtering</h2>
+    <p>Before any player enters the ranking pipeline, two filters are applied:</p>
+    <ul>
+      <li>
+        <strong>Minimum matches:</strong> a player must have at least 5 recorded matches in a given
+        gender + match type + flight group to appear in rankings for that group. This is counted
+        from all matches including excluded scores, so a player is not unfairly dropped just because
+        some of their results were single-set or forfeit-style.
+      </li>
+      <li>
+        <strong>Per-school deduplication:</strong> if a school has two players surviving the match
+        minimum in the same flight slot, only the one with the most recent match date is kept.
+        The other's matches are removed entirely to avoid contaminating head-to-head and
+        common-opponent data.
+      </li>
+    </ul>
+    <p>The following match scores are excluded from all ranking calculations (but still counted in win/loss records):</p>
+    <ul>
+      <li>Matches that ended after only one set (e.g. a retirement mid-match)</li>
+      <li>Matches with a score of exactly "2-0 2-0" (a short-set placeholder used for walkovers)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Data &amp; Limitations</h2>
+    <p>
+      Match data is crawled automatically from <strong>TennisReporting.com</strong>, the platform
+      used by most Michigan high school tennis programs to report results. Rankings are rebuilt and
+      republished daily at 4am EDT.
+    </p>
+    <p>Known limitations:</p>
+    <ul>
+      <li>The minimum match requirement means players early in the season or with few recorded matches may not appear.</li>
+      <li>Division assignments come from TennisReporting school metadata. Schools with unusual or missing labels are normalised where possible; some may land in Division 4 when they shouldn't. Corrections can be submitted via <code>correct_divisions.csv</code> in the GitHub repository.</li>
+      <li>Doubles pairs are treated as single entities. Different pair combinations from the same school are ranked separately.</li>
+      <li>Regular season and tournament bracket matches are both included. Where deduplication is possible it is applied, but some double-reporting may remain.</li>
+      <li>Rankings cover a single season only — no carry-over from prior years.</li>
+      <li>Because the ranking order is determined by graph structure and pairwise comparisons rather than a single score, adjacent players near the boundary of any seed bracket may legitimately swap from day to day as new match data arrives.</li>
+    </ul>
+  </section>
+
+</main>
+<footer>Michigan High School Tennis Rankings · Rankings computed using graph transitivity + TrueSkill · Data from TennisReporting.com</footer>
+</body>
+</html>
