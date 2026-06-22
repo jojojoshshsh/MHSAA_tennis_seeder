@@ -38,11 +38,11 @@ def main() -> None:
         log.error("config.YEAR is not set — cannot determine which season to rank.")
         sys.exit(1)
 
-    csv_path = os.path.join("..", "historical", str(year), "all_matches_excluding_state.csv")
+    csv_path = os.path.join("..", "historical", str(year), "all_matches.csv")
     if not os.path.exists(csv_path):
         # also try relative to repo root, in case this is invoked from
         # a different working directory
-        alt = os.path.join("historical", str(year), "all_matches_excluding_state.csv")
+        alt = os.path.join("historical", str(year), "all_matches.csv")
         if os.path.exists(alt):
             csv_path = alt
         else:
