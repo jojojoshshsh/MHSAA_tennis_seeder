@@ -1008,11 +1008,10 @@ def _compute_tgrs(
              + (1.0 * win_pct)
     """
     return (
-        2.0 * reach_size
-        + 5.0 * ts_conservative
+        1.0 * reach_size
+        + 10.0 * ts_conservative
         + 0.5 * sos
         + 1.5 * quality_wins
-        + 1.0 * win_pct
     )
 
 
