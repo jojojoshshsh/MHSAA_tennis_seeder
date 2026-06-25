@@ -76,12 +76,9 @@
       display score (TGRS) that gives each player a single at-a-glance number.
     </p>
     <div class="note">
-      <strong>Role of TGRS in the pipeline:</strong> TGRS is primarily a display score, but it also
-      serves as the <strong>last-resort tiebreaker</strong> in both the initial seed order (Step 2)
-      and the adjacent fix-up pass (Step 4), after head-to-head, common opponents, and transitive
-      dominance have all been exhausted. Because TGRS incorporates TrueSkill, reachability,
-      strength of schedule, quality wins, and win percentage, it is a more complete proxy for
-      overall quality than any single metric alone.
+      <strong>Important:</strong> TGRS is a display score only — it does <em>not</em> determine
+      the ranked order. The actual seed positions come entirely from the pipeline described in
+      Steps 1–4 below. TGRS is computed afterward so the site has something easy to sort by.
     </div>
   </section>
 
@@ -125,7 +122,7 @@
     <ol>
       <li>More recent match activity (recency-weighted win/loss score)</li>
       <li>Better average score margin across all matches</li>
-      <li>Higher TGRS composite score (see formula below)</li>
+      <li>Higher TrueSkill conservative rating (μ − 3σ)</li>
       <li>A fixed random tiebreak (for full determinism within a run)</li>
     </ol>
 
@@ -167,8 +164,8 @@
         </tr>
         <tr>
           <td>5</td>
-          <td>TGRS composite score</td>
-          <td>Higher raw TGRS (TrueSkill + reachability + SoS + quality wins + win %) as a last resort</td>
+          <td>TrueSkill rating</td>
+          <td>Higher conservative TrueSkill rating (μ − 3σ) as a last resort</td>
         </tr>
       </tbody>
     </table>
@@ -206,12 +203,12 @@
           <td>The player above can reach this player through a chain of wins in the match graph — e.g. A beat B who beat C, so A transitively beats C.</td>
         </tr>
         <tr>
-          <td>Lower TGRS composite score</td>
-          <td>No head-to-head, common-opponent, or dominance data separated the two. The player above has a higher TGRS score, which combines TrueSkill rating, reachability, strength of schedule, quality wins, and win percentage.</td>
+          <td>Lower TrueSkill rating</td>
+          <td>No head-to-head, common-opponent, or dominance data separated the two. The player above has a higher TrueSkill conservative rating (μ − 3σ).</td>
         </tr>
         <tr>
           <td>Tied — no deciding criterion found</td>
-          <td>All five criteria were inconclusive. Order was determined by the initial transitive closure sort (reachability, recency, margin, TGRS) with a random tiebreak for full determinism.</td>
+          <td>All five criteria were inconclusive. Order was determined by the initial transitive closure sort (reachability, recency, margin) with a random tiebreak for full determinism.</td>
         </tr>
       </tbody>
     </table>
@@ -228,32 +225,29 @@
     </p>
     <p>
       σ starts high and shrinks as more matches are played. The <strong>conservative rating</strong>
-      used in the TGRS formula is <strong>μ − 3σ</strong>, which is a lower-confidence bound —
+      used for ranking and display is <strong>μ − 3σ</strong>, which is a lower-confidence bound —
       players with few matches are penalised for uncertainty rather than rewarded for it.
     </p>
     <p>
       TrueSkill ratings are computed from the ranking-eligible match set (the same matches used
-      in the win graph, after excluding single-set and "2-0 2-0" scores). They feed directly into
-      the TGRS composite score, which in turn acts as the last-resort tiebreaker in the ranking
-      pipeline.
+      in the win graph, after excluding single-set and "2-0 2-0" scores). They serve as a
+      last-resort tiebreaker in the seed ordering, and as components of the TGRS display score.
     </p>
   </section>
 
   <section>
-    <h2>TGRS — Composite Score &amp; Last-Resort Tiebreaker</h2>
+    <h2>TGRS — Display Score</h2>
     <p>
-      TGRS ("Group Ranking Score") is a composite number that serves two roles: it is the
-      <strong>last-resort tiebreaker</strong> in both the initial seed order and the adjacent
-      fix-up pass, and it is also the display score shown on the site so readers have a single
-      sortable number per player.
+      TGRS ("Group Ranking Score") is a composite number computed after the seed order is
+      finalised. It is not used for ranking — it exists purely so the site has a single
+      sortable number per player. The formula is:
     </p>
-    <p>The formula is:</p>
     <div class="formula-box">
 TGRS = (2.0 × reachability)
-     + (5.0 × ts_conservative)
+     + (1.0 × ts_rating)
      + (0.5 × sos)
      + (1.5 × quality_wins)
-     + (1.0 × win_pct)
+     + (5.0 × win_pct)
     </div>
     <table class="component-table">
       <thead><tr><th>Component</th><th>Weight</th><th>What it measures</th></tr></thead>
@@ -264,8 +258,8 @@ TGRS = (2.0 × reachability)
           <td>Number of players reachable through chains of wins in the cross-division match graph</td>
         </tr>
         <tr>
-          <td>ts_conservative</td>
-          <td>5.0</td>
+          <td>ts_rating</td>
+          <td>1.0</td>
           <td>TrueSkill conservative rating (μ − 3σ) from the full cross-division model</td>
         </tr>
         <tr>
@@ -280,7 +274,7 @@ TGRS = (2.0 × reachability)
         </tr>
         <tr>
           <td>win_pct</td>
-          <td>1.0</td>
+          <td>5.0</td>
           <td>Wins ÷ total matches played in this group</td>
         </tr>
       </tbody>
@@ -291,14 +285,12 @@ TGRS = (2.0 × reachability)
       The raw TGRS is min-max scaled to a 0–100 band within each division+flight group,
       so the top player scores 100 and the bottom player scores 0. This makes it easy to
       compare players within the same bracket without worrying about the absolute numbers.
-      The scaled version is shown on the site; the raw version is what the ranking pipeline
-      uses internally as a tiebreaker.
     </p>
     <div class="caveat">
-      <strong>Note:</strong> Because TGRS is computed after the transitive closure is built
-      (but before the adjacent fix-up pass runs), it incorporates reachability from the same
-      DAG used everywhere else in the pipeline — so it is genuinely consistent with, not
-      independent from, the graph-based ranking logic.
+      <strong>Note:</strong> Because TGRS is a display score and not the ranking criterion,
+      a player's TGRS rank and their seed rank may differ slightly — especially for adjacent
+      pairs that were separated by head-to-head or common-opponent results rather than
+      the composite score.
     </div>
   </section>
 
