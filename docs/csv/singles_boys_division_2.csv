@@ -1,247 +1,247 @@
 rank,name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,local_ts_mu,ts_sigma,reachability,local_reachability,sos,local_sos,quality_wins,last_match_date,reason_below
 1,Sam Schumacher,Portage Central,2,1,31,0,741.66,100.0,37.9,48.09,48.09,3.4,250,250,30.36,31.81,24,2025-10-17,
-2,Mason Crosby,South Lyon East,2,1,32,1,703.42,95.0,34.06,44.73,44.73,3.56,247,247,28.29,27.34,16,2025-10-17,Lost head-to-head vs player above
-3,Reid Hackney,Muskegon Mona Shores,2,1,29,1,647.91,87.7,31.41,42.73,42.73,3.78,229,229,24.8,28.23,13,2025-10-17,Worse score margin vs common opponents
-4,Carter Griffith,Birmingham Seaholm,2,1,23,6,657.9,89.0,29.4,38.69,38.69,3.1,236,236,31.18,30.32,15,2025-10-17,Worse score margin vs common opponents
+2,Mason Crosby,South Lyon East,2,1,32,1,703.42,94.8,34.06,44.73,44.73,3.56,247,247,28.29,27.34,16,2025-10-17,Lost head-to-head vs player above
+3,Reid Hackney,Muskegon Mona Shores,2,1,29,1,647.91,87.9,31.41,42.73,42.73,3.78,229,229,24.8,28.23,13,2025-10-17,Worse score margin vs common opponents
+4,Carter Griffith,Birmingham Seaholm,2,1,23,6,657.9,88.9,29.4,38.69,38.69,3.1,236,236,31.18,30.32,15,2025-10-17,Worse score margin vs common opponents
 5,Evan Weber,Berkley,2,1,20,7,629.61,85.3,27.64,37.23,37.23,3.2,228,228,30.33,27.51,13,2025-10-17,Worse score margin vs common opponents
-6,Matthew Holowinski,Grosse Pointe South,2,1,23,8,620.31,84.1,25.82,35.12,35.12,3.1,229,229,28.98,30.24,12,2025-10-17,Worse score margin vs common opponents
-7,Chase Martin,Midland Dow,2,1,30,7,623.72,84.5,27.43,37.13,37.13,3.23,226,226,28.51,29.85,13,2025-10-17,Lost head-to-head vs player above
-8,Han Chau,Walled Lake Central,2,1,22,7,490.79,67.1,25.32,35.45,35.45,3.38,171,171,24.87,27.03,6,2025-10-17,Worse score margin vs common opponents
-9,Dylan Hodgman,Mattawan,2,1,17,6,566.73,77.0,25.68,35.0,35.0,3.11,203,203,30.21,31.73,11,2025-10-17,Lower TrueSkill rating
-10,Truong Huynh,Jackson,2,1,15,3,502.85,68.7,24.92,35.23,35.23,3.44,177,177,25.83,26.37,7,2025-10-08,Lost head-to-head vs player above
-11,Sebastian Madlangbayan,Grand Rapids Forest Hills Northern,2,1,15,9,535.87,73.0,23.5,32.43,32.43,2.98,196,196,30.49,32.46,7,2025-10-17,Lower TrueSkill rating
-12,Jay Hamric,Battle Creek Lakeview,2,1,17,9,511.05,69.7,19.97,29.87,29.87,3.3,193,193,28.09,29.34,7,2025-10-08,Fewer wins vs common opponents
-13,Ethan Frang,Muskegon Reeths-Puffer,2,1,20,8,519.14,70.8,22.09,31.42,31.42,3.11,193,193,25.96,30.06,6,2025-10-08,Fewer wins vs common opponents
-14,Liam Nantais,Detroit U-D Jesuit,2,1,14,15,495.45,67.7,20.12,29.34,29.34,3.07,185,185,30.69,30.37,6,2025-10-17,Worse score margin vs common opponents
-15,Terrence He,Byron Center,2,1,11,10,473.7,64.8,17.64,27.15,27.15,3.17,184,184,27.94,32.4,2,2025-10-17,Worse score margin vs common opponents
-16,Finn O'Donnell,Midland,2,1,17,6,463.81,63.5,21.96,30.99,30.99,3.01,167,167,26.49,29.41,4,2025-10-17,Worse score margin vs common opponents
-17,Alex Lamphier,Traverse City Central,2,1,14,15,440.65,60.5,19.11,28.14,28.14,3.01,164,164,27.25,28.37,2,2025-10-17,Lost head-to-head vs player above
-18,Eric J Mitchell,Birmingham Groves,2,1,7,21,428.56,58.9,16.95,26.2,26.2,3.09,163,163,32.15,32.75,1,2025-10-17,Worse score margin vs common opponents
-19,Jakob Rietema,Grand Rapids Forest Hills Central,2,1,9,22,399.19,55.1,14.01,22.65,22.65,2.88,156,156,30.71,31.8,1,2025-10-17,Lost head-to-head vs player above
-20,Mikey Fuller,Zeeland West,2,1,9,10,363.42,50.4,15.05,23.76,23.76,2.9,136,136,25.41,25.86,2,2025-10-08,Lost head-to-head vs player above
-21,Miles Johnston,East Lansing,2,1,7,12,375.95,52.0,14.76,24.08,24.08,3.11,142,142,29.6,33.8,2,2025-10-08,Worse score margin vs common opponents
-22,Aditya Chitrapu,Walled Lake Western,2,1,12,4,371.58,51.4,20.69,31.44,31.44,3.58,126,126,24.72,28.4,2,2025-10-08,Worse score margin vs common opponents
-23,Jagger Meller,Southgate Anderson,2,1,23,2,397.44,54.8,26.14,36.73,36.73,3.53,121,121,23.67,21.19,8,2025-10-08,Worse score margin vs common opponents
-24,Liam Dalton,Royal Oak,2,1,9,10,323.47,45.1,14.08,24.03,24.03,3.32,119,119,23.2,26.75,2,2025-10-08,Lost head-to-head vs player above
-25,Edward Chan,Traverse City West,2,1,8,19,289.17,40.6,9.25,18.87,18.87,3.21,114,114,26.3,26.89,1,2025-10-08,Lower TrueSkill rating
-26,Carter Ritsema,Grand Rapids Northview,2,1,4,16,279.58,39.4,7.99,18.36,18.36,3.45,113,113,26.81,30.89,0,2025-10-08,Lower TrueSkill rating
-27,Michael Lindquist,Greenville,2,1,11,13,286.25,40.2,12.77,22.21,22.21,3.15,105,105,23.91,20.76,0,2025-10-08,Lost head-to-head vs player above
-28,Ryan Geister,Flushing,2,1,11,14,284.82,40.0,13.28,22.13,22.13,2.95,103,103,23.97,27.25,0,2025-10-08,Lower TrueSkill rating
-29,David Aguirre,Mount Pleasant,2,1,5,6,268.79,37.9,12.18,23.3,23.3,3.71,98,98,22.91,29.53,0,2025-10-08,Worse score margin vs common opponents
-30,Kyle Salisbury,Gibraltar Carlson,2,1,11,11,286.75,40.3,17.05,26.8,26.8,3.25,94,94,26.02,25.62,0,2025-10-08,Worse score margin vs common opponents
-31,Jay Challa,North Farmington,2,1,8,10,276.7,39.0,14.99,24.6,24.6,3.2,90,90,30.59,31.16,4,2025-10-08,Lower TrueSkill rating
-32,Charles Harding,Ypsilanti Lincoln,2,1,7,3,217.22,31.2,19.57,31.48,31.48,3.97,52,52,26.37,29.07,1,2025-10-08,Worse score margin vs common opponents
-33,Liam Erickson,Warren De La Salle Collegiate,2,1,11,7,263.88,37.3,15.34,24.58,24.58,3.08,87,87,22.11,21.0,1,2025-10-17,Lower TrueSkill rating
-34,CJ Clark,South Lyon,2,1,5,11,160.33,23.7,13.71,24.43,24.43,3.57,38,38,30.9,31.6,0,2025-10-17,Lower TrueSkill rating
-35,Ajay Sarnaik,Grosse Pointe North,2,1,6,19,231.0,33.0,8.84,19.21,19.21,3.46,86,86,29.15,32.05,0,2025-10-17,Worse score margin vs common opponents
-36,nathan harrison,Bay City Western,2,1,11,14,191.78,27.8,13.13,23.31,23.31,3.39,56,56,24.42,31.93,1,2025-10-08,Worse score margin vs common opponents
-37,Sam Lauth,Allen Park,2,1,5,7,143.81,21.5,11.88,23.14,23.14,3.75,36,36,23.98,23.77,0,2025-10-08,Lower TrueSkill rating
-38,Sean Hickey,Wyandotte Roosevelt,2,1,7,14,137.23,20.7,10.91,21.22,21.22,3.44,34,34,25.73,22.11,1,2025-10-08,Lost head-to-head vs player above
-39,Josh Sebastian,Portage Northern,2,1,5,17,151.88,22.6,7.61,18.06,18.06,3.48,50,50,27.15,31.06,0,2025-09-20,Lower TrueSkill rating
-40,Max Yoder,Grand Rapids Ottawa Hills,2,1,3,6,145.08,21.7,4.38,15.88,15.88,3.84,56,56,21.73,20.28,0,2025-10-08,Lower TrueSkill rating
-41,Gavin Heichel,Dexter,2,1,5,14,140.04,21.0,9.17,19.5,19.5,3.45,40,40,27.91,29.26,0,2025-10-17,Transitively beaten by player above
-42,Landon Sparks,Temperance Bedford,2,1,5,13,149.83,22.3,11.54,21.6,21.6,3.36,39,39,27.75,29.91,0,2025-10-08,Lost head-to-head vs player above
-43,Blake Stevens,Milford,2,1,4,13,119.06,18.3,6.79,17.31,17.31,3.5,36,36,25.72,27.07,0,2025-10-08,Worse score margin vs common opponents
-44,Sullivan Bryant,Dearborn Divine Child,2,1,12,12,149.12,22.2,13.53,23.23,23.23,3.23,35,35,21.92,20.05,0,2025-10-17,Lost head-to-head vs player above
-45,Vignesh Senthil,Livonia Churchill,2,1,4,9,87.49,14.1,10.37,21.08,21.08,3.57,11,11,26.62,22.66,0,2025-10-08,Lost head-to-head vs player above
-46,Albert Doss,Harrison Township L'ANSE CREUSE,2,1,3,18,95.08,15.1,4.6,14.83,14.83,3.41,30,30,23.88,23.15,0,2025-10-08,Lower TrueSkill rating
-47,Huy Nguyen,Warren Mott,2,1,4,8,95.95,15.3,5.82,15.53,15.53,3.24,29,29,17.05,15.01,0,2025-10-08,Lost head-to-head vs player above
-48,Booker Ostach,White Lake Lakeland,2,1,1,14,49.98,9.2,-0.71,11.13,11.13,3.94,20,20,26.89,32.47,0,2025-10-08,Transitively beaten by player above
-49,Jack Murray,Ferndale,2,1,8,6,100.55,15.9,11.68,21.2,21.2,3.18,16,16,19.21,18.49,0,2025-10-08,Worse score margin vs common opponents
-50,Michael Myles,Redford Thurston,2,1,7,3,93.47,14.9,12.14,23.08,23.08,3.65,12,12,16.18,17.07,0,2025-10-08,Lost head-to-head vs player above
-51,Aidan Mouton,St Clair Shores Lakeview,2,1,7,11,50.05,9.2,6.88,16.52,16.52,3.21,3,3,18.52,15.69,0,2025-10-08,Lower TrueSkill rating
-52,Ben Ellis,Livonia Franklin,2,1,5,15,61.8,10.8,6.3,16.0,16.0,3.23,9,9,24.05,23.77,0,2025-10-08,Lower TrueSkill rating
-53,Sean Zaker,Riverview Gabriel Richard,2,1,2,15,38.83,7.8,2.11,12.54,12.54,3.48,8,8,24.37,24.11,0,2025-10-08,Worse score margin vs common opponents
-54,Ishraq Talukdar,Hamtramck,2,1,5,6,63.85,11.0,8.11,19.39,19.39,3.76,7,7,17.66,16.25,0,2025-10-08,Lost head-to-head vs player above
-55,Mateo Guzman,Warren Woods Tower,2,1,2,7,18.66,5.1,1.48,12.29,12.29,3.6,1,1,18.06,16.48,0,2025-10-08,Lost head-to-head vs player above
-56,Micah McDonald,Lowell,2,1,3,16,23.87,5.8,2.16,11.96,11.96,3.27,1,1,21.83,21.46,0,2025-10-08,Lower TrueSkill rating
-57,Michael McDaniel,Carleton Airport,2,1,1,21,0.13,2.7,-2.64,8.54,8.54,3.72,1,1,22.52,24.13,0,2025-10-08,Lower TrueSkill rating
-58,Sebastian Guttierez,Lincoln Park,2,1,0,6,10.91,4.1,-0.59,13.71,13.71,4.76,0,0,27.7,28.37,0,2025-09-29,Worse score margin vs common opponents
-59,Kyle Fox,Battle Creek Central,2,1,0,10,2.37,3.0,-2.0,11.16,11.16,4.39,0,0,24.77,23.96,0,2025-10-08,Lower TrueSkill rating
-60,Will Meinhart,Alpena,2,1,1,11,-9.71,1.4,-4.19,8.9,8.9,4.36,0,0,22.29,21.96,0,2025-10-08,Lower TrueSkill rating
-61,Nick Storbinsky,Dearborn Heights Crestwood,2,1,0,11,-10.73,1.3,-4.24,8.77,8.77,4.33,0,0,20.91,19.87,0,2025-10-08,Lower TrueSkill rating
-62,Abraaham Cano,Wyoming,2,1,0,10,-6.65,1.8,-3.47,8.46,8.46,3.98,0,0,21.4,17.08,0,2025-10-08,Lower TrueSkill rating
-63,Kamil Bzura,Sterling Heights,2,1,0,9,-20.31,0.0,-6.11,6.81,6.81,4.31,0,0,20.45,16.05,0,2025-10-08,Lower TrueSkill rating
+6,Matthew Holowinski,Grosse Pointe South,2,1,23,8,622.31,84.6,25.82,35.12,35.12,3.1,230,230,28.98,30.24,12,2025-10-17,Worse score margin vs common opponents
+7,Chase Martin,Midland Dow,2,1,30,7,623.72,84.8,27.43,37.13,37.13,3.23,226,226,28.51,29.85,13,2025-10-17,Lost head-to-head vs player above
+8,Han Chau,Walled Lake Central,2,1,22,7,586.79,80.5,25.32,35.45,35.45,3.38,219,219,24.87,27.03,6,2025-10-17,Worse score margin vs common opponents
+9,Liam Nantais,Detroit U-D Jesuit,2,1,14,15,559.45,76.3,20.12,29.34,29.34,3.07,217,217,30.69,30.37,6,2025-10-17,Lower TGRS composite score
+10,Dylan Hodgman,Mattawan,2,1,17,6,568.73,76.9,25.68,35.0,35.0,3.11,204,204,30.21,31.73,11,2025-10-17,Worse score margin vs common opponents
+11,Eric J Mitchell,Birmingham Groves,2,1,7,21,534.56,73.9,16.95,26.2,26.2,3.09,216,216,32.15,32.75,1,2025-10-17,Fewer wins vs common opponents
+12,Sebastian Madlangbayan,Grand Rapids Forest Hills Northern,2,1,15,9,573.87,78.8,23.5,32.43,32.43,2.98,215,215,30.49,32.46,7,2025-10-17,Lost head-to-head vs player above
+13,Jay Hamric,Battle Creek Lakeview,2,1,17,9,511.05,69.6,19.97,29.87,29.87,3.3,193,193,28.09,29.34,7,2025-10-08,Fewer wins vs common opponents
+14,Ethan Frang,Muskegon Reeths-Puffer,2,1,20,8,519.14,71.3,22.09,31.42,31.42,3.11,193,193,25.96,30.06,6,2025-10-08,Fewer wins vs common opponents
+15,Truong Huynh,Jackson,2,1,15,3,512.85,69.8,24.92,35.23,35.23,3.44,182,182,25.83,26.37,7,2025-10-08,Lower TGRS composite score
+16,Terrence He,Byron Center,2,1,11,10,475.7,66.1,17.64,27.15,27.15,3.17,185,185,27.94,32.4,2,2025-10-17,Worse score margin vs common opponents
+17,Finn O'Donnell,Midland,2,1,17,6,455.81,63.2,21.96,30.99,30.99,3.01,163,163,26.49,29.41,4,2025-10-17,Worse score margin vs common opponents
+18,Aditya Chitrapu,Walled Lake Western,2,1,12,4,397.58,55.5,20.69,31.44,31.44,3.58,139,139,24.72,28.4,2,2025-10-08,Lower TGRS composite score
+19,Jagger Meller,Southgate Anderson,2,1,23,2,401.44,55.0,26.14,36.73,36.73,3.53,123,123,23.67,21.19,8,2025-10-08,Worse score margin vs common opponents
+20,Alex Lamphier,Traverse City Central,2,1,14,15,434.65,60.5,19.11,28.14,28.14,3.01,161,161,27.25,28.37,2,2025-10-17,Worse score margin vs common opponents
+21,Jakob Rietema,Grand Rapids Forest Hills Central,2,1,9,22,389.19,54.6,14.01,22.65,22.65,2.88,151,151,30.71,31.8,1,2025-10-17,Lost head-to-head vs player above
+22,Mikey Fuller,Zeeland West,2,1,9,10,373.42,52.3,15.05,23.76,23.76,2.9,141,141,25.41,25.86,2,2025-10-08,Lost head-to-head vs player above
+23,Miles Johnston,East Lansing,2,1,7,12,365.95,51.6,14.76,24.08,24.08,3.11,137,137,29.6,33.8,2,2025-10-08,Worse score margin vs common opponents
+24,Liam Dalton,Royal Oak,2,1,9,10,327.47,46.4,14.08,24.03,24.03,3.32,121,121,23.2,26.75,2,2025-10-08,Lower TGRS composite score
+25,Edward Chan,Traverse City West,2,1,8,19,291.17,41.4,9.25,18.87,18.87,3.21,115,115,26.3,26.89,1,2025-10-08,Lower TGRS composite score
+26,Carter Ritsema,Grand Rapids Northview,2,1,4,16,273.58,39.5,7.99,18.36,18.36,3.45,110,110,26.81,30.89,0,2025-10-08,Lower TGRS composite score
+27,Michael Lindquist,Greenville,2,1,11,13,292.25,41.5,12.77,22.21,22.21,3.15,108,108,23.91,20.76,0,2025-10-08,Lost head-to-head vs player above
+28,Ryan Geister,Flushing,2,1,11,14,290.82,41.8,13.28,22.13,22.13,2.95,106,106,23.97,27.25,0,2025-10-08,Lower TGRS composite score
+29,David Aguirre,Mount Pleasant,2,1,5,6,274.79,39.8,12.18,23.3,23.3,3.71,101,101,22.91,29.53,0,2025-10-08,Worse score margin vs common opponents
+30,Kyle Salisbury,Gibraltar Carlson,2,1,11,11,294.75,42.0,17.05,26.8,26.8,3.25,98,98,26.02,25.62,0,2025-10-08,Worse score margin vs common opponents
+31,Jay Challa,North Farmington,2,1,8,10,284.7,40.0,14.99,24.6,24.6,3.2,94,94,30.59,31.16,4,2025-10-08,Lower TGRS composite score
+32,Liam Erickson,Warren De La Salle Collegiate,2,1,11,7,271.88,38.8,15.34,24.58,24.58,3.08,91,91,22.11,21.0,1,2025-10-17,Worse score margin vs common opponents
+33,Charles Harding,Ypsilanti Lincoln,2,1,7,3,263.22,37.9,19.57,31.48,31.48,3.97,75,75,26.37,29.07,1,2025-10-08,Lower TGRS composite score
+34,Ajay Sarnaik,Grosse Pointe North,2,1,6,19,239.0,34.9,8.84,19.21,19.21,3.46,90,90,29.15,32.05,0,2025-10-17,Lower TGRS composite score
+35,Gavin Heichel,Dexter,2,1,5,14,190.04,28.3,9.17,19.5,19.5,3.45,65,65,27.91,29.26,0,2025-10-17,Worse score margin vs common opponents
+36,Landon Sparks,Temperance Bedford,2,1,5,13,179.83,27.0,11.54,21.6,21.6,3.36,54,54,27.75,29.91,0,2025-10-08,Lost head-to-head vs player above
+37,CJ Clark,South Lyon,2,1,5,11,156.33,23.8,13.71,24.43,24.43,3.57,36,36,30.9,31.6,0,2025-10-17,Lower TGRS composite score
+38,nathan harrison,Bay City Western,2,1,11,14,147.78,22.9,13.13,23.31,23.31,3.39,34,34,24.42,31.93,1,2025-10-08,Lower TGRS composite score
+39,Sam Lauth,Allen Park,2,1,5,7,139.81,21.5,11.88,23.14,23.14,3.75,34,34,23.98,23.77,0,2025-10-08,Lower TGRS composite score
+40,Sean Hickey,Wyandotte Roosevelt,2,1,7,14,133.23,20.2,10.91,21.22,21.22,3.44,32,32,25.73,22.11,1,2025-10-08,Lost head-to-head vs player above
+41,Blake Stevens,Milford,2,1,4,13,115.06,18.3,6.79,17.31,17.31,3.5,34,34,25.72,27.07,0,2025-10-08,Worse score margin vs common opponents
+42,Sullivan Bryant,Dearborn Divine Child,2,1,12,12,145.12,22.1,13.53,23.23,23.23,3.23,33,33,21.92,20.05,0,2025-10-17,Lost head-to-head vs player above
+43,Jack Murray,Ferndale,2,1,8,6,100.55,16.3,11.68,21.2,21.2,3.18,16,16,19.21,18.49,0,2025-10-08,Worse score margin vs common opponents
+44,Michael Myles,Redford Thurston,2,1,7,3,93.47,15.4,12.14,23.08,23.08,3.65,12,12,16.18,17.07,0,2025-10-08,Lost head-to-head vs player above
+45,Josh Sebastian,Portage Northern,2,1,5,17,91.88,15.4,7.61,18.06,18.06,3.48,20,20,27.15,31.06,0,2025-09-20,Lower TGRS composite score
+46,Vignesh Senthil,Livonia Churchill,2,1,4,9,87.49,14.3,10.37,21.08,21.08,3.57,11,11,26.62,22.66,0,2025-10-08,Lower TGRS composite score
+47,Ben Ellis,Livonia Franklin,2,1,5,15,61.8,11.2,6.3,16.0,16.0,3.23,9,9,24.05,23.77,0,2025-10-08,Lost head-to-head vs player above
+48,Albert Doss,Harrison Township L'ANSE CREUSE,2,1,3,18,61.08,11.0,4.6,14.83,14.83,3.41,13,13,23.88,23.15,0,2025-10-08,Lower TGRS composite score
+49,Huy Nguyen,Warren Mott,2,1,4,8,59.95,10.8,5.82,15.53,15.53,3.24,11,11,17.05,15.01,0,2025-10-08,Lost head-to-head vs player above
+50,Max Yoder,Grand Rapids Ottawa Hills,2,1,3,6,59.08,10.7,4.38,15.88,15.88,3.84,13,13,21.73,20.28,0,2025-10-08,Lower TGRS composite score
+51,Aidan Mouton,St Clair Shores Lakeview,2,1,7,11,50.05,9.4,6.88,16.52,16.52,3.21,3,3,18.52,15.69,0,2025-10-08,Lower TGRS composite score
+52,Sean Zaker,Riverview Gabriel Richard,2,1,2,15,38.83,8.1,2.11,12.54,12.54,3.48,8,8,24.37,24.11,0,2025-10-08,Lower TGRS composite score
+53,Ishraq Talukdar,Hamtramck,2,1,5,6,63.85,11.4,8.11,19.39,19.39,3.76,7,7,17.66,16.25,0,2025-10-08,Lost head-to-head vs player above
+54,Micah McDonald,Lowell,2,1,3,16,23.87,6.1,2.16,11.96,11.96,3.27,1,1,21.83,21.46,0,2025-10-08,Lower TGRS composite score
+55,Michael McDaniel,Carleton Airport,2,1,1,21,0.13,3.1,-2.64,8.54,8.54,3.72,1,1,22.52,24.13,0,2025-10-08,Lower TGRS composite score
+56,Mateo Guzman,Warren Woods Tower,2,1,2,7,18.66,5.4,1.48,12.29,12.29,3.6,1,1,18.06,16.48,0,2025-10-08,Worse score margin vs common opponents
+57,Sebastian Guttierez,Lincoln Park,2,1,0,6,10.91,4.5,-0.59,13.71,13.71,4.76,0,0,27.7,28.37,0,2025-09-29,Lower TGRS composite score
+58,Booker Ostach,White Lake Lakeland,2,1,1,14,9.98,4.7,-0.71,11.13,11.13,3.94,0,0,26.89,32.47,0,2025-10-08,Lower TGRS composite score
+59,Kyle Fox,Battle Creek Central,2,1,0,10,2.37,3.2,-2.0,11.16,11.16,4.39,0,0,24.77,23.96,0,2025-10-08,Lower TGRS composite score
+60,Abraaham Cano,Wyoming,2,1,0,10,-6.65,1.8,-3.47,8.46,8.46,3.98,0,0,21.4,17.08,0,2025-10-08,Lower TGRS composite score
+61,Will Meinhart,Alpena,2,1,1,11,-9.71,1.7,-4.19,8.9,8.9,4.36,0,0,22.29,21.96,0,2025-10-08,Lower TGRS composite score
+62,Nick Storbinsky,Dearborn Heights Crestwood,2,1,0,11,-10.73,1.5,-4.24,8.77,8.77,4.33,0,0,20.91,19.87,0,2025-10-08,Lower TGRS composite score
+63,Kamil Bzura,Sterling Heights,2,1,0,9,-20.31,0.0,-6.11,6.81,6.81,4.31,0,0,20.45,16.05,0,2025-10-08,Lower TGRS composite score
 1,Vikram Krishnan,Grand Rapids Forest Hills Northern,2,2,21,3,709.7,100.0,33.07,41.9,41.9,2.94,251,251,31.98,33.31,17,2025-10-17,
-2,Giorgio Materazzo,Birmingham Seaholm,2,2,20,10,638.16,90.2,28.12,36.53,36.53,2.8,229,229,32.83,32.48,15,2025-10-17,Lost head-to-head vs player above
-3,Matthew Bartoszewicz,Grosse Pointe South,2,2,26,3,689.57,97.2,30.62,40.22,40.22,3.2,247,247,29.17,26.89,18,2025-10-17,Lost head-to-head vs player above
-4,Yassin Elsaadany,Midland Dow,2,2,28,5,645.75,91.2,29.84,39.79,39.79,3.32,228,228,28.41,29.29,17,2025-10-17,Lost head-to-head vs player above
-5,Rei Hitachi,Grand Rapids Forest Hills Central,2,2,18,7,633.38,89.5,27.95,36.41,36.41,2.82,227,227,32.79,33.76,15,2025-10-17,Lost head-to-head vs player above
-6,Marcus Powell,Muskegon Mona Shores,2,2,25,2,593.71,84.0,26.66,37.23,37.23,3.52,216,216,24.96,27.35,10,2025-10-08,Lost head-to-head vs player above
-7,Justin Karem,Byron Center,2,2,12,9,575.08,81.5,24.22,33.08,33.08,2.95,212,212,31.77,33.4,9,2025-10-17,Lost head-to-head vs player above
-8,Laksh Singh,Portage Central,2,2,24,7,587.24,83.1,25.75,35.0,35.0,3.08,211,211,29.38,29.83,14,2025-10-17,Lost head-to-head vs player above
-9,Truman Yaldoo,Detroit U-D Jesuit,2,2,9,15,500.68,71.2,19.69,28.59,28.59,2.97,190,190,31.68,31.78,4,2025-10-17,Lost head-to-head vs player above
-10,Cayden Cappelli,Dexter,2,2,15,5,494.87,70.4,21.05,30.67,30.67,3.21,186,186,24.72,21.42,3,2025-10-17,Lost head-to-head vs player above
-11,Kabir Kapur,Birmingham Groves,2,2,8,11,364.84,52.5,18.46,27.63,27.63,3.05,126,126,31.2,30.83,3,2025-10-17,Worse score margin vs common opponents
-12,Cory Judd,Muskegon Reeths-Puffer,2,2,13,9,428.19,61.2,18.97,27.94,27.94,2.99,157,157,25.53,29.04,4,2025-10-08,Worse score margin vs common opponents
-13,Simon Babcock,Berkley,2,2,10,13,349.28,50.4,17.11,25.77,25.77,2.89,124,124,27.55,26.71,1,2025-10-17,Lower TrueSkill rating
-14,Ryder Chavez,Wyandotte Roosevelt,2,2,16,4,333.19,48.2,23.06,32.77,32.77,3.24,99,99,23.18,21.57,5,2025-10-08,Worse score margin vs common opponents
-15,Caden Crosby,South Lyon East,2,2,20,6,482.75,68.8,23.6,32.85,32.85,3.08,172,172,24.93,25.45,5,2025-10-17,Worse score margin vs common opponents
-16,Xander Engelsman,Zeeland West,2,2,9,10,407.94,58.5,15.44,24.75,24.75,3.1,156,156,27.49,27.7,3,2025-10-08,Transitively beaten by player above
-17,Carter Carroll,Traverse City West,2,2,8,10,369.32,53.1,16.46,25.84,25.84,3.12,133,133,29.11,26.93,4,2025-10-08,Fewer wins vs common opponents
-18,Brady Kolassa,Battle Creek Lakeview,2,2,13,13,359.11,51.7,15.48,24.44,24.44,2.99,132,132,25.47,25.43,3,2025-10-08,Lost head-to-head vs player above
-19,Jaeden Beltran,Ypsilanti Lincoln,2,2,8,2,223.92,33.1,18.12,30.69,30.69,4.19,61,61,20.99,19.97,0,2025-10-08,Worse score margin vs common opponents
-20,Holden Beery,Traverse City Central,2,2,8,21,435.0,62.2,16.23,25.39,25.39,3.05,168,168,29.19,28.95,2,2025-10-17,Worse score margin vs common opponents
-21,Karter McCutcheon,Southgate Anderson,2,2,20,6,314.98,45.7,20.5,29.28,29.28,2.93,98,98,22.4,20.32,3,2025-10-08,Worse score margin vs common opponents
-22,Gabe Fischer,Warren De La Salle Collegiate,2,2,10,6,227.34,33.6,17.36,27.23,27.23,3.29,63,63,24.79,23.38,1,2025-10-17,Worse score margin vs common opponents
-23,Matthias Trouve,North Farmington,2,2,7,7,278.48,40.6,16.69,26.82,26.82,3.38,90,90,26.04,23.31,1,2025-10-08,Lower TrueSkill rating
-24,Micah Wells,Grand Rapids Northview,2,2,8,12,359.8,51.8,12.2,21.89,21.89,3.23,143,143,24.8,22.13,0,2025-10-08,Lower TrueSkill rating
-25,Chris Sobotta,Greenville,2,2,9,13,355.0,51.2,11.09,20.49,20.49,3.13,144,144,22.24,22.46,0,2025-10-08,Worse score margin vs common opponents
-26,Aiden Rovoll,Midland,2,2,13,7,228.07,33.7,16.87,26.65,26.65,3.26,62,62,26.16,26.7,4,2025-10-17,Transitively beaten by player above
-27,Daniel Bong,South Lyon,2,2,7,7,200.86,30.0,14.55,23.93,23.93,3.12,57,57,24.18,24.35,1,2025-10-17,Lower TrueSkill rating
-28,Alan Muresan,Mattawan,2,2,9,13,211.39,31.4,13.75,22.66,22.66,2.97,62,62,27.45,26.33,3,2025-10-17,Lower TrueSkill rating
-29,Simon Jones,Flushing,2,2,13,11,190.71,28.6,14.45,24.34,24.34,3.3,52,52,24.84,29.18,1,2025-10-08,Fewer wins vs common opponents
-30,Joshua Willis,Dearborn Divine Child,2,2,13,10,217.06,32.2,16.28,25.73,25.73,3.15,61,61,23.22,22.28,1,2025-10-17,Fewer wins vs common opponents
-31,aiden archuleta,Bay City Western,2,2,11,12,189.32,28.4,12.43,22.61,22.61,3.39,56,56,26.44,29.51,1,2025-10-08,Lower TrueSkill rating
-32,Kristopher Tran,Riverview Gabriel Richard,2,2,5,12,167.71,25.4,10.96,20.68,20.68,3.24,50,50,25.23,23.54,0,2025-10-08,Worse score margin vs common opponents
-33,Joe Borowski,Gibraltar Carlson,2,2,10,12,182.02,27.4,14.07,22.79,22.79,2.91,49,49,23.39,23.57,1,2025-10-08,Lost head-to-head vs player above
-34,Brayden Grace,Walled Lake Central,2,2,11,11,193.63,29.0,13.71,22.44,22.44,2.91,56,56,22.2,22.3,1,2025-10-08,Fewer wins vs common opponents
-35,Oscar Brautnick,Milford,2,2,7,9,158.9,24.2,11.81,21.36,21.36,3.19,44,44,22.85,24.03,0,2025-10-08,Lost head-to-head vs player above
-36,Rowan Alger,Jackson,2,2,5,11,132.32,20.5,10.5,19.75,19.75,3.08,34,34,23.04,28.01,0,2025-10-08,Worse score margin vs common opponents
-37,Julian Coote,Royal Oak,2,2,7,11,157.39,24.0,10.58,19.5,19.5,2.97,46,46,24.16,24.69,0,2025-10-08,Lower TrueSkill rating
-38,Eli VanGroningen,Lowell,2,2,5,14,122.55,19.2,9.26,18.6,18.6,3.11,32,32,23.96,26.11,0,2025-10-08,Lower TrueSkill rating
-39,Ben Truza,Grosse Pointe North,2,2,3,19,96.03,15.5,6.96,18.07,18.07,3.71,23,23,30.2,32.28,0,2025-10-17,Worse score margin vs common opponents
-40,Aidan Beaman,Livonia Churchill,2,2,3,8,81.34,13.5,5.45,16.6,16.6,3.72,21,21,23.67,21.03,0,2025-10-08,Worse score margin vs common opponents
-41,Shahin Rahi,Hamtramck,2,2,5,5,85.01,14.0,8.08,18.96,18.96,3.63,18,18,16.18,13.83,0,2025-10-08,Fewer wins vs common opponents
-42,Gabe Armstrong,Temperance Bedford,2,2,3,11,53.91,9.7,7.64,18.33,18.33,3.56,1,1,27.03,27.58,0,2025-10-08,Lower TrueSkill rating
-43,Gabriel Caballero,Harrison Township L'ANSE CREUSE,2,2,3,13,60.52,10.6,5.73,16.45,16.45,3.57,10,10,23.37,21.93,0,2025-10-08,Lower TrueSkill rating
-44,Jake Cole,White Lake Lakeland,2,2,3,11,59.16,10.4,5.68,15.99,15.99,3.44,10,10,21.11,21.55,0,2025-10-08,Lower TrueSkill rating
-45,Gavin Linderman,Carleton Airport,2,2,4,19,53.7,9.7,3.6,13.9,13.9,3.43,12,12,23.06,25.02,0,2025-10-08,Lower TrueSkill rating
-46,Lucius Ward,St Clair Shores Lakeview,2,2,7,9,74.83,12.6,9.28,19.09,19.09,3.27,9,9,19.99,18.0,0,2025-10-08,Worse score margin vs common opponents
-47,Mark Ljuljdjuraj,Sterling Heights,2,2,2,5,29.2,6.3,2.02,15.5,15.5,4.49,4,4,21.62,20.22,0,2025-10-08,Lost head-to-head vs player above
-48,Nicholas Vo,Walled Lake Western,2,2,2,9,49.59,9.1,4.55,15.23,15.23,3.56,8,8,21.28,19.54,0,2025-10-08,Lower TrueSkill rating
-49,Blake Stowe,Livonia Franklin,2,2,3,15,45.64,8.6,4.57,14.89,14.89,3.44,6,6,21.24,20.35,0,2025-10-08,Fewer wins vs common opponents
-50,Abraham Barack,Ferndale,2,2,4,7,54.31,9.8,7.5,17.92,17.92,3.47,3,3,20.92,11.52,0,2025-10-08,Worse score margin vs common opponents
-51,Jack Sieszputowski,Mount Pleasant,2,2,2,6,16.68,4.6,-0.01,16.89,16.89,5.63,0,0,33.0,33.22,0,2025-10-08,Lower TrueSkill rating
-52,Evan Bruno,Grand Rapids Ottawa Hills,2,2,2,7,36.91,7.4,4.03,16.34,16.34,4.11,3,3,21.09,24.22,0,2025-10-08,Lower TrueSkill rating
-53,Collin Ecie,Allen Park,2,2,1,10,25.0,5.7,2.16,13.89,13.89,3.91,1,1,24.18,25.43,0,2025-10-08,Lower TrueSkill rating
-54,Maheer Choudhury,Warren Mott,2,2,2,11,23.88,5.6,1.28,12.81,12.81,3.84,3,3,22.66,17.67,0,2025-10-08,Lower TrueSkill rating
-55,Default Default,Durand,2,2,0,21,-16.75,0.0,-4.21,14.23,14.23,6.15,0,0,8.64,0.0,0,2025-10-03,Fewer wins vs common opponents
-56,Nathan Pokorzynski,Alpena,2,2,0,9,11.02,3.8,-0.55,14.05,14.05,4.87,0,0,27.56,25.46,0,2025-10-08,Lower TrueSkill rating
-57,Jackson Harrisen,Lincoln Park,2,2,0,5,6.09,3.1,-1.24,13.78,13.78,5.01,0,0,24.56,21.59,0,2025-09-29,Lower TrueSkill rating
-58,Yasine Ahmad,Dearborn Heights Crestwood,2,2,2,8,16.62,4.6,1.21,11.72,11.72,3.5,1,1,16.76,11.07,0,2025-10-08,Lower TrueSkill rating
-59,Brenden Lewis,Portage Northern,2,2,2,21,15.54,4.4,0.09,11.47,11.47,3.79,1,1,26.0,28.23,0,2025-10-08,Lower TrueSkill rating
-60,Zander Creamer,Wyoming,2,2,0,9,-3.12,1.9,-2.66,10.36,10.36,4.34,0,0,20.34,21.19,0,2025-10-08,Worse score margin vs common opponents
-61,Derek Schultz,Battle Creek Central,2,2,1,9,-4.58,1.7,-3.17,10.13,10.13,4.43,0,0,22.34,22.2,0,2025-10-08,Lower TrueSkill rating
-62,Austin Dewinter,Warren Woods Tower,2,2,0,9,-8.94,1.1,-3.8,8.77,8.77,4.19,0,0,20.15,17.21,0,2025-10-08,Lower TrueSkill rating
-63,Nickolas Hobson,Redford Thurston,2,2,0,10,-16.17,0.1,-5.05,6.69,6.69,3.92,0,0,18.19,16.2,0,2025-10-08,Worse score margin vs common opponents
+2,Giorgio Materazzo,Birmingham Seaholm,2,2,20,10,632.16,90.0,28.12,36.53,36.53,2.8,226,226,32.83,32.48,15,2025-10-17,Lost head-to-head vs player above
+3,Matthew Bartoszewicz,Grosse Pointe South,2,2,26,3,689.57,96.3,30.62,40.22,40.22,3.2,247,247,29.17,26.89,18,2025-10-17,Lost head-to-head vs player above
+4,Yassin Elsaadany,Midland Dow,2,2,28,5,643.75,90.8,29.84,39.79,39.79,3.32,227,227,28.41,29.29,17,2025-10-17,Lost head-to-head vs player above
+5,Rei Hitachi,Grand Rapids Forest Hills Central,2,2,18,7,629.38,89.5,27.95,36.41,36.41,2.82,225,225,32.79,33.76,15,2025-10-17,Lost head-to-head vs player above
+6,Marcus Powell,Muskegon Mona Shores,2,2,25,2,555.71,78.8,26.66,37.23,37.23,3.52,197,197,24.96,27.35,10,2025-10-08,Lost head-to-head vs player above
+7,Justin Karem,Byron Center,2,2,12,9,499.08,71.1,24.22,33.08,33.08,2.95,174,174,31.77,33.4,9,2025-10-17,Lost head-to-head vs player above
+8,Laksh Singh,Portage Central,2,2,24,7,581.24,81.5,25.75,35.0,35.0,3.08,208,208,29.38,29.83,14,2025-10-17,Lost head-to-head vs player above
+9,Truman Yaldoo,Detroit U-D Jesuit,2,2,9,15,494.68,71.4,19.69,28.59,28.59,2.97,187,187,31.68,31.78,4,2025-10-17,Lost head-to-head vs player above
+10,Cayden Cappelli,Dexter,2,2,15,5,488.87,69.7,21.05,30.67,30.67,3.21,183,183,24.72,21.42,3,2025-10-17,Lost head-to-head vs player above
+11,Kabir Kapur,Birmingham Groves,2,2,8,11,358.84,52.4,18.46,27.63,27.63,3.05,123,123,31.2,30.83,3,2025-10-17,Worse score margin vs common opponents
+12,Caden Crosby,South Lyon East,2,2,20,6,474.75,68.5,23.6,32.85,32.85,3.08,168,168,24.93,25.45,5,2025-10-17,Worse score margin vs common opponents
+13,Xander Engelsman,Zeeland West,2,2,9,10,401.94,58.4,15.44,24.75,24.75,3.1,153,153,27.49,27.7,3,2025-10-08,Transitively beaten by player above
+14,Cory Judd,Muskegon Reeths-Puffer,2,2,13,9,416.19,60.1,18.97,27.94,27.94,2.99,151,151,25.53,29.04,4,2025-10-08,Lost head-to-head vs player above
+15,Carter Carroll,Traverse City West,2,2,8,10,357.32,51.8,16.46,25.84,25.84,3.12,127,127,29.11,26.93,4,2025-10-08,Worse score margin vs common opponents
+16,Holden Beery,Traverse City Central,2,2,8,21,419.0,60.5,16.23,25.39,25.39,3.05,160,160,29.19,28.95,2,2025-10-17,Lost head-to-head vs player above
+17,Micah Wells,Grand Rapids Northview,2,2,8,12,353.8,51.7,12.2,21.89,21.89,3.23,140,140,24.8,22.13,0,2025-10-08,Worse score margin vs common opponents
+18,Brady Kolassa,Battle Creek Lakeview,2,2,13,13,347.11,50.5,15.48,24.44,24.44,2.99,126,126,25.47,25.43,3,2025-10-08,Lower TGRS composite score
+19,Chris Sobotta,Greenville,2,2,9,13,347.0,51.0,11.09,20.49,20.49,3.13,140,140,22.24,22.46,0,2025-10-08,Worse score margin vs common opponents
+20,Simon Babcock,Berkley,2,2,10,13,341.28,50.1,17.11,25.77,25.77,2.89,120,120,27.55,26.71,1,2025-10-17,Lower TGRS composite score
+21,Ryder Chavez,Wyandotte Roosevelt,2,2,16,4,325.19,47.2,23.06,32.77,32.77,3.24,95,95,23.18,21.57,5,2025-10-08,Worse score margin vs common opponents
+22,Karter McCutcheon,Southgate Anderson,2,2,20,6,306.98,44.8,20.5,29.28,29.28,2.93,94,94,22.4,20.32,3,2025-10-08,Lost head-to-head vs player above
+23,Matthias Trouve,North Farmington,2,2,7,7,278.48,41.1,16.69,26.82,26.82,3.38,90,90,26.04,23.31,1,2025-10-08,Lower TGRS composite score
+24,Gabe Fischer,Warren De La Salle Collegiate,2,2,10,6,235.34,35.4,17.36,27.23,27.23,3.29,67,67,24.79,23.38,1,2025-10-17,Lower TGRS composite score
+25,Aiden Rovoll,Midland,2,2,13,7,232.07,34.7,16.87,26.65,26.65,3.26,64,64,26.16,26.7,4,2025-10-17,Lower TGRS composite score
+26,Daniel Bong,South Lyon,2,2,7,7,208.86,31.8,14.55,23.93,23.93,3.12,61,61,24.18,24.35,1,2025-10-17,Lower TGRS composite score
+27,Jaeden Beltran,Ypsilanti Lincoln,2,2,8,2,223.92,33.8,18.12,30.69,30.69,4.19,61,61,20.99,19.97,0,2025-10-08,Worse score margin vs common opponents
+28,Alan Muresan,Mattawan,2,2,9,13,209.39,31.6,13.75,22.66,22.66,2.97,61,61,27.45,26.33,3,2025-10-17,Lower TGRS composite score
+29,Joshua Willis,Dearborn Divine Child,2,2,13,10,225.06,33.8,16.28,25.73,25.73,3.15,65,65,23.22,22.28,1,2025-10-17,Worse score margin vs common opponents
+30,aiden archuleta,Bay City Western,2,2,11,12,189.32,29.1,12.43,22.61,22.61,3.39,56,56,26.44,29.51,1,2025-10-08,Lower TGRS composite score
+31,Brayden Grace,Walled Lake Central,2,2,11,11,201.63,30.6,13.71,22.44,22.44,2.91,60,60,22.2,22.3,1,2025-10-08,Worse score margin vs common opponents
+32,Simon Jones,Flushing,2,2,13,11,190.71,29.4,14.45,24.34,24.34,3.3,52,52,24.84,29.18,1,2025-10-08,Lower TGRS composite score
+33,Kristopher Tran,Riverview Gabriel Richard,2,2,5,12,167.71,26.0,10.96,20.68,20.68,3.24,50,50,25.23,23.54,0,2025-10-08,Worse score margin vs common opponents
+34,Joe Borowski,Gibraltar Carlson,2,2,10,12,182.02,28.1,14.07,22.79,22.79,2.91,49,49,23.39,23.57,1,2025-10-08,Lost head-to-head vs player above
+35,Oscar Brautnick,Milford,2,2,7,9,158.9,25.0,11.81,21.36,21.36,3.19,44,44,22.85,24.03,0,2025-10-08,Fewer wins vs common opponents
+36,Julian Coote,Royal Oak,2,2,7,11,157.39,24.7,10.58,19.5,19.5,2.97,46,46,24.16,24.69,0,2025-10-08,Worse score margin vs common opponents
+37,Rowan Alger,Jackson,2,2,5,11,132.32,21.6,10.5,19.75,19.75,3.08,34,34,23.04,28.01,0,2025-10-08,Lower TGRS composite score
+38,Eli VanGroningen,Lowell,2,2,5,14,122.55,20.0,9.26,18.6,18.6,3.11,32,32,23.96,26.11,0,2025-10-08,Lower TGRS composite score
+39,Ben Truza,Grosse Pointe North,2,2,3,19,96.03,16.4,6.96,18.07,18.07,3.71,23,23,30.2,32.28,0,2025-10-17,Worse score margin vs common opponents
+40,Aidan Beaman,Livonia Churchill,2,2,3,8,81.34,14.0,5.45,16.6,16.6,3.72,21,21,23.67,21.03,0,2025-10-08,Worse score margin vs common opponents
+41,Shahin Rahi,Hamtramck,2,2,5,5,85.01,14.5,8.08,18.96,18.96,3.63,18,18,16.18,13.83,0,2025-10-08,Fewer wins vs common opponents
+42,Gabriel Caballero,Harrison Township L'ANSE CREUSE,2,2,3,13,60.52,11.2,5.73,16.45,16.45,3.57,10,10,23.37,21.93,0,2025-10-08,Worse score margin vs common opponents
+43,Jake Cole,White Lake Lakeland,2,2,3,11,59.16,11.1,5.68,15.99,15.99,3.44,10,10,21.11,21.55,0,2025-10-08,Lower TGRS composite score
+44,Gavin Linderman,Carleton Airport,2,2,4,19,53.7,10.5,3.6,13.9,13.9,3.43,12,12,23.06,25.02,0,2025-10-08,Lower TGRS composite score
+45,Lucius Ward,St Clair Shores Lakeview,2,2,7,9,74.83,13.1,9.28,19.09,19.09,3.27,9,9,19.99,18.0,0,2025-10-08,Worse score margin vs common opponents
+46,Nicholas Vo,Walled Lake Western,2,2,2,9,49.59,9.7,4.55,15.23,15.23,3.56,8,8,21.28,19.54,0,2025-10-08,Lower TGRS composite score
+47,Blake Stowe,Livonia Franklin,2,2,3,15,45.64,9.2,4.57,14.89,14.89,3.44,6,6,21.24,20.35,0,2025-10-08,Fewer wins vs common opponents
+48,Abraham Barack,Ferndale,2,2,4,7,54.31,9.8,7.5,17.92,17.92,3.47,3,3,20.92,11.52,0,2025-10-08,Worse score margin vs common opponents
+49,Gabe Armstrong,Temperance Bedford,2,2,3,11,53.91,10.4,7.64,18.33,18.33,3.56,1,1,27.03,27.58,0,2025-10-08,Lower TGRS composite score
+50,Evan Bruno,Grand Rapids Ottawa Hills,2,2,2,7,36.91,8.2,4.03,16.34,16.34,4.11,3,3,21.09,24.22,0,2025-10-08,Lower TGRS composite score
+51,Mark Ljuljdjuraj,Sterling Heights,2,2,2,5,29.2,6.9,2.02,15.5,15.5,4.49,4,4,21.62,20.22,0,2025-10-08,Lower TGRS composite score
+52,Collin Ecie,Allen Park,2,2,1,10,25.0,6.5,2.16,13.89,13.89,3.91,1,1,24.18,25.43,0,2025-10-08,Lower TGRS composite score
+53,Maheer Choudhury,Warren Mott,2,2,2,11,23.88,5.9,1.28,12.81,12.81,3.84,3,3,22.66,17.67,0,2025-10-08,Lower TGRS composite score
+54,Jack Sieszputowski,Mount Pleasant,2,2,2,6,16.68,5.2,-0.01,16.89,16.89,5.63,0,0,33.0,33.22,0,2025-10-08,Lower TGRS composite score
+55,Yasine Ahmad,Dearborn Heights Crestwood,2,2,2,8,16.62,4.8,1.21,11.72,11.72,3.5,1,1,16.76,11.07,0,2025-10-08,Lower TGRS composite score
+56,Brenden Lewis,Portage Northern,2,2,2,21,15.54,5.2,0.09,11.47,11.47,3.79,1,1,26.0,28.23,0,2025-10-08,Lower TGRS composite score
+57,Nathan Pokorzynski,Alpena,2,2,0,9,11.02,4.3,-0.55,14.05,14.05,4.87,0,0,27.56,25.46,0,2025-10-08,Lower TGRS composite score
+58,Jackson Harrisen,Lincoln Park,2,2,0,5,6.09,3.6,-1.24,13.78,13.78,5.01,0,0,24.56,21.59,0,2025-09-29,Lower TGRS composite score
+59,Zander Creamer,Wyoming,2,2,0,9,-3.12,2.5,-2.66,10.36,10.36,4.34,0,0,20.34,21.19,0,2025-10-08,Lower TGRS composite score
+60,Derek Schultz,Battle Creek Central,2,2,1,9,-4.58,2.3,-3.17,10.13,10.13,4.43,0,0,22.34,22.2,0,2025-10-08,Lower TGRS composite score
+61,Austin Dewinter,Warren Woods Tower,2,2,0,9,-8.94,1.5,-3.8,8.77,8.77,4.19,0,0,20.15,17.21,0,2025-10-08,Lower TGRS composite score
+62,Nickolas Hobson,Redford Thurston,2,2,0,10,-16.17,0.5,-5.05,6.69,6.69,3.92,0,0,18.19,16.2,0,2025-10-08,Worse score margin vs common opponents
+63,Default Default,Durand,2,2,0,21,-16.75,0.0,-4.21,14.23,14.23,6.15,0,0,8.64,0.0,0,2025-10-03,Lower TGRS composite score
 1,Charlie Griffith,Birmingham Seaholm,2,3,23,3,708.9,100.0,34.75,43.78,43.78,3.01,246,246,33.5,33.35,17,2025-10-17,
 2,Roman Vuljaj,Detroit U-D Jesuit,2,3,23,2,694.52,98.0,32.77,42.74,42.74,3.32,245,245,31.51,31.48,16,2025-10-17,Lost head-to-head vs player above
-3,Siddarth Venkatesan,Midland Dow,2,3,27,6,664.82,93.9,29.4,38.39,38.39,3.0,240,240,28.99,30.09,15,2025-10-17,Lost head-to-head vs player above
-4,Frey Wu,Grand Rapids Forest Hills Central,2,3,17,8,649.3,91.7,27.96,36.68,36.68,2.91,239,239,31.64,32.47,10,2025-10-17,Lost head-to-head vs player above
-5,Ryan McKendry,Byron Center,2,3,22,5,656.36,92.7,28.67,38.18,38.18,3.17,238,238,30.39,29.5,14,2025-10-17,Lost head-to-head vs player above
-6,Sam Ogilvie,Grand Rapids Forest Hills Northern,2,3,14,6,627.01,88.6,24.59,33.67,33.67,3.03,237,237,31.75,34.17,9,2025-10-17,Lost head-to-head vs player above
-7,Brendan Stafford,Grosse Pointe South,2,3,20,9,600.4,84.9,27.57,36.54,36.54,2.99,215,215,30.69,30.85,11,2025-10-17,Lost head-to-head vs player above
-8,Brendan Ryan,Portage Central,2,3,20,10,502.01,71.3,22.99,32.14,32.14,3.05,181,181,27.77,28.06,7,2025-10-17,Fewer wins vs common opponents
-9,Max Schardt,Birmingham Groves,2,3,13,16,539.33,76.4,22.79,31.73,31.73,2.98,199,199,32.88,32.81,7,2025-10-17,Lost head-to-head vs player above
-10,Jake Goins,South Lyon East,2,3,17,4,473.46,67.3,25.07,34.41,34.41,3.12,162,162,25.64,26.34,7,2025-10-17,Worse score margin vs common opponents
-11,Felix Llonch Balauder,Dexter,2,3,12,6,472.46,67.2,19.45,28.83,28.83,3.13,180,180,26.06,24.65,1,2025-10-17,Worse score margin vs common opponents
-12,Isaiah Bartlett,North Farmington,2,3,7,6,420.3,59.9,19.06,28.62,28.62,3.19,155,155,25.92,24.93,1,2025-10-08,Lower TrueSkill rating
-13,Mike Azzi,Warren De La Salle Collegiate,2,3,12,6,444.1,63.2,20.84,31.54,31.54,3.57,161,161,25.48,23.19,3,2025-10-17,Worse score margin vs common opponents
-14,Jordan Serlin,Berkley,2,3,9,12,389.51,55.6,13.87,23.7,23.7,3.28,152,152,28.49,29.05,1,2025-10-17,Lower TrueSkill rating
-15,Jackson DuBuc,Royal Oak,2,3,8,3,392.78,56.1,19.55,29.96,29.96,3.47,140,140,25.6,28.85,1,2025-10-08,Lost head-to-head vs player above
-16,Evan Goddard,Southgate Anderson,2,3,17,4,401.83,57.4,22.12,31.32,31.32,3.06,138,138,22.81,24.08,2,2025-10-08,Lost head-to-head vs player above
-17,jaden Haugabook,Wyandotte Roosevelt,2,3,13,4,394.43,56.3,20.99,30.86,30.86,3.29,137,137,23.39,24.1,2,2025-10-08,Lost head-to-head vs player above
-18,Dom Szczerowski,Zeeland West,2,3,14,6,371.38,53.1,19.97,29.61,29.61,3.22,127,127,24.69,23.75,3,2025-10-08,Lower TrueSkill rating
-19,Gavin Russell,Midland,2,3,14,7,370.71,53.0,19.62,29.26,29.26,3.21,129,129,24.84,26.44,1,2025-10-17,Worse score margin vs common opponents
-20,Jackson Hurley,Muskegon Mona Shores,2,3,15,10,335.19,48.1,19.31,28.81,28.81,3.17,112,112,25.11,25.51,1,2025-10-08,Transitively beaten by player above
-21,Anders Lyons,Traverse City Central,2,3,10,19,336.47,48.3,14.06,23.24,23.24,3.06,126,126,27.61,27.66,0,2025-10-17,Fewer wins vs common opponents
-22,Jordan Spoelhof,Grand Rapids Northview,2,3,14,8,374.06,53.5,16.61,26.03,26.03,3.14,138,138,22.7,19.3,2,2025-10-08,Worse score margin vs common opponents
-23,Jackson Atwell,South Lyon,2,3,6,8,243.14,35.3,15.33,24.93,24.93,3.2,76,76,25.16,26.47,1,2025-10-17,Lower TrueSkill rating
-24,Sawyer Jordan,Walled Lake Western,2,3,7,6,247.11,35.9,16.6,26.41,26.41,3.27,75,75,24.13,24.43,1,2025-10-08,Lost head-to-head vs player above
-25,Finn Murray,Dearborn Divine Child,2,3,7,6,251.2,36.4,17.23,27.27,27.27,3.34,74,74,26.97,27.31,2,2025-10-17,Worse score margin vs common opponents
-26,William Blind,Portage Northern,2,3,6,11,243.08,35.3,11.38,21.25,21.25,3.29,87,87,23.6,22.24,0,2025-10-08,Lower TrueSkill rating
-27,Dillon Gagnon,Alpena,2,3,3,8,212.71,31.1,6.31,18.27,18.27,3.99,84,84,25.82,24.28,0,2025-10-08,Lower TrueSkill rating
-28,Ethan Vergara,Mattawan,2,3,5,19,216.37,31.6,6.02,16.18,16.18,3.39,86,86,28.14,28.48,0,2025-10-17,Worse score margin vs common opponents
-29,Colton Bible,Traverse City West,2,3,6,13,238.05,34.6,12.05,21.98,21.98,3.31,82,82,26.94,20.92,0,2025-10-08,Lost head-to-head vs player above
-30,aidan o'dell,Bay City Western,2,3,10,13,240.37,34.9,13.16,24.64,24.64,3.83,81,81,24.31,27.53,0,2025-10-08,Worse score margin vs common opponents
-31,Daniel Hosseini,Walled Lake Central,2,3,8,13,217.88,31.8,11.29,20.59,20.59,3.1,74,74,23.12,26.3,1,2025-10-08,Lower TrueSkill rating
-32,Gabriel Smith,Milford,2,3,9,7,244.56,35.5,17.19,26.28,26.28,3.03,73,73,24.12,24.96,0,2025-10-08,Lost head-to-head vs player above
-33,Alex Lapka,White Lake Lakeland,2,3,5,9,197.33,29.0,9.9,19.61,19.61,3.24,68,68,22.92,25.0,0,2025-10-08,Lost head-to-head vs player above
-34,Colten Fisher,Flushing,2,3,5,18,160.93,23.9,6.88,16.55,16.55,3.22,57,57,24.58,29.97,0,2025-10-08,Transitively beaten by player above
-35,Liam Haney,Grosse Pointe North,2,3,4,20,163.82,24.3,8.42,19.48,19.48,3.69,53,53,31.13,33.83,0,2025-10-17,Worse score margin vs common opponents
-36,Kenny Schwab,Gibraltar Carlson,2,3,8,13,178.62,26.4,13.71,22.79,22.79,3.03,48,48,24.36,25.43,1,2025-10-08,Worse score margin vs common opponents
-37,George Tobey,Jackson,2,3,7,9,125.66,19.0,12.31,21.86,21.86,3.18,26,26,23.31,24.18,0,2025-10-08,Lower TrueSkill rating
-38,Lucas Maynard,Temperance Bedford,2,3,7,8,172.61,25.5,14.78,23.93,23.93,3.05,43,43,24.49,25.93,0,2025-10-08,Worse score margin vs common opponents
-39,Senith Dahanayaka,Livonia Churchill,2,3,6,6,98.89,15.3,11.54,22.15,22.15,3.54,15,15,21.37,20.98,0,2025-10-08,Worse score margin vs common opponents
-40,Chris Sawicki,Riverview Gabriel Richard,2,3,5,7,100.44,15.5,11.86,22.64,22.64,3.59,14,14,25.45,23.93,0,2025-10-08,Worse score margin vs common opponents
-41,Sam Kozak,St Clair Shores Lakeview,2,3,5,6,85.1,13.4,9.63,21.35,21.35,3.91,13,13,20.97,16.67,0,2025-10-08,Worse score margin vs common opponents
-42,Tyler Winberg,Sterling Heights,2,3,4,6,83.93,13.2,10.07,21.29,21.29,3.74,11,11,22.31,22.71,0,2025-10-08,Lost head-to-head vs player above
-43,Tanvir Ahmed,Hamtramck,2,3,6,3,87.49,13.7,11.52,23.03,23.03,3.84,9,9,19.44,18.4,1,2025-10-08,Lost head-to-head vs player above
-44,Henry Updyke,Ferndale,2,3,6,3,78.2,12.4,10.25,21.73,21.73,3.83,9,9,16.61,13.58,0,2025-10-08,Worse score margin vs common opponents
-45,Jackson Baldus,Muskegon Reeths-Puffer,2,3,3,12,110.9,16.9,8.71,19.44,19.44,3.58,27,27,26.32,29.87,0,2025-10-08,Lower TrueSkill rating
-46,Brogan Oxley,Battle Creek Lakeview,2,3,6,14,62.91,10.3,9.17,18.78,18.78,3.2,2,2,25.54,25.11,0,2025-10-08,Worse score margin vs common opponents
-47,Nathan Smith,Ypsilanti Lincoln,2,3,2,7,72.28,11.6,6.55,17.87,17.87,3.77,14,14,22.63,22.45,0,2025-10-08,Lower TrueSkill rating
-48,Lucas Welch,Allen Park,2,3,3,8,58.12,9.6,7.41,18.32,18.32,3.63,5,5,21.56,23.82,0,2025-10-08,Lost head-to-head vs player above
-49,Randall Davis,Livonia Franklin,2,3,5,12,69.79,11.2,8.56,18.16,18.16,3.2,8,8,21.44,21.29,0,2025-10-08,Lower TrueSkill rating
-50,Evan Deeds,Lowell,2,3,4,13,85.27,13.4,6.42,16.16,16.16,3.25,21,21,21.9,22.43,0,2025-10-08,Lower TrueSkill rating
-51,Evan Childs,Greenville,2,3,8,14,90.87,14.2,7.86,17.03,17.03,3.06,20,20,22.36,20.53,0,2025-10-08,Lost head-to-head vs player above
-52,Elias Van Drunen,Grand Rapids Ottawa Hills,2,3,2,5,29.9,5.7,2.72,16.96,16.96,4.75,2,2,24.06,26.86,0,2025-10-08,Lost head-to-head vs player above
-53,Sajed Fouani,Dearborn Heights Crestwood,2,3,3,6,34.28,6.3,4.73,16.04,16.04,3.77,1,1,16.59,14.06,0,2025-10-08,Lower TrueSkill rating
-54,Tristan Ball,Carleton Airport,2,3,3,17,17.38,4.0,0.94,11.0,11.0,3.35,1,1,21.02,24.35,0,2025-10-08,Lower TrueSkill rating
+3,Siddarth Venkatesan,Midland Dow,2,3,27,6,664.82,93.5,29.4,38.39,38.39,3.0,240,240,28.99,30.09,15,2025-10-17,Lost head-to-head vs player above
+4,Frey Wu,Grand Rapids Forest Hills Central,2,3,17,8,649.3,92.1,27.96,36.68,36.68,2.91,239,239,31.64,32.47,10,2025-10-17,Lost head-to-head vs player above
+5,Ryan McKendry,Byron Center,2,3,22,5,656.36,92.6,28.67,38.18,38.18,3.17,238,238,30.39,29.5,14,2025-10-17,Lost head-to-head vs player above
+6,Sam Ogilvie,Grand Rapids Forest Hills Northern,2,3,14,6,627.01,88.7,24.59,33.67,33.67,3.03,237,237,31.75,34.17,9,2025-10-17,Lost head-to-head vs player above
+7,Brendan Stafford,Grosse Pointe South,2,3,20,9,590.4,83.6,27.57,36.54,36.54,2.99,210,210,30.69,30.85,11,2025-10-17,Lost head-to-head vs player above
+8,Brendan Ryan,Portage Central,2,3,20,10,476.01,67.6,22.99,32.14,32.14,3.05,168,168,27.77,28.06,7,2025-10-17,Fewer wins vs common opponents
+9,Max Schardt,Birmingham Groves,2,3,13,16,541.33,76.7,22.79,31.73,31.73,2.98,200,200,32.88,32.81,7,2025-10-17,Lost head-to-head vs player above
+10,Jake Goins,South Lyon East,2,3,17,4,473.46,67.9,25.07,34.41,34.41,3.12,162,162,25.64,26.34,7,2025-10-17,Worse score margin vs common opponents
+11,Felix Llonch Balauder,Dexter,2,3,12,6,442.46,63.4,19.45,28.83,28.83,3.13,165,165,26.06,24.65,1,2025-10-17,Worse score margin vs common opponents
+12,Isaiah Bartlett,North Farmington,2,3,7,6,420.3,60.5,19.06,28.62,28.62,3.19,155,155,25.92,24.93,1,2025-10-08,Lower TGRS composite score
+13,Mike Azzi,Warren De La Salle Collegiate,2,3,12,6,408.1,58.3,20.84,31.54,31.54,3.57,143,143,25.48,23.19,3,2025-10-17,Worse score margin vs common opponents
+14,Jordan Serlin,Berkley,2,3,9,12,389.51,56.3,13.87,23.7,23.7,3.28,152,152,28.49,29.05,1,2025-10-17,Lower TGRS composite score
+15,Jackson DuBuc,Royal Oak,2,3,8,3,392.78,56.9,19.55,29.96,29.96,3.47,140,140,25.6,28.85,1,2025-10-08,Lost head-to-head vs player above
+16,Evan Goddard,Southgate Anderson,2,3,17,4,401.83,58.1,22.12,31.32,31.32,3.06,138,138,22.81,24.08,2,2025-10-08,Lost head-to-head vs player above
+17,jaden Haugabook,Wyandotte Roosevelt,2,3,13,4,392.43,56.5,20.99,30.86,30.86,3.29,136,136,23.39,24.1,2,2025-10-08,Lost head-to-head vs player above
+18,Dom Szczerowski,Zeeland West,2,3,14,6,371.38,53.0,19.97,29.61,29.61,3.22,127,127,24.69,23.75,3,2025-10-08,Lower TGRS composite score
+19,Jordan Spoelhof,Grand Rapids Northview,2,3,14,8,378.06,54.0,16.61,26.03,26.03,3.14,140,140,22.7,19.3,2,2025-10-08,Fewer wins vs common opponents
+20,Gavin Russell,Midland,2,3,14,7,370.71,53.5,19.62,29.26,29.26,3.21,129,129,24.84,26.44,1,2025-10-17,Lower TGRS composite score
+21,Jackson Hurley,Muskegon Mona Shores,2,3,15,10,335.19,48.6,19.31,28.81,28.81,3.17,112,112,25.11,25.51,1,2025-10-08,Transitively beaten by player above
+22,Anders Lyons,Traverse City Central,2,3,10,19,336.47,48.8,14.06,23.24,23.24,3.06,126,126,27.61,27.66,0,2025-10-17,Fewer wins vs common opponents
+23,Jackson Atwell,South Lyon,2,3,6,8,243.14,35.8,15.33,24.93,24.93,3.2,76,76,25.16,26.47,1,2025-10-17,Worse score margin vs common opponents
+24,Sawyer Jordan,Walled Lake Western,2,3,7,6,247.11,36.3,16.6,26.41,26.41,3.27,75,75,24.13,24.43,1,2025-10-08,Lost head-to-head vs player above
+25,Finn Murray,Dearborn Divine Child,2,3,7,6,251.2,36.8,17.23,27.27,27.27,3.34,74,74,26.97,27.31,2,2025-10-17,Worse score margin vs common opponents
+26,Dillon Gagnon,Alpena,2,3,3,8,212.71,31.3,6.31,18.27,18.27,3.99,84,84,25.82,24.28,0,2025-10-08,Lower TGRS composite score
+27,Colton Bible,Traverse City West,2,3,6,13,238.05,34.6,12.05,21.98,21.98,3.31,82,82,26.94,20.92,0,2025-10-08,Lost head-to-head vs player above
+28,aidan o'dell,Bay City Western,2,3,10,13,240.37,35.5,13.16,24.64,24.64,3.83,81,81,24.31,27.53,0,2025-10-08,Worse score margin vs common opponents
+29,William Blind,Portage Northern,2,3,6,11,227.08,33.3,11.38,21.25,21.25,3.29,79,79,23.6,22.24,0,2025-10-08,Lower TGRS composite score
+30,Daniel Hosseini,Walled Lake Central,2,3,8,13,217.88,32.4,11.29,20.59,20.59,3.1,74,74,23.12,26.3,1,2025-10-08,Lower TGRS composite score
+31,Gabriel Smith,Milford,2,3,9,7,244.56,35.9,17.19,26.28,26.28,3.03,73,73,24.12,24.96,0,2025-10-08,Lost head-to-head vs player above
+32,Ethan Vergara,Mattawan,2,3,5,19,200.37,29.7,6.02,16.18,16.18,3.39,78,78,28.14,28.48,0,2025-10-17,Lower TGRS composite score
+33,Alex Lapka,White Lake Lakeland,2,3,5,9,197.33,29.4,9.9,19.61,19.61,3.24,68,68,22.92,25.0,0,2025-10-08,Lower TGRS composite score
+34,Colten Fisher,Flushing,2,3,5,18,160.93,24.5,6.88,16.55,16.55,3.22,57,57,24.58,29.97,0,2025-10-08,Transitively beaten by player above
+35,Liam Haney,Grosse Pointe North,2,3,4,20,163.82,24.7,8.42,19.48,19.48,3.69,53,53,31.13,33.83,0,2025-10-17,Worse score margin vs common opponents
+36,Kenny Schwab,Gibraltar Carlson,2,3,8,13,178.62,26.5,13.71,22.79,22.79,3.03,48,48,24.36,25.43,1,2025-10-08,Worse score margin vs common opponents
+37,George Tobey,Jackson,2,3,7,9,125.66,19.3,12.31,21.86,21.86,3.18,26,26,23.31,24.18,0,2025-10-08,Lower TGRS composite score
+38,Lucas Maynard,Temperance Bedford,2,3,7,8,172.61,25.9,14.78,23.93,23.93,3.05,43,43,24.49,25.93,0,2025-10-08,Worse score margin vs common opponents
+39,Jackson Baldus,Muskegon Reeths-Puffer,2,3,3,12,110.9,17.4,8.71,19.44,19.44,3.58,27,27,26.32,29.87,0,2025-10-08,Lower TGRS composite score
+40,Brogan Oxley,Battle Creek Lakeview,2,3,6,14,102.91,16.0,9.17,18.78,18.78,3.2,22,22,25.54,25.11,0,2025-10-08,Worse score margin vs common opponents
+41,Senith Dahanayaka,Livonia Churchill,2,3,6,6,98.89,15.4,11.54,22.15,22.15,3.54,15,15,21.37,20.98,0,2025-10-08,Lower TGRS composite score
+42,Chris Sawicki,Riverview Gabriel Richard,2,3,5,7,100.44,15.6,11.86,22.64,22.64,3.59,14,14,25.45,23.93,0,2025-10-08,Worse score margin vs common opponents
+43,Evan Deeds,Lowell,2,3,4,13,85.27,13.6,6.42,16.16,16.16,3.25,21,21,21.9,22.43,0,2025-10-08,Lower TGRS composite score
+44,Evan Childs,Greenville,2,3,8,14,90.87,14.2,7.86,17.03,17.03,3.06,20,20,22.36,20.53,0,2025-10-08,Lost head-to-head vs player above
+45,Sam Kozak,St Clair Shores Lakeview,2,3,5,6,85.1,13.2,9.63,21.35,21.35,3.91,13,13,20.97,16.67,0,2025-10-08,Lower TGRS composite score
+46,Tyler Winberg,Sterling Heights,2,3,4,6,83.93,13.4,10.07,21.29,21.29,3.74,11,11,22.31,22.71,0,2025-10-08,Lost head-to-head vs player above
+47,Tanvir Ahmed,Hamtramck,2,3,6,3,87.49,13.6,11.52,23.03,23.03,3.84,9,9,19.44,18.4,1,2025-10-08,Lost head-to-head vs player above
+48,Henry Updyke,Ferndale,2,3,6,3,78.2,12.3,10.25,21.73,21.73,3.83,9,9,16.61,13.58,0,2025-10-08,Worse score margin vs common opponents
+49,Nathan Smith,Ypsilanti Lincoln,2,3,2,7,72.28,11.7,6.55,17.87,17.87,3.77,14,14,22.63,22.45,0,2025-10-08,Lower TGRS composite score
+50,Randall Davis,Livonia Franklin,2,3,5,12,69.79,11.3,8.56,18.16,18.16,3.2,8,8,21.44,21.29,0,2025-10-08,Fewer wins vs common opponents
+51,Lucas Welch,Allen Park,2,3,3,8,58.12,9.9,7.41,18.32,18.32,3.63,5,5,21.56,23.82,0,2025-10-08,Lower TGRS composite score
+52,Sajed Fouani,Dearborn Heights Crestwood,2,3,3,6,34.28,6.2,4.73,16.04,16.04,3.77,1,1,16.59,14.06,0,2025-10-08,Fewer wins vs common opponents
+53,Elias Van Drunen,Grand Rapids Ottawa Hills,2,3,2,5,29.9,6.0,2.72,16.96,16.96,4.75,2,2,24.06,26.86,0,2025-10-08,Lower TGRS composite score
+54,Tristan Ball,Carleton Airport,2,3,3,17,17.38,4.2,0.94,11.0,11.0,3.35,1,1,21.02,24.35,0,2025-10-08,Lower TGRS composite score
 55,Khoi Bui,Warren Woods Tower,2,3,2,6,21.86,4.6,1.38,15.8,15.8,4.81,1,1,25.41,24.27,0,2025-10-08,Worse score margin vs common opponents
-56,Lincoln Connors,Mount Pleasant,2,3,3,6,15.4,3.7,0.32,15.06,15.06,4.91,0,0,26.88,28.34,0,2025-10-08,Lower TrueSkill rating
-57,Parker Hughes,East Lansing,2,3,0,9,1.51,1.8,-2.54,12.48,12.48,5.0,0,0,28.38,30.86,0,2025-09-20,Lower TrueSkill rating
-58,Cory Skutt,Battle Creek Central,2,3,0,9,-0.83,1.4,-2.21,11.3,11.3,4.5,0,0,20.42,20.02,0,2025-10-08,Lower TrueSkill rating
-59,Parker Holmes,Harrison Township L'ANSE CREUSE,2,3,1,19,5.33,2.3,-1.8,10.47,10.47,4.09,1,1,24.58,23.99,0,2025-10-08,Lower TrueSkill rating
-60,Josh Lopez,Wyoming,2,3,0,10,-7.15,0.6,-3.65,10.0,10.0,4.55,0,0,22.21,23.03,0,2025-10-08,Lower TrueSkill rating
-61,Tu Nguyen,Warren Mott,2,3,0,10,-8.75,0.3,-4.16,9.59,9.59,4.58,0,0,24.1,24.3,0,2025-10-08,Lower TrueSkill rating
-62,Philip Curry,Redford Thurston,2,3,0,7,-11.14,0.0,-3.99,8.58,8.58,4.19,0,0,17.56,17.6,0,2025-10-08,Lower TrueSkill rating
-1,Joaquim Flory,Birmingham Seaholm,2,4,20,4,626.52,100.0,31.56,40.6,40.6,3.01,214,214,31.75,29.71,16,2025-10-17,
-2,Cole Krauss,Byron Center,2,4,25,2,626.23,100.0,31.55,41.66,41.66,3.37,213,213,29.16,27.73,18,2025-10-17,Lost head-to-head vs player above
-3,Oscar DeLuca,Grosse Pointe South,2,4,21,7,548.17,87.6,26.52,35.86,35.86,3.11,192,192,28.66,27.61,11,2025-10-17,Fewer wins vs common opponents
-4,Landon Sibley,Portage Central,2,4,20,7,535.68,85.6,25.15,34.45,34.45,3.1,191,191,27.37,28.16,9,2025-10-17,Lost head-to-head vs player above
-5,Raymond Chai,Midland Dow,2,4,28,4,545.62,87.2,27.7,38.18,38.18,3.49,186,186,26.47,27.46,14,2025-10-17,Lost head-to-head vs player above
-6,James Schaffer,Birmingham Groves,2,4,13,13,462.46,74.0,20.33,29.72,29.72,3.13,168,168,30.6,28.62,6,2025-10-17,Fewer wins vs common opponents
-7,Milo Woodruff,Traverse City Central,2,4,16,10,478.63,76.6,23.33,31.99,31.99,2.89,169,169,28.72,27.25,6,2025-10-17,Fewer wins vs common opponents
-8,Jace McKee,Grand Rapids Forest Hills Central,2,4,10,13,422.52,67.7,19.52,28.45,28.45,2.98,150,150,30.93,31.82,6,2025-10-17,Lost head-to-head vs player above
-9,Soren Filak,Detroit U-D Jesuit,2,4,5,7,334.27,53.8,18.41,28.62,28.62,3.4,112,112,29.62,27.19,2,2025-10-17,Worse score margin vs common opponents
-10,Brandon Hargis,Warren De La Salle Collegiate,2,4,14,4,314.76,50.7,19.07,29.41,29.41,3.45,103,103,22.27,23.32,1,2025-10-17,Lost head-to-head vs player above
-11,virinchi Kakaraparthi,Grand Rapids Forest Hills Northern,2,4,7,8,385.0,61.8,15.91,25.42,25.42,3.17,144,144,28.01,29.76,2,2025-10-17,Lower TrueSkill rating
-12,Levi Kaynor,Zeeland West,2,4,9,10,331.0,53.3,14.12,24.0,24.0,3.29,122,122,28.87,30.77,1,2025-10-08,Worse score margin vs common opponents
-13,luke abraham,Bay City Western,2,4,16,7,353.23,56.8,21.71,31.55,31.55,3.28,113,113,23.93,27.97,4,2025-10-08,Worse score margin vs common opponents
-14,Micah Bement,Muskegon Mona Shores,2,4,13,11,379.13,60.9,17.62,27.01,27.01,3.13,138,138,26.01,26.48,1,2025-10-08,Lower TrueSkill rating
-15,Patrick Elmquest,Traverse City West,2,4,9,12,316.51,51.0,14.6,24.26,24.26,3.22,113,113,28.21,24.08,2,2025-10-08,Worse score margin vs common opponents
-16,Aditya Talakanti,South Lyon East,2,4,10,13,311.44,50.2,18.05,26.56,26.56,2.84,102,102,24.47,25.57,3,2025-10-17,Fewer wins vs common opponents
-17,Mason Reece,Walled Lake Western,2,4,10,3,313.29,50.5,18.88,29.0,29.0,3.37,100,100,24.25,24.03,4,2025-10-08,Lost head-to-head vs player above
-18,Evan Dressander,Lowell,2,4,6,8,307.03,49.5,13.42,23.02,23.02,3.2,113,113,24.01,19.56,1,2025-10-08,Lower TrueSkill rating
-19,Michael Hull,Milford,2,4,10,5,317.87,51.2,20.47,29.56,29.56,3.03,100,100,23.75,24.37,2,2025-10-08,Transitively beaten by player above
-20,Ira Retish,Berkley,2,4,9,11,282.28,45.5,12.43,21.61,21.61,3.06,102,102,25.42,24.51,2,2025-10-17,Worse score margin vs common opponents
-21,Jack Barnes,Royal Oak,2,4,8,7,300.62,48.5,16.58,25.85,25.85,3.09,101,101,24.38,23.97,2,2025-10-08,Lost head-to-head vs player above
-22,Nate Miklaski,Wyandotte Roosevelt,2,4,13,3,317.87,51.2,20.8,30.33,30.33,3.18,99,99,21.15,21.56,3,2025-10-08,Lost head-to-head vs player above
-23,Ryan Fowler,Mattawan,2,4,10,14,260.68,42.1,15.75,25.26,25.26,3.17,84,84,27.02,24.92,0,2025-10-17,Lower TrueSkill rating
-24,Kian Gordon,White Lake Lakeland,2,4,10,6,285.35,46.0,15.32,24.98,24.98,3.22,98,98,21.27,24.03,1,2025-10-08,Lower TrueSkill rating
-25,Shritan Pisupati,Jackson,2,4,7,8,213.17,34.6,12.67,22.47,22.47,3.26,68,68,23.66,21.44,1,2025-10-08,Lower TrueSkill rating
-26,Drew Wetzel,Dexter,2,4,10,8,228.14,37.0,16.32,25.81,25.81,3.16,66,66,24.99,23.16,1,2025-10-17,Lost head-to-head vs player above
-27,Kingston Alford,Southgate Anderson,2,4,15,4,248.94,40.3,20.07,30.25,30.25,3.39,66,66,22.63,22.09,3,2025-10-08,Worse score margin vs common opponents
-28,Asher Englert,Dearborn Divine Child,2,4,7,6,135.38,22.3,13.52,23.3,23.3,3.26,27,27,23.46,24.01,1,2025-10-17,Lower TrueSkill rating
-29,Liam Eighmey,Gibraltar Carlson,2,4,13,8,207.68,33.7,16.11,25.27,25.27,3.05,57,57,21.97,21.73,1,2025-10-08,Worse score margin vs common opponents
-30,Jeremy Pizzi,Midland,2,4,9,13,122.87,20.3,9.98,19.89,19.89,3.3,30,30,25.11,27.1,0,2025-10-17,Lost head-to-head vs player above
-31,Emmit Willhite,Greenville,2,4,6,16,136.66,22.5,7.32,16.59,16.59,3.09,44,44,23.59,23.48,0,2025-10-08,Lower TrueSkill rating
-32,Brendan Houser,Mount Pleasant,2,4,5,8,165.33,27.1,10.36,21.81,21.81,3.82,50,50,26.27,30.41,0,2025-10-08,Worse score margin vs common opponents
-33,Zachary Scholl,St Clair Shores Lakeview,2,4,7,5,95.93,16.1,11.59,22.76,22.76,3.72,13,13,22.77,21.62,0,2025-10-08,Transitively beaten by player above
-34,Jacob Wyderko,North Farmington,2,4,3,8,90.43,15.2,7.72,17.85,17.85,3.38,20,20,23.08,20.97,0,2025-10-08,Lower TrueSkill rating
-35,Cameron Roelof,Battle Creek Lakeview,2,4,4,19,93.83,15.7,4.59,14.75,14.75,3.39,29,29,25.38,26.72,0,2025-10-08,Lower TrueSkill rating
-36,Tyler Schwartz,Flushing,2,4,4,14,93.95,15.8,5.69,15.81,15.81,3.37,27,27,22.55,27.07,0,2025-10-08,Worse score margin vs common opponents
-37,Aakarsh Hiremath,Portage Northern,2,4,3,16,82.77,14.0,3.05,13.27,13.27,3.41,28,28,22.7,26.2,0,2025-10-08,Lower TrueSkill rating
-38,Jackson Root,Temperance Bedford,2,4,6,8,102.96,17.2,11.73,21.71,21.71,3.33,16,16,23.77,25.44,0,2025-10-08,Worse score margin vs common opponents
-39,Jackson Garbaty,South Lyon,2,4,2,5,69.11,11.8,7.2,20.19,20.19,4.33,10,10,25.64,25.64,0,2025-10-17,Lower TrueSkill rating
-40,Jack Koebel,Walled Lake Central,2,4,7,15,72.78,12.4,8.71,17.62,17.62,2.97,9,9,21.81,23.95,0,2025-10-08,Lost head-to-head vs player above
-41,Jonah Luciow,Riverview Gabriel Richard,2,4,1,12,33.71,6.2,1.07,12.75,12.75,3.89,8,8,24.54,26.05,0,2025-10-08,Worse score margin vs common opponents
-42,Michael Schorer,Grosse Pointe North,2,4,2,15,53.42,9.3,4.14,16.21,16.21,4.02,9,9,29.19,30.41,0,2025-10-17,Worse score margin vs common opponents
-43,Conor Dickey,Warren Mott,2,4,4,6,63.73,11.0,7.51,19.17,19.17,3.89,8,8,19.54,20.37,0,2025-10-08,Worse score margin vs common opponents
-44,Marzouq Rahman,Hamtramck,2,4,3,6,45.49,8.1,4.53,15.46,15.46,3.65,7,7,17.05,17.1,0,2025-10-08,Lost head-to-head vs player above
-45,Joshua Porshia,Ferndale,2,4,4,3,68.47,11.7,9.33,21.45,21.45,4.04,6,6,18.5,17.93,0,2025-10-08,Lost head-to-head vs player above
-46,Calvin Towers,Grand Rapids Northview,2,4,5,7,71.96,12.3,11.27,21.33,21.33,3.35,1,1,23.36,23.01,1,2025-10-08,Lower TrueSkill rating
-47,Alvin Viengrouthasan,Warren Woods Tower,2,4,3,3,54.54,9.5,7.72,20.4,20.4,4.22,3,3,18.85,19.53,0,2025-10-08,Lower TrueSkill rating
-48,Ben Thoms,Livonia Churchill,2,4,3,7,55.09,9.6,6.99,19.17,19.17,4.06,4,4,23.7,18.17,0,2025-10-08,Lower TrueSkill rating
-49,Henrik Ketner,Muskegon Reeths-Puffer,2,4,1,7,44.3,7.9,5.6,17.85,17.85,4.08,1,1,28.35,30.33,0,2025-10-08,Lower TrueSkill rating
-50,Ronan Teodor,Livonia Franklin,2,4,1,12,14.96,3.3,0.38,11.87,11.87,3.83,1,1,22.0,20.37,0,2025-10-08,Lower TrueSkill rating
-51,Alexander Jacob,Carleton Airport,2,4,2,11,14.93,3.3,0.57,11.91,11.91,3.78,1,1,19.81,25.34,0,2025-10-08,Worse score margin vs common opponents
-52,Default 1,Battle Creek Central,2,4,0,5,0.0,0.9,,,,,0,0,0.0,0.0,0,2025-09-27,Tied — no deciding criterion found
-53,Zach Cloft,Alpena,2,4,2,7,21.67,4.3,1.19,16.74,16.74,5.18,0,0,31.01,24.26,0,2025-10-08,Tied — no deciding criterion found
-54,Abraham Ogiemwonyl,Sterling Heights,2,4,1,6,8.54,2.3,-0.32,12.6,12.6,4.3,0,0,19.97,19.39,0,2025-10-08,Lower TrueSkill rating
-55,Kristian Ward,Dearborn Heights Crestwood,2,4,1,4,-1.89,0.6,-2.39,11.44,11.44,4.61,0,0,19.7,14.74,0,2025-10-08,Lower TrueSkill rating
-56,Amir Yako,Allen Park,2,4,0,6,11.68,2.7,-0.33,14.64,14.64,4.99,0,0,26.62,27.28,0,2025-10-08,Worse score margin vs common opponents
-57,Sebastian Quinn,Harrison Township L'ANSE CREUSE,2,4,0,8,1.57,1.1,-2.05,11.06,11.06,4.37,0,0,23.62,22.76,0,2025-10-08,Lower TrueSkill rating
-58,Logan Nguyen,East Lansing,2,4,0,8,-5.68,0.0,-4.04,10.89,10.89,4.98,0,0,28.99,32.02,0,2025-09-20,Lower TrueSkill rating
+56,Lincoln Connors,Mount Pleasant,2,3,3,6,15.4,3.8,0.32,15.06,15.06,4.91,0,0,26.88,28.34,0,2025-10-08,Lower TGRS composite score
+57,Parker Holmes,Harrison Township L'ANSE CREUSE,2,3,1,19,5.33,2.3,-1.8,10.47,10.47,4.09,1,1,24.58,23.99,0,2025-10-08,Lower TGRS composite score
+58,Parker Hughes,East Lansing,2,3,0,9,1.51,1.9,-2.54,12.48,12.48,5.0,0,0,28.38,30.86,0,2025-09-20,Lower TGRS composite score
+59,Cory Skutt,Battle Creek Central,2,3,0,9,-0.83,1.4,-2.21,11.3,11.3,4.5,0,0,20.42,20.02,0,2025-10-08,Lower TGRS composite score
+60,Josh Lopez,Wyoming,2,3,0,10,-7.15,0.6,-3.65,10.0,10.0,4.55,0,0,22.21,23.03,0,2025-10-08,Lower TGRS composite score
+61,Tu Nguyen,Warren Mott,2,3,0,10,-8.75,0.3,-4.16,9.59,9.59,4.58,0,0,24.1,24.3,0,2025-10-08,Lower TGRS composite score
+62,Philip Curry,Redford Thurston,2,3,0,7,-11.14,0.0,-3.99,8.58,8.58,4.19,0,0,17.56,17.6,0,2025-10-08,Lower TGRS composite score
+1,Joaquim Flory,Birmingham Seaholm,2,4,20,4,622.52,100.0,31.56,40.6,40.6,3.01,212,212,31.75,29.71,16,2025-10-17,
+2,Cole Krauss,Byron Center,2,4,25,2,610.23,97.1,31.55,41.66,41.66,3.37,205,205,29.16,27.73,18,2025-10-17,Lost head-to-head vs player above
+3,Oscar DeLuca,Grosse Pointe South,2,4,21,7,546.17,88.2,26.52,35.86,35.86,3.11,191,191,28.66,27.61,11,2025-10-17,Fewer wins vs common opponents
+4,Landon Sibley,Portage Central,2,4,20,7,531.68,86.0,25.15,34.45,34.45,3.1,189,189,27.37,28.16,9,2025-10-17,Lost head-to-head vs player above
+5,Raymond Chai,Midland Dow,2,4,28,4,549.62,88.5,27.7,38.18,38.18,3.49,188,188,26.47,27.46,14,2025-10-17,Lost head-to-head vs player above
+6,James Schaffer,Birmingham Groves,2,4,13,13,472.46,76.7,20.33,29.72,29.72,3.13,173,173,30.6,28.62,6,2025-10-17,Fewer wins vs common opponents
+7,Milo Woodruff,Traverse City Central,2,4,16,10,474.63,77.1,23.33,31.99,31.99,2.89,167,167,28.72,27.25,6,2025-10-17,Fewer wins vs common opponents
+8,Jace McKee,Grand Rapids Forest Hills Central,2,4,10,13,438.52,71.2,19.52,28.45,28.45,2.98,158,158,30.93,31.82,6,2025-10-17,Lost head-to-head vs player above
+9,Soren Filak,Detroit U-D Jesuit,2,4,5,7,358.27,58.4,18.41,28.62,28.62,3.4,124,124,29.62,27.19,2,2025-10-17,Worse score margin vs common opponents
+10,luke abraham,Bay City Western,2,4,16,7,375.23,60.7,21.71,31.55,31.55,3.28,124,124,23.93,27.97,4,2025-10-08,Worse score margin vs common opponents
+11,virinchi Kakaraparthi,Grand Rapids Forest Hills Northern,2,4,7,8,401.0,65.2,15.91,25.42,25.42,3.17,152,152,28.01,29.76,2,2025-10-17,Worse score margin vs common opponents
+12,Brandon Hargis,Warren De La Salle Collegiate,2,4,14,4,338.76,55.3,19.07,29.41,29.41,3.45,115,115,22.27,23.32,1,2025-10-17,Lower TGRS composite score
+13,Patrick Elmquest,Traverse City West,2,4,9,12,314.51,51.2,14.6,24.26,24.26,3.22,112,112,28.21,24.08,2,2025-10-08,Worse score margin vs common opponents
+14,Evan Dressander,Lowell,2,4,6,8,309.03,50.1,13.42,23.02,23.02,3.2,114,114,24.01,19.56,1,2025-10-08,Lower TGRS composite score
+15,Levi Kaynor,Zeeland West,2,4,9,10,283.0,46.6,14.12,24.0,24.0,3.29,98,98,28.87,30.77,1,2025-10-08,Lower TGRS composite score
+16,Ryan Fowler,Mattawan,2,4,10,14,282.68,46.3,15.75,25.26,25.26,3.17,95,95,27.02,24.92,0,2025-10-17,Lost head-to-head vs player above
+17,Shritan Pisupati,Jackson,2,4,7,8,247.17,40.5,12.67,22.47,22.47,3.26,85,85,23.66,21.44,1,2025-10-08,Lost head-to-head vs player above
+18,Drew Wetzel,Dexter,2,4,10,8,262.14,42.7,16.32,25.81,25.81,3.16,83,83,24.99,23.16,1,2025-10-17,Lost head-to-head vs player above
+19,Ira Retish,Berkley,2,4,9,11,236.28,38.8,12.43,21.61,21.61,3.06,79,79,25.42,24.51,2,2025-10-17,Worse score margin vs common opponents
+20,Jack Barnes,Royal Oak,2,4,8,7,254.62,41.9,16.58,25.85,25.85,3.09,78,78,24.38,23.97,2,2025-10-08,Lost head-to-head vs player above
+21,Nate Miklaski,Wyandotte Roosevelt,2,4,13,3,265.87,43.5,20.8,30.33,30.33,3.18,73,73,21.15,21.56,3,2025-10-08,Lost head-to-head vs player above
+22,Kingston Alford,Southgate Anderson,2,4,15,4,248.94,40.9,20.07,30.25,30.25,3.39,66,66,22.63,22.09,3,2025-10-08,Lost head-to-head vs player above
+23,Micah Bement,Muskegon Mona Shores,2,4,13,11,209.13,34.3,17.62,27.01,27.01,3.13,53,53,26.01,26.48,1,2025-10-08,Lower TGRS composite score
+24,Aditya Talakanti,South Lyon East,2,4,10,13,195.44,32.4,18.05,26.56,26.56,2.84,44,44,24.47,25.57,3,2025-10-17,Lower TGRS composite score
+25,Liam Eighmey,Gibraltar Carlson,2,4,13,8,207.68,34.3,16.11,25.27,25.27,3.05,57,57,21.97,21.73,1,2025-10-08,Worse score margin vs common opponents
+26,Michael Hull,Milford,2,4,10,5,197.87,32.8,20.47,29.56,29.56,3.03,40,40,23.75,24.37,2,2025-10-08,Lower TGRS composite score
+27,Brendan Houser,Mount Pleasant,2,4,5,8,165.33,27.8,10.36,21.81,21.81,3.82,50,50,26.27,30.41,0,2025-10-08,Lower TGRS composite score
+28,Calvin Towers,Grand Rapids Northview,2,4,5,7,163.96,27.0,11.27,21.33,21.33,3.35,47,47,23.36,23.01,1,2025-10-08,Lower TGRS composite score
+29,Emmit Willhite,Greenville,2,4,6,16,136.66,22.8,7.32,16.59,16.59,3.09,44,44,23.59,23.48,0,2025-10-08,Lost head-to-head vs player above
+30,Asher Englert,Dearborn Divine Child,2,4,7,6,135.38,22.6,13.52,23.3,23.3,3.26,27,27,23.46,24.01,1,2025-10-17,Lower TGRS composite score
+31,Jeremy Pizzi,Midland,2,4,9,13,122.87,20.7,9.98,19.89,19.89,3.3,30,30,25.11,27.1,0,2025-10-17,Lower TGRS composite score
+32,Cameron Roelof,Battle Creek Lakeview,2,4,4,19,93.83,16.0,4.59,14.75,14.75,3.39,29,29,25.38,26.72,0,2025-10-08,Worse score margin vs common opponents
+33,Tyler Schwartz,Flushing,2,4,4,14,93.95,16.3,5.69,15.81,15.81,3.37,27,27,22.55,27.07,0,2025-10-08,Worse score margin vs common opponents
+34,Jacob Wyderko,North Farmington,2,4,3,8,90.43,15.2,7.72,17.85,17.85,3.38,20,20,23.08,20.97,0,2025-10-08,Lower TGRS composite score
+35,Mason Reece,Walled Lake Western,2,4,10,3,141.29,23.1,18.88,29.0,29.0,3.37,14,14,24.25,24.03,4,2025-10-08,Worse score margin vs common opponents
+36,Kian Gordon,White Lake Lakeland,2,4,10,6,113.35,19.3,15.32,24.98,24.98,3.22,12,12,21.27,24.03,1,2025-10-08,Lost head-to-head vs player above
+37,Aakarsh Hiremath,Portage Northern,2,4,3,16,82.77,14.4,3.05,13.27,13.27,3.41,28,28,22.7,26.2,0,2025-10-08,Lower TGRS composite score
+38,Jackson Root,Temperance Bedford,2,4,6,8,102.96,17.5,11.73,21.71,21.71,3.33,16,16,23.77,25.44,0,2025-10-08,Worse score margin vs common opponents
+39,Zachary Scholl,St Clair Shores Lakeview,2,4,7,5,95.93,16.1,11.59,22.76,22.76,3.72,13,13,22.77,21.62,0,2025-10-08,Lower TGRS composite score
+40,Jackson Garbaty,South Lyon,2,4,2,5,69.11,11.9,7.2,20.19,20.19,4.33,10,10,25.64,25.64,0,2025-10-17,Worse score margin vs common opponents
+41,Jack Koebel,Walled Lake Central,2,4,7,15,72.78,12.6,8.71,17.62,17.62,2.97,9,9,21.81,23.95,0,2025-10-08,Lost head-to-head vs player above
+42,Jonah Luciow,Riverview Gabriel Richard,2,4,1,12,33.71,6.3,1.07,12.75,12.75,3.89,8,8,24.54,26.05,0,2025-10-08,Worse score margin vs common opponents
+43,Michael Schorer,Grosse Pointe North,2,4,2,15,53.42,9.4,4.14,16.21,16.21,4.02,9,9,29.19,30.41,0,2025-10-17,Worse score margin vs common opponents
+44,Conor Dickey,Warren Mott,2,4,4,6,63.73,11.1,7.51,19.17,19.17,3.89,8,8,19.54,20.37,0,2025-10-08,Worse score margin vs common opponents
+45,Marzouq Rahman,Hamtramck,2,4,3,6,45.49,8.1,4.53,15.46,15.46,3.65,7,7,17.05,17.1,0,2025-10-08,Lost head-to-head vs player above
+46,Joshua Porshia,Ferndale,2,4,4,3,68.47,11.7,9.33,21.45,21.45,4.04,6,6,18.5,17.93,0,2025-10-08,Lost head-to-head vs player above
+47,Ben Thoms,Livonia Churchill,2,4,3,7,55.09,9.2,6.99,19.17,19.17,4.06,4,4,23.7,18.17,0,2025-10-08,Lower TGRS composite score
+48,Alvin Viengrouthasan,Warren Woods Tower,2,4,3,3,54.54,9.6,7.72,20.4,20.4,4.22,3,3,18.85,19.53,0,2025-10-08,Lower TGRS composite score
+49,Henrik Ketner,Muskegon Reeths-Puffer,2,4,1,7,44.3,8.0,5.6,17.85,17.85,4.08,1,1,28.35,30.33,0,2025-10-08,Lower TGRS composite score
+50,Zach Cloft,Alpena,2,4,2,7,21.67,3.7,1.19,16.74,16.74,5.18,0,0,31.01,24.26,0,2025-10-08,Lower TGRS composite score
+51,Ronan Teodor,Livonia Franklin,2,4,1,12,14.96,3.0,0.38,11.87,11.87,3.83,1,1,22.0,20.37,0,2025-10-08,Lower TGRS composite score
+52,Alexander Jacob,Carleton Airport,2,4,2,11,14.93,3.6,0.57,11.91,11.91,3.78,1,1,19.81,25.34,0,2025-10-08,Worse score margin vs common opponents
+53,Abraham Ogiemwonyl,Sterling Heights,2,4,1,6,8.54,2.0,-0.32,12.6,12.6,4.3,0,0,19.97,19.39,0,2025-10-08,Lower TGRS composite score
+54,Default 1,Battle Creek Central,2,4,0,5,0.0,0.7,,,,,0,0,0.0,0.0,0,2025-09-27,Lower TGRS composite score
+55,Kristian Ward,Dearborn Heights Crestwood,2,4,1,4,-1.89,0.0,-2.39,11.44,11.44,4.61,0,0,19.7,14.74,0,2025-10-08,Lower TGRS composite score
+56,Amir Yako,Allen Park,2,4,0,6,11.68,2.6,-0.33,14.64,14.64,4.99,0,0,26.62,27.28,0,2025-10-08,Worse score margin vs common opponents
+57,Sebastian Quinn,Harrison Township L'ANSE CREUSE,2,4,0,8,1.57,0.9,-2.05,11.06,11.06,4.37,0,0,23.62,22.76,0,2025-10-08,Lower TGRS composite score
+58,Logan Nguyen,East Lansing,2,4,0,8,-5.68,0.0,-4.04,10.89,10.89,4.98,0,0,28.99,32.02,0,2025-09-20,Lower TGRS composite score
