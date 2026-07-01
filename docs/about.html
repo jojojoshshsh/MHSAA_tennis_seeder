@@ -46,6 +46,11 @@
   .reason-table td { padding: 7px 12px; border-bottom: 1px solid #eef0f3; vertical-align: top; }
   .reason-table tr:nth-child(even) td { background: #f8fafc; }
   .reason-table td:first-child { font-family: monospace; font-size: .82rem; color: #7a5800; background: #fffbee; border-left: 3px solid #ffd580; padding-left: 10px; white-space: nowrap; }
+  .accuracy-table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 1rem 0; }
+  .accuracy-table th { background: #1a3a5c; color: white; padding: 8px 12px; text-align: left; font-weight: 500; }
+  .accuracy-table td { padding: 7px 12px; border-bottom: 1px solid #eef0f3; vertical-align: top; }
+  .accuracy-table tr:nth-child(even) td { background: #f8fafc; }
+  .accuracy-table td:nth-child(2) { width: 90px; text-align: right; font-weight: 700; color: #1a3a5c; font-size: 1rem; }
   footer { text-align: center; color: #888; font-size: .78rem; padding: 2rem; }
 </style>
 </head>
@@ -349,6 +354,39 @@ TGRS = (2.0 × reachability)
       <li>Matches that ended after only one set (e.g. a retirement mid-match)</li>
       <li>Matches with a score of exactly "2-0 2-0" (a short-set placeholder used for walkovers)</li>
     </ul>
+  </section>
+
+  <section>
+    <h2>How Accurate Is This? — 2025 Season Backtest</h2>
+    <p>
+      To check how well the pipeline actually predicts real seeding outcomes, the 2025 rankings
+      were compared against the <strong>official MHSAA state tournament seed lists</strong> for
+      that season. Only the official #1–#6 seeds in each bracket were used for this comparison because not all flights are seeded more than 6.
+    </p>
+    <table class="accuracy-table">
+      <thead><tr><th>How close was the prediction?</th><th>How often it held</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Predicted seed exactly matched the real seed</td>
+          <td>~40%</td>
+        </tr>
+        <tr>
+          <td>Predicted seed was within 1 spot of the real seed</td>
+          <td>~75%</td>
+        </tr>
+        <tr>
+          <td>Predicted seed was within 5 spots of the real seed</td>
+          <td>~95%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="caveat">
+      <strong>Note:</strong> These figures come from a single-season backtest (Boys, 2025, all
+      divisions and flights, official seeds #1–#6 only). They're a useful gauge of overall
+      accuracy, not a guarantee for any individual player — a small sample size means the true
+      rates could reasonably be a few points higher or lower than shown here, and accuracy may
+      differ for Girls or in other seasons.
+    </div>
   </section>
 
   <section>
