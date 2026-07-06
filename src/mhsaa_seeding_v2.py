@@ -61,6 +61,20 @@ RANKING-EXCLUDED MATCHES
   filtered out of `records` (matches/wins/losses) or CSV/console output —
   they still count there exactly as before.
 
+TRUESKILL (UPDATED — now margin-aware)
+-------------------------------
+  Ratings are computed by trueskill_engine_v2.compute_trueskill_margin(),
+  not the plain win/loss compute_trueskill(). Each ranking-eligible match
+  now carries its set score into the rating update, so a 6-0 6-0 win
+  moves ratings more than a 7-6 7-6 win, and a wildly inconsistent win
+  like 7-6 0-6 7-6 is treated as a bare, non-dominant win rather than
+  being credited (or penalized) based on raw game differential. See
+  trueskill_engine_v2.py for the full reasoning. Everything downstream
+  (reach/dominance, sos, quality_wins, TGRS, tiebreak rule 4) consumes
+  whatever Rating objects come back, so it's agnostic to which engine
+  produced them — only the import and the match_pairs construction
+  changed.
+
 OUTPUT LAYER (UPDATED)
 -------------------------------
   Output now writes directly into the shape that scripts/build_site.py
@@ -95,8 +109,9 @@ OUTPUT LAYER (UPDATED)
 
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
-unchanged from the previous version. Only section 12 (output helpers)
-and run() (section 11) were rewritten.
+unchanged from the previous version. Section 12 (output helpers),
+run() (section 11), and the TrueSkill import/call in process_group
+(section 10) were rewritten.
 """
 
 import csv
@@ -110,7 +125,7 @@ from datetime import datetime
 from collections import defaultdict, deque
 from pathlib import Path
 
-from trueskill_engine import compute_trueskill
+from trueskill_engine_v2 import compute_trueskill_margin
 from team_aggregation import build_team_rankings
 
 import config as _config
@@ -934,7 +949,7 @@ def build_adjacency_explanations(
 
 
 # ============================================================================
-# 9b.  Strength-of-schedule / quality-wins / TGRS  (NEW — feeds build_site.py)
+# 9b.  Strength-of-schedule / quality-wins / TGRS  (feeds build_site.py)
 # ============================================================================
 
 def precompute_sos(
@@ -1113,11 +1128,16 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     recency = precompute_recency(players, ranking_results_idx)
     margins = precompute_margins(players, ranking_results_idx)
 
-    match_pairs = [
-        (m["winner"], m["loser"])
+    # NOTE: trueskill_engine_v2.compute_trueskill_margin() expects
+    # (winner, loser, set_score) triples — not just (winner, loser)
+    # pairs — so it can derive a per-match margin/epsilon from the
+    # scoreline. The set score is already sitting on every match dict
+    # as "score", so we just carry it through here.
+    match_triples = [
+        (m["winner"], m["loser"], m["score"])
         for m in sorted(ranking_matches, key=lambda x: x["date"])
     ]
-    trueskill_ratings = compute_trueskill(match_pairs)
+    trueskill_ratings = compute_trueskill_margin(match_triples)
 
     sos_full = precompute_sos(players, ranking_results_idx, trueskill_ratings)
     quality_wins_full = precompute_quality_wins(players, ranking_results_idx, trueskill_ratings)
@@ -1461,8 +1481,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         year = getattr(_config, "YEAR", 2025)
         default_paths = [
-            os.path.join("..", "historical", str(year), "all_matches_excluding_state.csv"),
-            os.path.join("historical", str(year), "all_matches_excluding_state.csv"),
+            os.path.join("..", "historical", str(year), "all_matches.csv"),
+            os.path.join("historical", str(year), "all_matches.csv"),
         ]
         csv_files = [p for p in default_paths if os.path.exists(p)]
         if not csv_files:
@@ -1500,3 +1520,4 @@ if __name__ == "__main__":
         except Exception:
             import traceback
             traceback.print_exc()
+
