@@ -258,6 +258,13 @@ season_label = f"{SEASON_YEAR} season" if SEASON_YEAR else ""
 # Only link to the state-tournament prediction page if predict_state.py
 # has actually produced it — avoids a dead/404 nav link if that script
 # hasn't run yet (e.g. first-time setup, or it failed/was skipped).
+#
+# NOTE: this check is now reliable because both GitHub Actions workflows
+# run "Build state tournament predictions" (predict_state.py) BEFORE
+# "Build HTML site" (this script) — see rank_publish.yml /
+# fetch_rank_publish.yml. Previously build_site.py ran first every time,
+# so this file never existed yet and the nav link was silently omitted
+# on every single run.
 _prediction_html_exists = (out_dir / "prediction_of_state.html").exists()
 prediction_nav_link = (
     '<a class="nav-predict" href="prediction_of_state.html">&#127942; State Tournament Prediction</a>'
