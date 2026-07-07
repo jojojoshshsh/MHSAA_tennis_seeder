@@ -1,32 +1,24 @@
 name: Fetch + Rank + Publish
-
 # Full refresh: crawls tennisreporting.com for the season set in
 # src/config.py (YEAR), re-ranks it, and rebuilds the website.
 # This is the slow path (many HTTP calls) — use "Rank + Publish" instead
 # if you only need to re-run the ranking logic on data you already have.
-
 on:
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   fetch-rank-publish:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install dependencies
         run: pip install -r requirements.txt
-
       # ── Fetch: crawl matches for config.YEAR into historical/{YEAR}/ ──────
       - name: Run fetch phase
         working-directory: src
@@ -34,16 +26,16 @@ jobs:
           TENNIS_EMAIL: ${{ secrets.TENNIS_EMAIL }}
           TENNIS_PASSWORD: ${{ secrets.TENNIS_PASSWORD }}
         run: python main_fetch.py
-
       # ── Rank: read historical/{YEAR}/, write src/rankings_by_division_flight/ ──
       - name: Run rank phase
         working-directory: src
         run: python run_ranking.py
-
       # ── Site: build static HTML from the ranking CSVs ─────────────────────
       - name: Build HTML site
         run: python scripts/build_site.py
-
+      # ── Predict: project the state tournament bracket from the rankings ──
+      - name: Build state tournament predictions
+        run: python scripts/predict_state.py
       # ── Persist: commit all changed artefacts ──────────────────────────────
       - name: Commit and push
         run: |
