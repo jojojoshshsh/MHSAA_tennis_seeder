@@ -255,6 +255,15 @@ edt = timezone(timedelta(hours=-4))
 updated = datetime.now(edt).strftime("%B %d, %Y at %I:%M %p EDT")
 season_label = f"{SEASON_YEAR} season" if SEASON_YEAR else ""
 
+# Only link to the state-tournament prediction page if predict_state.py
+# has actually produced it — avoids a dead/404 nav link if that script
+# hasn't run yet (e.g. first-time setup, or it failed/was skipped).
+_prediction_html_exists = (out_dir / "prediction_of_state.html").exists()
+prediction_nav_link = (
+    '<a class="nav-predict" href="prediction_of_state.html">&#127942; State Tournament Prediction</a>'
+    if _prediction_html_exists else ""
+)
+
 html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -274,6 +283,8 @@ html = f"""<!DOCTYPE html>
   nav a:hover {{ background: rgba(255,255,255,.12); }}
   .nav-about {{ color: #ffd580; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(255,213,128,.3); text-decoration: none; margin-right: .4rem; }}
   .nav-about:hover {{ background: rgba(255,213,128,.1); }}
+  .nav-predict {{ color: #ff9f8a; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(255,159,138,.3); text-decoration: none; margin-right: .4rem; }}
+  .nav-predict:hover {{ background: rgba(255,159,138,.1); }}
   .nav-tool {{ color: #a8e6c0; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(168,230,192,.3); text-decoration: none; margin-right: .4rem; cursor: pointer; background: none; }}
   .nav-tool:hover {{ background: rgba(168,230,192,.1); }}
   main {{ max-width: 1400px; margin: auto; padding: 1.5rem; }}
@@ -350,6 +361,7 @@ html = f"""<!DOCTYPE html>
 </header>
 <nav>
   <a class="nav-about" href="about.html">About &amp; Methodology</a>
+  {prediction_nav_link}
   <button class="nav-tool" onclick="showTool('search')">&#128269; School Search</button>
   <button class="nav-tool" onclick="showTool('compare')">&#9878; Team Compare</button>
   {team_nav}
