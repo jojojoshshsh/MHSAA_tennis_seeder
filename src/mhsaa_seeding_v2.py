@@ -21,9 +21,11 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       people, directly or transitively" ranks first. Ties (which will
       happen whenever two players aren't comparable in the DAG) are
       broken by recency, then by average score margin, then TrueSkill
-      conservative rating, then by a random value for full determinism.
+      conservative rating, then — as an absolute last resort, purely to
+      guarantee a single deterministic order — alphabetically by name.
       This produces one strict, tie-free order with no shortcuts taken
-      on win/loss logic.
+      on win/loss logic, and the same input always produces the same
+      output.
 
   STEP 3 — Adjacent fix-up pass (cross-division, run BEFORE splitting)
       Walk the order top to bottom comparing each adjacent pair (i, i+1)
@@ -45,6 +47,32 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       No new comparisons happen at this stage — division splitting is a
       pure partition of the already-final order.
 
+DETERMINISM
+-------------------------------
+  This engine is fully deterministic: the same input CSV always produces
+  the exact same output, run after run, regardless of PYTHONHASHSEED or
+  process restarts. Two things previously broke that guarantee and have
+  been fixed:
+
+    1. `random.random()` was used as the very-last-resort tiebreak in
+       the seed order. It is gone. The last-resort tiebreak is now
+       alphabetical by player name — deterministic, and only ever
+       reached when two players are DAG-incomparable AND tied on
+       recency, margin, and TrueSkill mu (rare).
+
+    2. Cycle detection iterated over `set[str]` children in whatever
+       order Python's hash randomization handed back that run. Since
+       which cycle is discovered first determines which "oldest match"
+       gets deleted to break it, this could silently produce a
+       different acyclic graph — and therefore different rankings — on
+       two runs over identical input. Children are now visited in
+       sorted order.
+
+  Floating-point comparisons (score margins, TrueSkill mu diffs, TGRS
+  ties) were already epsilon-guarded (1e-9) and are unaffected — they
+  are deterministic as long as the match set feeding them is (which the
+  two fixes above now guarantee).
+
 RANKING-EXCLUDED MATCHES
 -------------------------------
   Some matches are short-circuited results that shouldn't influence
@@ -60,6 +88,19 @@ RANKING-EXCLUDED MATCHES
   common-opponent sets, recency, margin, and TrueSkill. They are NOT
   filtered out of `records` (matches/wins/losses) or CSV/console output —
   they still count there exactly as before.
+
+RECORDS (WINS/LOSSES) — COUNTED BEFORE ANY REMOVAL
+-------------------------------
+  A player's `wins`/`losses`/`matches` record is computed from the FULL
+  set of matches in their (gender, match_type, flight) bucket, exactly
+  as loaded — before the MIN_MATCHES drop, before the per-school dedup
+  pass, and across every division in that bucket (not just their own).
+  This means a player's win/loss totals reflect everyone they actually
+  played, including opponents from other divisions and opponents who
+  were later dropped from ranking consideration for having too few
+  matches. Nothing about the ranking core, seed order, or any other
+  output column is affected by this — only the `wins`/`losses`/
+  `matches`/`last_match_date` figures are sourced from the wider set.
 
 TRUESKILL (UPDATED — now margin-aware)
 -------------------------------
@@ -109,15 +150,14 @@ OUTPUT LAYER (UPDATED)
 
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
-unchanged from the previous version. Section 12 (output helpers),
-run() (section 11), and the TrueSkill import/call in process_group
-(section 10) were rewritten.
+unchanged from the previous version, aside from the determinism fixes
+called out above. Section 12 (output helpers), run() (section 11), and
+the TrueSkill import/call in process_group (section 10) were rewritten.
 """
 
 import csv
 import json
 import os
-import random
 import re
 import sys
 import time
@@ -513,12 +553,18 @@ def build_records(
     players: list[str],
     results_idx: dict[str, list[dict]],
 ) -> dict[str, dict]:
-    """Total matches / wins / losses per player within this group (used
-    for the 'matches' and 'record' columns in the output CSVs).
+    """Total matches / wins / losses per player (used for the 'matches'
+    and 'record' columns in the output CSVs).
 
-    IMPORTANT: this must be called with a results_idx built from ALL
-    matches (including ranking-excluded ones) — records intentionally
-    still count single-set and "2-0 2-0" matches."""
+    IMPORTANT: callers should pass a results_idx built from the FULL,
+    unfiltered match set for the bucket (i.e. before the MIN_MATCHES
+    drop and before per-school dedup, and including matches against
+    players from every division in the bucket) — records intentionally
+    still count single-set / "2-0 2-0" matches, matches against players
+    who were later dropped from ranking, and matches against opponents
+    in other divisions. This is purely a "how many matches did this
+    player actually play, and what was the outcome" tally; it never
+    feeds the ranking core."""
     records: dict[str, dict] = {}
     for p in players:
         ms = results_idx.get(p, [])
@@ -627,6 +673,15 @@ def _find_any_cycle(
     is already acyclic. Unlike the old engine, this does NOT ignore short
     cycles — every cycle must be broken before step 2 can build a clean
     transitive closure.
+
+    DETERMINISM: `beats[node]` is a set[str], and Python's set iteration
+    order for strings depends on hash randomization (PYTHONHASHSEED),
+    which varies process-to-process. Since which cycle is discovered
+    first determines which "oldest match" gets removed to break it, that
+    would let two runs over identical input silently land on a different
+    acyclic graph. We visit children in sorted() order instead, so the
+    DFS traversal — and therefore the cycle found, and therefore the
+    match removed — is always the same for the same input.
     """
     player_set = set(players)
     WHITE, GRAY, BLACK = 0, 1, 2
@@ -642,7 +697,7 @@ def _find_any_cycle(
         color[start] = GRAY
         path_idx[start] = len(path)
         path.append(start)
-        stack = [(start, iter(beats.get(start, set())))]
+        stack = [(start, iter(sorted(beats.get(start, set()))))]
 
         while stack:
             node, children = stack[-1]
@@ -659,7 +714,7 @@ def _find_any_cycle(
                     color[nxt] = GRAY
                     path_idx[nxt] = len(path)
                     path.append(nxt)
-                    stack.append((nxt, iter(beats.get(nxt, set()))))
+                    stack.append((nxt, iter(sorted(beats.get(nxt, set())))))
                     pushed = True
                     break
 
@@ -735,7 +790,7 @@ def build_transitive_closure(
     while queue:
         node = queue.popleft()
         topo_order.append(node)
-        for nxt in beats.get(node, ()):
+        for nxt in sorted(beats.get(node, ())):
             if nxt in indeg_work:
                 indeg_work[nxt] -= 1
                 if indeg_work[nxt] == 0:
@@ -759,16 +814,16 @@ def transitivity_seed_order(
     recency: dict[str, float],
     margins: dict[str, float],
     trueskill_ratings: dict,
-    random_tiebreak: dict[str, float],
 ) -> list[str]:
     """
     STEP 2 ranking: sort by size of transitive-win set, descending.
     Ties (incomparable players in the DAG) fall back to recency, then
-    average margin, then TrueSkill conservative rating, then a per-player
-    random tiebreak value — never the player's name. These ties get a real
+    average margin, then TrueSkill conservative rating, then — as an
+    absolute last resort, purely to force a single deterministic
+    ordering — alphabetically by player name. These ties get a real
     chance to be fixed by h2h / common opponents / dominance in the
-    per-division fix-up pass; the random tiebreak is a last-last resort so
-    the sort is always fully deterministic within a single run.
+    per-division fix-up pass; the name tiebreak just guarantees the sort
+    itself is fully deterministic, run after run, for identical input.
     """
     return sorted(
         players,
@@ -777,7 +832,7 @@ def transitivity_seed_order(
             -recency.get(p, 0.0),
             -margins.get(p, 0.0),
             -(trueskill_ratings[p].mu if p in trueskill_ratings else 0.0),
-            random_tiebreak.get(p, 0.0),
+            p,
         ),
     )
 
@@ -806,7 +861,7 @@ def common_opponent_comparison(
     a_wins = b_wins = 0
     a_margin = b_margin = 0.0
     counted = False
-    for c in common:
+    for c in sorted(common):
         ac = h2h.get((a, c) if a < c else (c, a))
         bc = h2h.get((b, c) if b < c else (c, b))
         if ac is None or bc is None:
@@ -862,7 +917,7 @@ def compare_adjacent(
       1. head-to-head
       2. common opponents (win count, then margin)
       3. dominance (multi-hop transitive beats)
-      4. TrueSkill conservative rating (last resort before random)
+      4. TrueSkill conservative rating (last resort)
     """
     r = head_to_head_result(a, b, h2h)
     if r is not None:
@@ -876,7 +931,7 @@ def compare_adjacent(
     if r is not None:
         return r, "dominance"
 
-    # ── Rule 4: TrueSkill conservative rating (last resort before random) ──
+    # ── Rule 4: TrueSkill conservative rating (last resort) ──
     ra = trueskill_ratings.get(a)
     rb = trueskill_ratings.get(b)
     if ra is not None and rb is not None:
@@ -1019,10 +1074,10 @@ def _compute_tgrs(
 
     Formula (weights are intentionally simple/explainable, tune freely):
         TGRS = (2.0 * reach_size)
-             + (1.0 * ts_conservative)
+             + (5.0 * ts_conservative)
              + (0.5 * sos)
              + (1.5 * quality_wins)
-             + (5.0 * win_pct)
+             + (1.0 * win_pct)
     """
     return (
         2.0 * reach_size
@@ -1059,6 +1114,15 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     across all divisions together, then split.
     """
     gender, match_type, flight = key
+
+    # Snapshot of every match in this bucket exactly as loaded, before
+    # the MIN_MATCHES drop or the per-school dedup pass below. Records
+    # (wins/losses/matches/last_match_date) are computed from THIS full
+    # snapshot — spanning every division in the bucket — so a player's
+    # record reflects everyone they actually played, not just the
+    # opponents who survived filtering. Nothing else in the pipeline
+    # uses this snapshot; ranking still runs on the filtered set.
+    original_group_matches = list(group_matches)
 
     # ── STEP 0a: iteratively drop players with fewer than MIN_MATCHES
     #    total matches in the group. Records still count ranking-excluded
@@ -1117,8 +1181,12 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     school_map = build_school_map(group_matches)
     division_map = build_division_map(group_matches)
 
-    full_results_idx = build_results_index(group_matches)
-    records = build_records(players, full_results_idx)
+    # Records: built from the full pre-filter/pre-dedup bucket snapshot,
+    # not from the filtered `group_matches`, so wins/losses/matches count
+    # everything the player actually played (including opponents from
+    # other divisions and opponents later dropped from ranking).
+    original_results_idx = build_results_index(original_group_matches)
+    records = build_records(players, original_results_idx)
 
     ranking_matches = [m for m in group_matches if not m.get("is_ranking_excluded")]
 
@@ -1148,9 +1216,8 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
 
     # --- STEP 2: transitive closure + transitivity-only order ---
     reach = build_transitive_closure(players, beats)
-    random_tiebreak = {p: random.random() for p in players}
     seed_order = transitivity_seed_order(
-        players, reach, recency, margins, trueskill_ratings, random_tiebreak
+        players, reach, recency, margins, trueskill_ratings
     )
 
     # --- STEP 3: split into divisions ---
@@ -1520,4 +1587,3 @@ if __name__ == "__main__":
         except Exception:
             import traceback
             traceback.print_exc()
-
