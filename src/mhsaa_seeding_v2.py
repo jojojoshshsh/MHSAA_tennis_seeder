@@ -1481,8 +1481,8 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         year = getattr(_config, "YEAR", 2025)
         default_paths = [
-            os.path.join("..", "historical", str(year), "all_matches.csv"),
-            os.path.join("historical", str(year), "all_matches.csv"),
+            os.path.join("..", "historical", str(year), "all_matches_excluding_state.csv"),
+            os.path.join("historical", str(year), "all_matches_excluding_state.csv"),
         ]
         csv_files = [p for p in default_paths if os.path.exists(p)]
         if not csv_files:
