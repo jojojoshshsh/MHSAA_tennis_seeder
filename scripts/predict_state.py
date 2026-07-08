@@ -75,9 +75,16 @@ hash-and-ladder generator:
     copied verbatim from predict_matchup.py), since true per-player
     dominance is never persisted per player (compute_match_margin() is a
     per-MATCH quantity, never aggregated and saved).
-  - A performance gap is formed from (mu_a - mu_b) plus a weighted
-    dominance-proxy gap, exactly as in predict_matchup.py's
-    _simulate_match().
+  - A performance gap is formed from an EFFECTIVE mu gap plus a weighted
+    dominance-proxy gap (see _perf_diff_for_match() below). The
+    effective mu gap is derived from match_win_prob(a, b) -- the SAME
+    blended (TrueSkill + seed-prior) probability that decides who
+    advances in the bracket -- rather than the raw, unblended
+    mu_a - mu_b. This keeps the scoreline simulator's notion of "who's
+    favored" identical to the bracket's notion of "who's favored"; see
+    the docstring on _perf_diff_for_match() for why that matters (it
+    fixes a real bug where close, seed-prior-flipped matchups could
+    print a winner alongside a scoreline showing them losing 0-6, 0-6).
   - Individual sets are simulated game-by-game via a logistic function
     of that performance gap plus fixed Gaussian noise (_simulate_set(),
     copied verbatim from predict_matchup.py), through a full best-of-3
@@ -124,6 +131,7 @@ import random
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
+from statistics import NormalDist
 
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
@@ -264,6 +272,7 @@ def match_win_prob(a, b) -> float:
 SEED_PRIOR_ACCURACY = 0.960   # 19-year average "higher seed wins" rate, see note above
 SEED_BLEND_WEIGHT = 0.35      # 0.0 = pure TrueSkill (old behavior); 1.0 = pure seed prior
 _EPS = 1e-9
+_STD_NORMAL = NormalDist()    # standard normal CDF/quantile, used by _implied_mu_gap() below
 
 
 def _logit(p: float) -> float:
@@ -405,13 +414,34 @@ def compute_bracket_probabilities(players: list) -> dict[int, dict]:
 # Everything in this section mirrors predict_matchup.py's simulation code
 # (_dominance_proxy, _simulate_set, _simulate_match) as closely as
 # possible, operating on the same raw CSV row dicts predict_state.py
-# already carries around. The only addition here is deterministic
+# already carries around. The only additions here are (a) deterministic
 # per-match seeding (predict_matchup.py exposes --seed for the whole CLI
 # run; here each bracket match gets its own derived seed so re-running
-# this script always reproduces the same bracket).
+# this script always reproduces the same bracket) and (b) deriving the
+# simulator's performance gap from the SAME blended win probability that
+# decides bracket advancement, via _perf_diff_for_match() /
+# _implied_mu_gap() below -- see those functions for why.
 
 def _player_name(row: dict) -> str:
     return row.get("name") or row.get("pair_name") or "Unknown"
+
+
+def _implied_mu_gap(p: float, c: float) -> float:
+    """
+    Inverts the TrueSkill win-probability formula
+    P = Phi((mu_a - mu_b) / c) to recover an "effective mu gap" that is
+    consistent with a given probability `p` -- which, via
+    match_win_prob(), may already be blended with the seed-history prior
+    (see _apply_seed_prior()), not just raw TrueSkill.
+
+    Phi is the standard normal CDF (see _Phi() above), so its inverse is
+    the standard normal quantile function, i.e. statistics.NormalDist's
+    inv_cdf. When `p` is the *unblended* p_ts for a pair, this returns
+    mu_a - mu_b back out again (up to floating point), so behavior is
+    unchanged whenever SEED_BLEND_WEIGHT = 0.0.
+    """
+    p = min(max(p, _EPS), 1.0 - _EPS)
+    return c * _STD_NORMAL.inv_cdf(p)
 
 
 def _dominance_proxy(row: dict) -> float:
@@ -434,6 +464,45 @@ def _dominance_proxy(row: dict) -> float:
     tgrs_scaled = _to_float(row, "TGRS_scaled", default=50.0)
     tgrs_norm = min(max(tgrs_scaled / 100.0, 0.0), 1.0)
     return max(0.0, min(1.0, 0.5 * win_pct + 0.25 * sos_norm + 0.25 * tgrs_norm))
+
+
+def _perf_diff_for_match(a: dict, b: dict) -> float:
+    """
+    The performance gap fed into the scoreline simulator (positive
+    favors `a`): an effective mu-gap consistent with match_win_prob(a, b)
+    -- which already includes the seed-history prior blend -- plus the
+    same dominance-proxy nudge predict_matchup.py's _simulate_match()
+    uses.
+
+    This used to be plain (mu_a - mu_b) + 8*(dom_a - dom_b), derived only
+    from raw TrueSkill. That was fine for predict_matchup.py, which has
+    no seed prior, but broke down once predict_state.py started blending
+    in the seed-history prior for bracket-advancement decisions: for a
+    close matchup (~50-57% win probability) where the prior flips or
+    reinforces a near-tied TrueSkill call, the raw mu gap can still point
+    the OTHER way. In that case nearly every one of the 400 simulated
+    trials in predict_match_details() disagrees with the declared
+    winner, so the "trials that agree with the favorite" filter is left
+    hunting through a handful of rare, extreme upset trials -- and the
+    most common scoreline among THOSE is a blowout in the *loser's*
+    favor, printed next to the *winner's* name (e.g. a 51% favorite shown
+    "winning" 0-6, 0-6).
+
+    Deriving the effective mu gap from the same blended probability that
+    decided the winner (via _implied_mu_gap()) keeps the simulator's
+    notion of "who's favored" identical to the bracket's, so trials
+    naturally land on the declared winner's side most of the time, and
+    reduces to the original (mu_a - mu_b) whenever SEED_BLEND_WEIGHT = 0.
+    """
+    sigma_a = _player_mu_sigma(a)[1]
+    sigma_b = _player_mu_sigma(b)[1]
+    mu_a = _player_mu_sigma(a)[0]
+    mu_b = _player_mu_sigma(b)[0]
+    p = match_win_prob(a, b)
+    c = math.sqrt(2.0 * BETA ** 2 + sigma_a ** 2 + sigma_b ** 2)
+    mu_gap_eff = _implied_mu_gap(p, c) if c > 0 else (mu_a - mu_b)
+    dom_a, dom_b = _dominance_proxy(a), _dominance_proxy(b)
+    return mu_gap_eff + 8.0 * (dom_a - dom_b)
 
 
 def _simulate_set(perf_diff: float, game_noise: float, rng: random.Random) -> tuple[int, int]:
@@ -465,17 +534,18 @@ def _simulate_set(perf_diff: float, game_noise: float, rng: random.Random) -> tu
             return 6, 7
 
 
-def _simulate_match_once(a: dict, b: dict, rng: random.Random) -> tuple[bool, list[str]]:
+def _simulate_match_once(a: dict, b: dict, rng: random.Random,
+                          perf_diff: float) -> tuple[bool, list[str]]:
     """
     One simulated best-of-3 match between two REAL players (never a
     BYE), identical mechanics to predict_matchup.py's _simulate_match(),
     except it also reports which side (a or b) won, and the set scores
     are always returned from `a`'s perspective ("a_games-b_games").
+
+    `perf_diff` (positive favors a) is computed once per matchup by
+    _perf_diff_for_match() -- see that function's docstring for why it's
+    no longer derived from the raw mu_a - mu_b gap.
     """
-    dom_a, dom_b = _dominance_proxy(a), _dominance_proxy(b)
-    mu_a, sigma_a = _player_mu_sigma(a)
-    mu_b, sigma_b = _player_mu_sigma(b)
-    perf_diff = (mu_a - mu_b) + 8.0 * (dom_a - dom_b)
     game_noise = 8.0  # fixed within-set randomness; no volatility input
 
     sets: list[str] = []
@@ -522,15 +592,16 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool,
                            trials: int = SCORELINE_TRIALS) -> dict:
     """
     Runs predict_matchup.py's Monte Carlo engine `trials` times for this
-    matchup (deterministically seeded, see _match_seed_int) and returns:
+    matchup (deterministically seeded, see _match_seed_int; performance
+    gap held fixed per matchup, see _perf_diff_for_match) and returns:
 
       - "score": the single most common exact scoreline among the trials
-        that agree with the TrueSkill favorite (`winner_is_a`) -- the
-        same "most common simulated outcome" logic predict_matchup.py's
-        predict() uses to pick its headline scoreline. Oriented so the
-        FIRST number in each set is always the eventual bracket winner's
-        game count (e.g. a winner who dropped set two reads
-        ["6-4", "4-6", "7-5"]).
+        that agree with the TrueSkill/seed-prior favorite (`winner_is_a`)
+        -- the same "most common simulated outcome" logic
+        predict_matchup.py's predict() uses to pick its headline
+        scoreline. Oriented so the FIRST number in each set is always
+        the eventual bracket winner's game count (e.g. a winner who
+        dropped set two reads ["6-4", "4-6", "7-5"]).
       - "sim_seed": the integer seed (from _match_seed_int) that drove
         this matchup's random.Random instance -- re-running this script
         for the same two players always reproduces this exact seed and
@@ -544,13 +615,14 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool,
     """
     seed = _match_seed_int(a, b)
     rng = random.Random(seed)
+    perf_diff = _perf_diff_for_match(a, b)
 
     matching: Counter[tuple[str, ...]] = Counter()
     last_sets: list[str] = ["6-4", "6-4"]  # harmless fallback, overwritten below
     three_setters = tiebreak_sets = seven_five_sets = 0
 
     for _ in range(trials):
-        a_won, sets = _simulate_match_once(a, b, rng)
+        a_won, sets = _simulate_match_once(a, b, rng, perf_diff)
         last_sets = sets
 
         if len(sets) == 3:
@@ -693,6 +765,31 @@ def load_groups() -> dict[tuple, list[dict]]:
     return groups
 
 
+_CATEGORY_SORT_ORDER = {"singles": 0, "doubles": 1}
+
+
+def _group_sort_key(key: tuple) -> tuple:
+    """
+    Ordering used everywhere a list of (category, gender, division,
+    flight) groups gets iterated -- the console summary in run(), and
+    (via all_results' insertion order) the HTML report's "Championship /
+    Final / Semifinal Odds" and "Predicted Bracket Path" sections:
+    division first, then singles before doubles, then gender, then
+    flight. This replaces the tuple's natural field order, which sorted
+    by category before division (putting every doubles bracket ahead of
+    every singles one, and interleaving divisions within each).
+    """
+    category, gender, division, flight = key
+    return (division, _CATEGORY_SORT_ORDER.get(category, 2), gender, flight)
+
+
+def _team_group_sort_key(key: tuple) -> tuple:
+    """Sort key for (gender, division) team-points groups: division
+    first, matching _group_sort_key()'s division-first ordering."""
+    gender, division = key
+    return (division, gender)
+
+
 # ============================================================================
 # 7.  Per-group processing: probabilities + deterministic bracket + team pts
 # ============================================================================
@@ -776,7 +873,7 @@ def write_prediction_csvs(all_results: list[dict], team_points: dict) -> None:
                     "p_semifinal": round(row["p_semifinal"] * 100, 2),
                 })
 
-    for (gender, division), schools in sorted(team_points.items()):
+    for (gender, division), schools in sorted(team_points.items(), key=lambda kv: _team_group_sort_key(kv[0])):
         filename = f"team_predicted_{gender}_division_{division}.csv"
         rows = sorted(schools.items(), key=lambda kv: -kv[1])
         with open(PRED_CSV_DIR / filename, "w", newline="", encoding="utf-8-sig") as f:
@@ -933,7 +1030,7 @@ h3 { font-size: 1.02rem; margin: 1.5rem 0 .5rem; color: #333; }
 def build_full_html(all_results: list[dict], team_points: dict) -> str:
     team_html = "".join(
         _team_table_html(gender, division, schools)
-        for (gender, division), schools in sorted(team_points.items())
+        for (gender, division), schools in sorted(team_points.items(), key=lambda kv: _team_group_sort_key(kv[0]))
     )
     prob_html = "".join(_probability_table_html(r) for r in all_results)
     bracket_html = "".join(_bracket_path_html(r) for r in all_results)
@@ -1004,7 +1101,7 @@ def run() -> None:
         return
 
     all_results = []
-    for key in sorted(groups):
+    for key in sorted(groups, key=_group_sort_key):
         result = process_group(key, groups[key])
         all_results.append(result)
         category, gender, division, flight = key
