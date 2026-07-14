@@ -162,6 +162,28 @@ runs, so it shares the same bounded [0, 1] arithmetic as the TrueSkill/
 seed-prior signal and can no longer escape the compression that's
 supposed to keep scorelines realistic.
 
+SECOND BUG, same symptom -- "no three-set matches ever get printed":
+fixing the performance-gap magnitude above was necessary but not
+sufficient. Even with a realistic perf_diff, predict_match_details() was
+picking the printed scoreline by taking a flat Counter.most_common(1)
+over every exact simulated scoreline tuple among the winner-matching
+trials. That vote structurally disadvantages three-setters even when
+they're a large share -- sometimes a plurality -- of realistic outcomes:
+a straight-sets win concentrates into a small number of distinct
+scorelines (6-3 6-4, 6-2 6-3, ...), while a three-set win fragments
+across dozens of distinct exact sequences (6-4 3-6 6-3, 7-5 4-6 6-2, 6-3
+3-6 7-5, ...). No single three-set tuple can accumulate as many votes as
+the single most common two-set tuple even when "goes to a 3rd set" is
+correctly computed at 40-50%, because that 40-50% is spread thin across
+many different exact sequences instead of pooled into one. The fix (see
+predict_match_details()) is a two-stage pick: first decide the more
+common match SHAPE (best-of-2 vs. three sets) by aggregate vote share
+among the winner-matching trials, then take the most-common EXACT
+scoreline within that shape only. This does not change any probability
+number in the output (prob_three_sets/prob_tiebreak/prob_75 were already
+computed correctly across all trials) -- it only changes which single
+representative scoreline gets printed as "the" predicted score.
+
 OUTPUT
 ------
   - docs/csv/predictions/bracket_*.csv           (per-bracket seed odds)
@@ -772,13 +794,17 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool,
     matchup (deterministically seeded, see _match_seed_int; performance
     gap held fixed per matchup, see _perf_diff_for_match) and returns:
 
-      - "score": the single most common exact scoreline among the trials
-        that agree with the TrueSkill/seed-prior favorite (`winner_is_a`)
-        -- the same "most common simulated outcome" logic
-        predict_matchup.py's predict() uses to pick its headline
-        scoreline. Oriented so the FIRST number in each set is always
-        the eventual bracket winner's game count (e.g. a winner who
-        dropped set two reads ["6-4", "4-6", "7-5"]).
+      - "score": the most common exact scoreline among the trials that
+        agree with the TrueSkill/seed-prior favorite (`winner_is_a`),
+        chosen in TWO STAGES rather than one flat "most common tuple"
+        vote -- see the CALIBRATION NOTE in the module docstring for why
+        a flat vote structurally never picks a three-setter. Stage one
+        picks the more common MATCH SHAPE (best-of-2 vs. a full three
+        sets) among the winner-matching trials; stage two picks the
+        single most common exact scoreline within that shape. Oriented
+        so the FIRST number in each set is always the eventual bracket
+        winner's game count (e.g. a winner who dropped set two reads
+        ["6-4", "4-6", "7-5"]).
       - "sim_seed": the integer seed (from _match_seed_int) that drove
         this matchup's random.Random instance -- re-running this script
         for the same two players always reproduces this exact seed and
@@ -815,7 +841,25 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool,
             matching[tuple(sets)] += 1
 
     if matching:
-        chosen = list(matching.most_common(1)[0][0])
+        # Two-stage pick -- see the CALIBRATION NOTE in the module
+        # docstring for why a flat Counter.most_common(1) over every
+        # exact scoreline structurally never selects a three-setter:
+        # three-set outcomes fragment across many distinct exact
+        # sequences while two-set outcomes concentrate into a handful,
+        # so no single three-set tuple can out-vote the single most
+        # common two-set tuple even when three-setters are the more
+        # probable *shape* of the match overall.
+        #
+        # Stage 1: which match shape (best-of-2 vs. three sets) won more
+        # votes among the winner-matching trials?
+        shape_votes: Counter[int] = Counter()
+        for sets_tuple, count in matching.items():
+            shape_votes[len(sets_tuple)] += count
+        majority_shape = shape_votes.most_common(1)[0][0]
+
+        # Stage 2: most common EXACT scoreline within that shape only.
+        same_shape = Counter({k: v for k, v in matching.items() if len(k) == majority_shape})
+        chosen = list(same_shape.most_common(1)[0][0])
     else:
         # Vanishingly rare (would require a huge upset never once landing
         # on the favorite's side across `trials` runs) -- fall back to the
