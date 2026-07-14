@@ -85,10 +85,26 @@ hash-and-ladder generator:
     the docstring on _perf_diff_for_match() for why that matters (it
     fixes a real bug where close, seed-prior-flipped matchups could
     print a winner alongside a scoreline showing them losing 0-6, 0-6).
+  - That performance gap is then passed through a saturating cap (see
+    PERF_DIFF_SATURATION_SCALE and _perf_diff_for_match()'s docstring)
+    before it ever reaches the set simulator. Without this, a lopsided
+    seed gap (which, thanks to the ~96%-accurate seed prior, can push
+    match_win_prob() up past 99% for something like a #1 vs #32) drove
+    perf_diff into the high 20s/30s, which made EVERY game in the set
+    close to a coin-flip-free certainty for the favorite -- empirically,
+    a #1-seed-vs-#32-seed matchup was printing a double-bagel (6-0, 6-0)
+    something like a third of the time, which is far more lopsided than
+    real high school tennis actually looks, even in a genuine mismatch
+    (there's almost always at least one hard-fought game -- a service
+    letdown, a nerves-driven game from the leader, etc.). The cap holds
+    the most extreme mismatches' bagel rate to a much more defensible
+    ~20-25% for a single 6-0 set and ~5% for a double-bagel match, while
+    leaving close-to-moderate matchups (which were never the problem)
+    essentially untouched.
   - Individual sets are simulated game-by-game via a logistic function
-    of that performance gap plus fixed Gaussian noise (_simulate_set(),
-    copied verbatim from predict_matchup.py), through a full best-of-3
-    match.
+    of that (capped) performance gap plus fixed Gaussian noise
+    (_simulate_set(), copied verbatim from predict_matchup.py except for
+    the cap applied upstream), through a full best-of-3 match.
   - Because this uses real randomness (random.Random), and this script
     must be reproducible on re-run, each match's simulation is seeded
     deterministically from a hash of the two competitors' names and
@@ -153,6 +169,24 @@ PRED_HTML_PATH = DOCS_DIR / "prediction_of_state.html"
 MAX_BRACKET = 32
 VALID_FLIGHTS = {"1", "2", "3", "4"}
 SCORELINE_TRIALS = 400  # Monte Carlo trials per bracket match, for the printed scoreline only
+
+# Saturating cap applied to the scoreline simulator's performance gap (see
+# _perf_diff_for_match()). Without this, a very lopsided seed gap (boosted
+# further by the ~96%-accurate seed-history prior -- see SEED_PRIOR_ACCURACY)
+# could push the raw performance gap into the high 20s/30s, which made every
+# game in a simulated set nearly a lock for the favorite and produced
+# double-bagel (6-0, 6-0) scorelines far more often than real high school
+# tennis does even in a genuine mismatch. Empirically tuned (see the repo's
+# calibration notes / git history for the check script used) so that:
+#   - close-to-moderate matchups (roughly <=70% win prob) are left almost
+#     untouched, since they were never the problem, and
+#   - the most extreme mismatches (99%+ win prob) top out around a ~23%
+#     chance of a single 6-0 set and a ~5% chance of a full double-bagel
+#     match, instead of ~90%/~85%.
+# Formula: capped = SCALE * tanh(raw / SCALE) -- behaves ~linearly for small
+# raw values (negligible effect on close matches) and asymptotically
+# approaches +/-SCALE as raw grows arbitrarily large (bounds the extremes).
+PERF_DIFF_SATURATION_SCALE = 10.0
 
 FINISH_LABELS = {
     1: "Champion",
@@ -414,13 +448,16 @@ def compute_bracket_probabilities(players: list) -> dict[int, dict]:
 # Everything in this section mirrors predict_matchup.py's simulation code
 # (_dominance_proxy, _simulate_set, _simulate_match) as closely as
 # possible, operating on the same raw CSV row dicts predict_state.py
-# already carries around. The only additions here are (a) deterministic
+# already carries around. The additions here are (a) deterministic
 # per-match seeding (predict_matchup.py exposes --seed for the whole CLI
 # run; here each bracket match gets its own derived seed so re-running
-# this script always reproduces the same bracket) and (b) deriving the
+# this script always reproduces the same bracket), (b) deriving the
 # simulator's performance gap from the SAME blended win probability that
 # decides bracket advancement, via _perf_diff_for_match() /
-# _implied_mu_gap() below -- see those functions for why.
+# _implied_mu_gap() below -- see those functions for why -- and (c)
+# capping that performance gap (PERF_DIFF_SATURATION_SCALE) so extreme
+# seed mismatches don't turn every game of a set into a near-certainty
+# for the favorite -- see the docstring on _perf_diff_for_match().
 
 def _player_name(row: dict) -> str:
     return row.get("name") or row.get("pair_name") or "Unknown"
@@ -466,13 +503,30 @@ def _dominance_proxy(row: dict) -> float:
     return max(0.0, min(1.0, 0.5 * win_pct + 0.25 * sos_norm + 0.25 * tgrs_norm))
 
 
+def _cap_perf_diff(raw_diff: float, scale: float = PERF_DIFF_SATURATION_SCALE) -> float:
+    """
+    Saturating cap on a scoreline-simulator performance gap: behaves
+    ~linearly (barely changes the input) for |raw_diff| << scale, and
+    asymptotically approaches +/-scale as |raw_diff| grows arbitrarily
+    large. See the comment above PERF_DIFF_SATURATION_SCALE for why this
+    exists -- without it, lopsided seed gaps (amplified further by the
+    seed-history prior) produced near-certain per-game win probabilities
+    and wildly over-frequent double-bagel (6-0, 6-0) scorelines for even
+    a merely "clear favorite", let alone a #1-vs-#32 mismatch.
+    """
+    if scale <= 0:
+        return raw_diff
+    return scale * math.tanh(raw_diff / scale)
+
+
 def _perf_diff_for_match(a: dict, b: dict) -> float:
     """
     The performance gap fed into the scoreline simulator (positive
     favors `a`): an effective mu-gap consistent with match_win_prob(a, b)
     -- which already includes the seed-history prior blend -- plus the
     same dominance-proxy nudge predict_matchup.py's _simulate_match()
-    uses.
+    uses, then passed through a saturating cap (_cap_perf_diff()) before
+    being handed to the set simulator.
 
     This used to be plain (mu_a - mu_b) + 8*(dom_a - dom_b), derived only
     from raw TrueSkill. That was fine for predict_matchup.py, which has
@@ -493,6 +547,19 @@ def _perf_diff_for_match(a: dict, b: dict) -> float:
     notion of "who's favored" identical to the bracket's, so trials
     naturally land on the declared winner's side most of the time, and
     reduces to the original (mu_a - mu_b) whenever SEED_BLEND_WEIGHT = 0.
+
+    Separately, that same blend is *also* what made lopsided matchups
+    print double-bagels far too often: the seed prior can push
+    match_win_prob() well past 99% for a big seed gap, which (via
+    _implied_mu_gap()) produces a very large raw gap. Feeding that
+    straight into the logistic per-game formula in _simulate_set() made
+    the favorite close to unbeatable in every single game, so winning
+    six straight games (a 6-0 set) stopped being a rare event. The
+    _cap_perf_diff() call below bounds the gap actually used for
+    simulation so that never happens, without changing which player is
+    favored (the sign is preserved) or touching match_win_prob() itself
+    (the bracket-advancement math this feeds into is untouched -- only
+    the cosmetic scoreline generation is affected).
     """
     sigma_a = _player_mu_sigma(a)[1]
     sigma_b = _player_mu_sigma(b)[1]
@@ -502,16 +569,18 @@ def _perf_diff_for_match(a: dict, b: dict) -> float:
     c = math.sqrt(2.0 * BETA ** 2 + sigma_a ** 2 + sigma_b ** 2)
     mu_gap_eff = _implied_mu_gap(p, c) if c > 0 else (mu_a - mu_b)
     dom_a, dom_b = _dominance_proxy(a), _dominance_proxy(b)
-    return mu_gap_eff + 8.0 * (dom_a - dom_b)
+    raw_diff = mu_gap_eff + 8.0 * (dom_a - dom_b)
+    return _cap_perf_diff(raw_diff)
 
 
 def _simulate_set(perf_diff: float, game_noise: float, rng: random.Random) -> tuple[int, int]:
     """
     One simulated set, identical logic to predict_matchup.py's
-    _simulate_set(). perf_diff > 0 favors player A. Games are drawn one
-    at a time from a logistic function of the per-game performance gap
-    (plus fixed Gaussian noise) until someone reaches 6 with a 2-game
-    lead, or a 7-6/7-5 breaker outcome.
+    _simulate_set(). perf_diff > 0 favors player A (expected to already
+    be capped by _cap_perf_diff() -- see _perf_diff_for_match()). Games
+    are drawn one at a time from a logistic function of the per-game
+    performance gap (plus fixed Gaussian noise) until someone reaches 6
+    with a 2-game lead, or a 7-6/7-5 breaker outcome.
     """
     games_a = games_b = 0
     while True:
@@ -544,7 +613,7 @@ def _simulate_match_once(a: dict, b: dict, rng: random.Random,
 
     `perf_diff` (positive favors a) is computed once per matchup by
     _perf_diff_for_match() -- see that function's docstring for why it's
-    no longer derived from the raw mu_a - mu_b gap.
+    no longer derived from the raw mu_a - mu_b gap, and why it's capped.
     """
     game_noise = 8.0  # fixed within-set randomness; no volatility input
 
