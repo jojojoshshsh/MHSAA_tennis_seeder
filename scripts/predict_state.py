@@ -808,7 +808,10 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool,
       - "sim_seed": the integer seed (from _match_seed_int) that drove
         this matchup's random.Random instance -- re-running this script
         for the same two players always reproduces this exact seed and
-        therefore this exact scoreline/stat set.
+        therefore this exact scoreline/stat set. (Computed here and kept
+        internally for reproducibility, but no longer surfaced in the
+        CSV/HTML output -- see write_prediction_csvs() and
+        _bracket_path_html() below.)
       - "prob_three_sets" / "prob_tiebreak" / "prob_75": match-shape odds
         across ALL `trials` simulated matches for this matchup (not just
         the ones matching the favorite) -- identical definitions to
@@ -1114,7 +1117,7 @@ def write_prediction_csvs(all_results: list[dict], team_points: dict) -> None:
             writer.writerow([
                 "round", "player_a", "seed_a", "player_b", "seed_b",
                 "predicted_winner", "predicted_score", "win_prob_pct",
-                "sim_seed", "prob_three_sets_pct", "prob_7_6_tiebreak_pct",
+                "prob_three_sets_pct", "prob_7_6_tiebreak_pct",
                 "prob_7_5_set_pct",
             ])
             for rnd_idx, rnd in enumerate(result["rounds"], start=1):
@@ -1129,7 +1132,6 @@ def write_prediction_csvs(all_results: list[dict], team_points: dict) -> None:
                         rnd_idx, a_name, a_seed, b_name, b_seed,
                         _player_name(m["winner"]), " ".join(m["score"]),
                         round(m["p_fav"] * 100, 1),
-                        m.get("sim_seed"),
                         round((m.get("prob_three_sets") or 0.0) * 100, 1),
                         round((m.get("prob_tiebreak") or 0.0) * 100, 1),
                         round((m.get("prob_75") or 0.0) * 100, 1),
@@ -1159,8 +1161,6 @@ def _bracket_path_html(result: dict) -> str:
             b_seed = m["b"].get("rank", "") if isinstance(m["b"], dict) else ""
             winner_name = _player_name(m["winner"])
             score_str = " ".join(m["score"])
-            sim_seed = m.get("sim_seed")
-            sim_seed_str = str(sim_seed) if sim_seed is not None else "--"
             p3 = m.get("prob_three_sets")
             ptb = m.get("prob_tiebreak")
             p75 = m.get("prob_75")
@@ -1172,7 +1172,6 @@ def _bracket_path_html(result: dict) -> str:
                 f"<td>{_esc(a_name)} (#{_esc(a_seed)}) vs {_esc(b_name)} (#{_esc(b_seed)})</td>"
                 f"<td><b>{_esc(winner_name)}</b></td><td>{_esc(score_str)}</td>"
                 f"<td>{m['p_fav']*100:.0f}%</td>"
-                f"<td>{sim_seed_str}</td>"
                 f"<td>{p3_str}</td><td>{ptb_str}</td><td>{p75_str}</td></tr>"
             )
     return f"""
@@ -1181,7 +1180,7 @@ def _bracket_path_html(result: dict) -> str:
       <table class="pred-table">
         <thead><tr>
           <th>Round</th><th>Matchup (seed #)</th><th>Predicted Winner</th>
-          <th>Predicted Score</th><th>Win Prob.</th><th>Sim. Seed</th>
+          <th>Predicted Score</th><th>Win Prob.</th>
           <th>Goes to 3rd Set</th><th>Contains 7-6 TB</th><th>Contains 7-5 Set</th>
         </tr></thead>
         <tbody>{rows_html}</tbody>
@@ -1285,8 +1284,7 @@ def build_full_html(all_results: list[dict], team_points: dict) -> str:
     proxy folded in as a bounded probability nudge, simulated set-by-set,
     and seeded deterministically per matchup so re-running this report
     reproduces the same scorelines). Each matchup row in the bracket path
-    below also lists both players' tournament seed numbers, the integer
-    random seed that drove that matchup's simulation, and three
+    below also lists both players' tournament seed numbers and three
     match-shape odds computed across all simulated trials for that
     matchup: the chance it goes to a 3rd set, the chance it contains a 7-6
     tiebreak set, and the chance it contains a 7-5 set.
