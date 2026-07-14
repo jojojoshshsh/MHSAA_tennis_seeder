@@ -82,28 +82,40 @@ hash-and-ladder generator:
     copied verbatim from predict_matchup.py), since true per-player
     dominance is never persisted per player (compute_match_margin() is a
     per-MATCH quantity, never aggregated and saved).
-  - A performance gap is formed from an EFFECTIVE mu gap plus a weighted
-    dominance-proxy gap (see _perf_diff_for_match() below). The
-    effective mu gap is derived from match_win_prob(a, b) -- the SAME
-    blended (TrueSkill + seed-prior) probability that decides who
-    advances in the bracket -- rather than the raw, unblended
-    mu_a - mu_b. This keeps the scoreline simulator's notion of "who's
-    favored" identical to the bracket's notion of "who's favored"; see
-    the docstring on _perf_diff_for_match() for why that matters (it
-    fixes a real bug where close, seed-prior-flipped matchups could
-    print a winner alongside a scoreline showing them losing 0-6, 0-6).
-  - Before that probability is converted into a performance gap, it is
-    first re-centered with a linear shift-and-scale toward 0.5 -- see
-    WIN_PROB_SCORELINE_SCALE and _compress_win_prob() below. This is
-    NOT a cap or clamp on the performance gap itself: it is a rescaling
-    of the underlying probability distribution (which is naturally
-    bounded to [0, 1], unlike the performance gap, which is unbounded).
-    Shrinking the *probability* toward a coin flip before the
-    unbounded-domain conversion (mu-gap via the inverse normal CDF)
+  - A performance gap is formed from an EFFECTIVE mu gap that already
+    folds in a weighted dominance-proxy nudge -- see the docstring on
+    _perf_diff_for_match() below for exactly how, and why it has to be
+    folded in *before* the win-probability is compressed rather than
+    added on afterwards (that ordering bug is what used to make
+    genuinely close matchups print as scoreline blowouts -- see the
+    CALIBRATION note below the module docstring for the real-data check
+    that surfaced it). The effective mu gap is derived from
+    match_win_prob(a, b) -- the SAME blended (TrueSkill + seed-prior)
+    probability that decides who advances in the bracket -- rather than
+    the raw, unblended mu_a - mu_b. This keeps the scoreline simulator's
+    notion of "who's favored" identical to the bracket's notion of
+    "who's favored"; see the docstring on _perf_diff_for_match() for why
+    that matters (it fixes a real bug where close, seed-prior-flipped
+    matchups could print a winner alongside a scoreline showing them
+    losing 0-6, 0-6).
+  - Before that combined probability is converted into a performance
+    gap, it is first re-centered with a linear shift-and-scale toward
+    0.5 -- see WIN_PROB_SCORELINE_SCALE and _compress_win_prob() below.
+    This is NOT a cap or clamp on the performance gap itself: it is a
+    rescaling of the underlying probability distribution (which is
+    naturally bounded to [0, 1], unlike the performance gap, which is
+    unbounded). Shrinking the *probability* toward a coin flip before
+    the unbounded-domain conversion (mu-gap via the inverse normal CDF)
     means the resulting performance gap is automatically bounded too,
     without ever touching or post-processing the gap value itself. See
     _compress_win_prob()'s docstring for the full rationale and the
-    empirical bagel-rate problem this fixes.
+    empirical bagel-rate problem this fixes. Critically, the dominance
+    nudge is folded in as a logit-space adjustment to the probability
+    *before* this compression step (see DOMINANCE_LOGIT_WEIGHT and
+    _perf_diff_for_match()), so it is bounded by the same [0, 1]
+    probability arithmetic as everything else -- it can shade a
+    close call toward one side, but it can no longer manufacture a
+    blowout performance gap out of a coin-flip matchup on its own.
   - Individual sets are simulated game-by-game via a logistic function
     of that (rescaled) performance gap plus fixed Gaussian noise
     (_simulate_set(), copied verbatim from predict_matchup.py), through
@@ -124,13 +136,31 @@ hash-and-ladder generator:
     ranking CSVs nor factored into the win-probability or
     scoreline-simulation math.
 
-TEAM POINTS
------------
-Every real (non-bye) match in the single deterministic bracket run
-awards +1 predicted point to the winner's school. Points are summed
-across every flight and match_type (singles + doubles, flights 1-4)
-within a (gender, division), matching how the real MHSAA team scoring
-aggregates individual results into a team result.
+CALIBRATION NOTE -- "close matches never get predicted" (fixed)
+--------------------------------------------------------------
+Checked against the real Fall 2025 MHSAA state bracket results: roughly
+a third to a bit under half of real varsity matches are genuinely close
+(one set at 6-4/7-5/7-6, or a three-setter, frequently decided by a
+10-point 3rd-set match tiebreak -- e.g. "7-5 6-2", "6-1 7-6", "2-6 6-3
+10-7", "3-6 6-3 1-0"), not lopsided 6-0/6-1/6-2 blowouts. Previously,
+_perf_diff_for_match() computed the compressed, bounded mu-gap from
+match_win_prob() (correct, and consistent with the bracket-advancement
+math), but then ADDED the dominance-proxy nudge (8.0 * (dom_a - dom_b))
+on top of that, completely unbounded and outside the
+_compress_win_prob() rescaling that the rest of the SCORELINE ENGINE
+section relies on to keep performance gaps sane. Because the dominance
+proxy is built from win_pct/sos/TGRS_scaled -- numbers that can differ a
+lot between two players even when their TrueSkill ratings (and the
+seed-prior-blended match_win_prob()) call the match a near coin flip --
+that uncompressed nudge routinely dominated the performance gap and
+turned genuinely close matchups (bracket win probability near 50/50)
+into scoreline blowouts, which is exactly why close matches never showed
+up in the printed bracket path. The fix: fold the dominance nudge into
+the *probability* (as a bounded logit-space adjustment, see
+DOMINANCE_LOGIT_WEIGHT below) before -- not after -- _compress_win_prob()
+runs, so it shares the same bounded [0, 1] arithmetic as the TrueSkill/
+seed-prior signal and can no longer escape the compression that's
+supposed to keep scorelines realistic.
 
 OUTPUT
 ------
@@ -173,9 +203,9 @@ MAX_BRACKET = 32
 VALID_FLIGHTS = {"1", "2", "3", "4"}
 SCORELINE_TRIALS = 400  # Monte Carlo trials per bracket match, for the printed scoreline only
 
-# Linear shift-and-scale applied to match_win_prob(a, b) -- NOT to the
-# performance gap -- before that probability is converted into a
-# performance gap for the scoreline simulator only. See
+# Linear shift-and-scale applied to the (dominance-adjusted) match
+# probability -- NOT to the performance gap -- before that probability is
+# converted into a performance gap for the scoreline simulator only. See
 # _compress_win_prob() for the mechanism and rationale, and the
 # SCORELINE ENGINE section of the module docstring for the empirical
 # problem this fixes (double-bagel scorelines being wildly over-frequent
@@ -188,6 +218,23 @@ SCORELINE_TRIALS = 400  # Monte Carlo trials per bracket match, for the printed 
 # double-bagel match, rather than ~90%/~85%, while leaving close-to-
 # moderate matchups (which were never the problem) close to untouched.
 WIN_PROB_SCORELINE_SCALE = 0.5
+
+# Weight (in logit space) applied to the dominance-proxy differential
+# before it's folded into the win probability that feeds the scoreline
+# simulator -- see _perf_diff_for_match(). This REPLACES the old
+# "+ 8.0 * (dom_a - dom_b)" raw mu-gap addition, which lived outside
+# _compress_win_prob()'s bounded rescaling and could turn a coin-flip
+# matchup into a guaranteed scoreline blowout (see the CALIBRATION NOTE
+# in the module docstring). Because this now operates in logit space on
+# a proxy already confined to [0, 1] (dom_a, dom_b are both in [0, 1],
+# so dom_a - dom_b is in [-1, 1]), a maximal dominance mismatch shifts
+# the probability by at most sigmoid(+/-DOMINANCE_LOGIT_WEIGHT) worth of
+# logit -- large enough to meaningfully flavor a scoreline, but no longer
+# capable of overriding how close match_win_prob() judged the match
+# before this adjustment and the WIN_PROB_SCORELINE_SCALE compression
+# both get applied. 0.0 disables the dominance nudge entirely (scorelines
+# then depend purely on the blended TrueSkill/seed-prior probability).
+DOMINANCE_LOGIT_WEIGHT = 1.4
 
 FINISH_LABELS = {
     1: "Champion",
@@ -253,9 +300,10 @@ def match_win_prob(a, b) -> float:
 
     This is the number used for every bracket-advancement decision in
     this file (sections 3 and 5) and is returned/used completely
-    unmodified there. It is only reshaped -- via _compress_win_prob(),
-    downstream in _perf_diff_for_match() -- for the separate purpose of
-    flavoring a simulated scoreline; it is never itself rescaled.
+    unmodified there. It is only reshaped -- via _compress_win_prob() and
+    the dominance-proxy logit nudge, downstream in
+    _perf_diff_for_match() -- for the separate purpose of flavoring a
+    simulated scoreline; it is never itself rescaled.
     """
     if a is BYE and b is BYE:
         return 0.5
@@ -462,9 +510,12 @@ def compute_bracket_probabilities(players: list) -> dict[int, dict]:
 # simulator's performance gap from the SAME blended win probability that
 # decides bracket advancement, via _perf_diff_for_match() /
 # _implied_mu_gap() below -- see those functions for why -- and (c)
-# reshaping that probability first (_compress_win_prob()) so extreme
-# seed mismatches don't turn every game of a set into a near-certainty
-# for the favorite -- see the docstring on _compress_win_prob().
+# reshaping that probability first (fold in the dominance nudge, then
+# _compress_win_prob()) so extreme seed mismatches -- or extreme
+# dominance-proxy mismatches -- don't turn every game of a set into a
+# near-certainty for the favorite. See the docstrings on
+# _compress_win_prob() and _perf_diff_for_match() for the full story,
+# including the CALIBRATION NOTE in the module docstring.
 
 def _player_name(row: dict) -> str:
     return row.get("name") or row.get("pair_name") or "Unknown"
@@ -477,15 +528,16 @@ def _implied_mu_gap(p: float, c: float) -> float:
     consistent with a given probability `p` -- which, via
     match_win_prob(), may already be blended with the seed-history prior
     (see _apply_seed_prior()), not just raw TrueSkill, and which the
-    caller (_perf_diff_for_match()) may have additionally rescaled via
-    _compress_win_prob() before this function ever sees it.
+    caller (_perf_diff_for_match()) may have additionally adjusted (the
+    dominance-proxy nudge) and rescaled (via _compress_win_prob()) before
+    this function ever sees it.
 
     Phi is the standard normal CDF (see _Phi() above), so its inverse is
     the standard normal quantile function, i.e. statistics.NormalDist's
     inv_cdf. When `p` is the raw, unblended, unrescaled p_ts for a pair,
     this returns mu_a - mu_b back out again (up to floating point), so
-    behavior is unchanged whenever SEED_BLEND_WEIGHT = 0.0 and
-    WIN_PROB_SCORELINE_SCALE = 1.0.
+    behavior is unchanged whenever SEED_BLEND_WEIGHT = 0.0,
+    DOMINANCE_LOGIT_WEIGHT = 0.0, and WIN_PROB_SCORELINE_SCALE = 1.0.
     """
     p = min(max(p, _EPS), 1.0 - _EPS)
     return c * _STD_NORMAL.inv_cdf(p)
@@ -508,6 +560,15 @@ def _compress_win_prob(p: float, scale: float = WIN_PROB_SCORELINE_SCALE) -> flo
     boundedness falls out naturally from doing the rescaling in
     probability space instead of gap space.
 
+    IMPORTANT: for this guarantee to actually hold, `p` must already
+    include every adjustment the scoreline should reflect (TrueSkill,
+    seed prior, AND the dominance-proxy nudge) by the time it reaches
+    this function -- anything folded in *after* _compress_win_prob() runs
+    escapes the bound entirely. See _perf_diff_for_match() for where the
+    dominance nudge is folded in (before this call), and the
+    CALIBRATION NOTE in the module docstring for what went wrong when it
+    used to be added afterwards instead.
+
     WHY THIS IS NEEDED: match_win_prob() already blends TrueSkill with a
     seed-history prior that's been shown to be ~96% accurate (see
     SEED_PRIOR_ACCURACY), which routinely pushes very lopsided seed
@@ -528,8 +589,8 @@ def _compress_win_prob(p: float, scale: float = WIN_PROB_SCORELINE_SCALE) -> flo
     Rescaling the probability first means the *scoreline simulator*
     never has to reason about a matchup as more lopsided than roughly a
     3-to-1 (75/25) proposition per set, no matter how one-sided the real
-    seeding/rating gap is -- while match_win_prob() itself, and every
-    bracket-advancement number derived from it in sections 3 and 5,
+    seeding/rating/dominance gap is -- while match_win_prob() itself, and
+    every bracket-advancement number derived from it in sections 3 and 5,
     stays completely untouched.
 
     scale=1.0 disables this entirely (p_scoreline == p); scale=0.0
@@ -549,6 +610,11 @@ def _dominance_proxy(row: dict) -> float:
     win-probability number, which comes from match_win_prob() (TrueSkill
     blended with the seed-history prior -- see _apply_seed_prior()), not
     from this dominance proxy.
+
+    Returns a value in [0, 1]; see _perf_diff_for_match() for how the
+    difference between two players' proxies gets folded into the
+    scoreline (as a bounded logit-space nudge, not a raw mu-scale
+    addition).
     """
     wins = _to_int(row, "wins")
     losses = _to_int(row, "losses")
@@ -564,45 +630,53 @@ def _dominance_proxy(row: dict) -> float:
 def _perf_diff_for_match(a: dict, b: dict) -> float:
     """
     The performance gap fed into the scoreline simulator (positive
-    favors `a`): an effective mu-gap consistent with a RESCALED version
-    of match_win_prob(a, b) -- see _compress_win_prob() -- plus the same
-    dominance-proxy nudge predict_matchup.py's _simulate_match() uses.
+    favors `a`): an effective mu-gap consistent with a fully-adjusted,
+    RESCALED version of match_win_prob(a, b).
 
-    This used to be plain (mu_a - mu_b) + 8*(dom_a - dom_b), derived only
-    from raw TrueSkill. That was fine for predict_matchup.py, which has
-    no seed prior, but broke down once predict_state.py started blending
-    in the seed-history prior for bracket-advancement decisions: for a
-    close matchup (~50-57% win probability) where the prior flips or
-    reinforces a near-tied TrueSkill call, the raw mu gap can still point
-    the OTHER way. In that case nearly every one of the 400 simulated
-    trials in predict_match_details() disagrees with the declared
-    winner, so the "trials that agree with the favorite" filter is left
-    hunting through a handful of rare, extreme upset trials -- and the
-    most common scoreline among THOSE is a blowout in the *loser's*
-    favor, printed next to the *winner's* name (e.g. a 51% favorite shown
-    "winning" 0-6, 0-6).
+    "Fully-adjusted" means the dominance-proxy differential (see
+    _dominance_proxy()) is folded into the probability itself, as a
+    bounded logit-space nudge weighted by DOMINANCE_LOGIT_WEIGHT, BEFORE
+    _compress_win_prob() ever runs -- not added afterwards as a raw
+    mu-scale term. That ordering is the fix for a real bug (see the
+    CALIBRATION NOTE in the module docstring): this used to be
+    (mu_a - mu_b, derived from a compressed probability) + a separate,
+    uncompressed "8.0 * (dom_a - dom_b)" addition. That second term had
+    no bound at all, so two players whose win_pct/sos/TGRS_scaled
+    happened to differ a lot -- which happens often even between
+    similarly-rated players -- could dominate the whole performance gap
+    regardless of how close match_win_prob() judged the actual matchup,
+    turning near-coin-flip matches into scoreline blowouts. Checked
+    against real state-tournament results, close matches (7-5/7-6 sets,
+    three-setters, match tiebreaks) make up something like a third to
+    45% of matches -- so a scoreline engine that can only produce
+    blowouts for anything but the most lopsided TrueSkill/seed gaps is
+    visibly miscalibrated.
 
-    Deriving the effective mu gap from the same probability that decided
-    the winner keeps the simulator's notion of "who's favored" identical
-    to the bracket's, so trials naturally land on the declared winner's
-    side most of the time. Before that conversion happens, though, the
-    probability is passed through _compress_win_prob() -- a linear
-    shift-and-scale toward 0.5 -- which is what keeps very lopsided seed
-    gaps from producing an enormous, near-certain-every-game performance
-    gap (see _compress_win_prob()'s docstring for the full story). This
-    whole function reduces to the original, pre-fix behavior whenever
-    SEED_BLEND_WEIGHT = 0 and WIN_PROB_SCORELINE_SCALE = 1.0.
+    Folding the dominance nudge into probability space first means it
+    shares the exact same bounded [0, 1] arithmetic, and the same
+    WIN_PROB_SCORELINE_SCALE compression, as the TrueSkill/seed-prior
+    signal -- so it can shade a scoreline (a "close win prob" match
+    between two players with very different dominance profiles can still
+    lean a bit more decisive than a coin flip) without ever being able to
+    override how close the match_win_prob() call actually was.
+
+    This whole function reduces to the original, pre-fix TrueSkill-only
+    behavior whenever SEED_BLEND_WEIGHT = 0, DOMINANCE_LOGIT_WEIGHT = 0,
+    and WIN_PROB_SCORELINE_SCALE = 1.0.
     """
     sigma_a = _player_mu_sigma(a)[1]
     sigma_b = _player_mu_sigma(b)[1]
-    mu_a = _player_mu_sigma(a)[0]
-    mu_b = _player_mu_sigma(b)[0]
     p = match_win_prob(a, b)
-    p_scoreline = _compress_win_prob(p)
-    c = math.sqrt(2.0 * BETA ** 2 + sigma_a ** 2 + sigma_b ** 2)
-    mu_gap_eff = _implied_mu_gap(p_scoreline, c) if c > 0 else (mu_a - mu_b)
+
     dom_a, dom_b = _dominance_proxy(a), _dominance_proxy(b)
-    return mu_gap_eff + 8.0 * (dom_a - dom_b)
+    p_with_dominance = _sigmoid(_logit(p) + DOMINANCE_LOGIT_WEIGHT * (dom_a - dom_b))
+
+    p_scoreline = _compress_win_prob(p_with_dominance)
+    c = math.sqrt(2.0 * BETA ** 2 + sigma_a ** 2 + sigma_b ** 2)
+    if c <= 0:
+        mu_a, mu_b = _player_mu_sigma(a)[0], _player_mu_sigma(b)[0]
+        return mu_a - mu_b
+    return _implied_mu_gap(p_scoreline, c)
 
 
 def _simulate_set(perf_diff: float, game_noise: float, rng: random.Random) -> tuple[int, int]:
@@ -773,7 +847,8 @@ def simulate_bracket(players: list) -> list[list[dict]]:
     match's scoreline comes from predict_match_scoreline() above. Bye
     matches are marked score=["BYE"]. `p` here is match_win_prob(a, b),
     used unmodified (see _compress_win_prob()'s docstring for why the
-    scoreline generator alone sees a rescaled version of it instead).
+    scoreline generator alone sees a rescaled, dominance-adjusted version
+    of it instead).
     """
     current = list(players)
     rounds: list[list[dict]] = []
@@ -1163,11 +1238,12 @@ def build_full_html(all_results: list[dict], team_points: dict) -> str:
     higher blended-probability side always advances, and each printed
     scoreline comes from the same Monte Carlo scoreline engine used by
     predict_matchup.py (flavored by a win-percentage/SOS/TGRS dominance
-    proxy, simulated set-by-set, and seeded deterministically per matchup so
-    re-running this report reproduces the same scorelines). Each matchup row
-    in the bracket path below also lists both players' tournament seed
-    numbers, the integer random seed that drove that matchup's simulation,
-    and three match-shape odds computed across all simulated trials for that
+    proxy folded in as a bounded probability nudge, simulated set-by-set,
+    and seeded deterministically per matchup so re-running this report
+    reproduces the same scorelines). Each matchup row in the bracket path
+    below also lists both players' tournament seed numbers, the integer
+    random seed that drove that matchup's simulation, and three
+    match-shape odds computed across all simulated trials for that
     matchup: the chance it goes to a 3rd set, the chance it contains a 7-6
     tiebreak set, and the chance it contains a 7-5 set.
   </p>
