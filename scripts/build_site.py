@@ -51,12 +51,19 @@ def _html_escape_py(value):
         .replace("'", "&#39;")
     )
 
+def _norm_division(div_str):
+    """Normalize a division label like '4_other' or '4 other' down to its
+    leading numeral so the Division 1-4 filter checkboxes still match it."""
+    tokens = str(div_str).replace("_", " ").split()
+    return tokens[0] if tokens else str(div_str)
+
 # ── Build team HTML ────────────────────────────────────────────────────────────
 team_html = ""
 for entry in team_data:
     label = f"Top 10 Teams · {entry['gender']} Division {entry['division']}"
     anchor = f"team_{entry['gender'].lower()}_div{entry['division'].replace(' ','')}"
     df = entry["df"]
+    div_attr = _norm_division(entry["division"])
 
     COL_LABELS = {
         "rank": "Rank",
@@ -92,7 +99,7 @@ for entry in team_data:
         tbody_rows += f"<tr>{cells}</tr>"
 
     team_html += f"""
-    <section id="{anchor}">
+    <section id="{anchor}" data-division="{_html_escape_py(div_attr)}">
       <div class="section-header">
         <h2>{_html_escape_py(label)}</h2>
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
@@ -163,7 +170,9 @@ all_data.sort(key=lambda x: (
 
 all_schools = sorted(set(r["school"] for r in all_rows_for_search if r["school"]))
 
-nav_groups = defaultdict(list)
+# nav_tree[division][ "Boys Singles" ] -> list of (flight, anchor)
+# Powers the Division > Singles/Doubles > Flight dropdown nav.
+nav_tree = defaultdict(lambda: defaultdict(list))
 
 # Column order for individual ranking tables — reason_below last so it
 # doesn't crowd the important numeric columns on the left.
@@ -206,8 +215,10 @@ for entry in all_data:
         for _, row in df.head(32).iterrows()
     ) + "</tbody>"
 
+    div_attr = _norm_division(division)
+
     tables_html += f"""
-    <section id="{anchor}">
+    <section id="{anchor}" data-division="{_html_escape_py(div_attr)}" data-category="{_html_escape_py(entry['category'])}" data-flight="{_html_escape_py(flight)}">
       <div class="section-header">
         <h2>{_html_escape_py(label)}</h2>
         <a class="dl-btn" href="csv/{filename}">Download CSV</a>
@@ -217,7 +228,7 @@ for entry in all_data:
       </div>
     </section>
     """
-    nav_groups[f"Division {division}"].append((label, anchor))
+    nav_tree[div_attr][f"{gender} {category}"].append((flight, anchor))
 
 # ── Build full CSV data as JSON for JS search ─────────────────────────────────
 csv_full_data = {}
@@ -246,10 +257,21 @@ team_nav = "".join(
     for e in team_data
 )
 
-nav_html = ""
-for div_label, links in nav_groups.items():
-    nav_html += f'<span class="nav-group-label">{_html_escape_py(div_label)}</span>'
-    nav_html += "".join(f'<a href="#{anchor}">{_html_escape_py(lbl)}</a>' for lbl, anchor in links)
+# ── Build the Division > Singles/Doubles > Flight dropdown nav ───────────────
+_DIVISION_SORT = {"1": 0, "2": 1, "3": 2, "4": 3}
+_CATEGORY_NAV_ORDER = {"Boys Singles": 0, "Boys Doubles": 1, "Girls Singles": 2, "Girls Doubles": 3}
+
+rankings_dropdown_html = ""
+for div_key in sorted(nav_tree.keys(), key=lambda d: _DIVISION_SORT.get(d, 99)):
+    cat_map = nav_tree[div_key]
+    rankings_dropdown_html += f'<details><summary>Division {_html_escape_py(div_key)}</summary>'
+    for cat_label in sorted(cat_map.keys(), key=lambda c: _CATEGORY_NAV_ORDER.get(c, 99)):
+        flights_sorted = sorted(cat_map[cat_label], key=lambda x: x[0])
+        rankings_dropdown_html += f'<details class="nav-subgroup"><summary>{_html_escape_py(cat_label)}</summary>'
+        for flight_val, anchor in flights_sorted:
+            rankings_dropdown_html += f'<a href="#{anchor}">Flight {_html_escape_py(flight_val)}</a>'
+        rankings_dropdown_html += "</details>"
+    rankings_dropdown_html += "</details>"
 
 edt = timezone(timedelta(hours=-4))
 updated = datetime.now(edt).strftime("%B %d, %Y at %I:%M %p EDT")
@@ -292,7 +314,7 @@ html = f"""<!DOCTYPE html>
   .nav-about:hover {{ background: rgba(255,213,128,.1); }}
   .nav-predict {{ color: #ff9f8a; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(255,159,138,.3); text-decoration: none; margin-right: .4rem; }}
   .nav-predict:hover {{ background: rgba(255,159,138,.1); }}
-  .nav-tool {{ color: #a8e6c0; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(168,230,192,.3); text-decoration: none; margin-right: .4rem; cursor: pointer; background: none; }}
+  .nav-tool {{ color: #a8e6c0; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(168,230,192,.3); text-decoration: none; margin-right: .4rem; cursor: pointer; background: none; font-family: inherit; }}
   .nav-tool:hover {{ background: rgba(168,230,192,.1); }}
   main {{ max-width: 1400px; margin: auto; padding: 1.5rem; }}
   section {{ background: white; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }}
@@ -359,12 +381,94 @@ html = f"""<!DOCTYPE html>
   .compare-stat span:last-child {{ font-weight: 600; color: #1a3a5c; }}
   .compare-winner {{ color: #0a7c42 !important; }}
   .no-entry {{ color: #aaa; font-style: italic; font-size: .82rem; }}
+
+  /* Dropdown nav (Individual Rankings + Filter) */
+  .dropdown {{ position: relative; }}
+  .dropdown-panel {{
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: white;
+    border: 1px solid #c0d4e8;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    padding: .6rem;
+    min-width: 230px;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 300;
+  }}
+  .dropdown-panel.open {{ display: block; }}
+  .dropdown-panel a {{
+    display: block;
+    color: #1a3a5c;
+    font-size: .8rem;
+    text-decoration: none;
+    padding: .25rem .5rem .25rem 1.1rem;
+    border-radius: 4px;
+  }}
+  .dropdown-panel a:hover {{ background: #eef4fb; }}
+  .dropdown-panel details {{ margin: .1rem 0; }}
+  .dropdown-panel summary {{
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #1a3a5c;
+    padding: .3rem .4rem;
+    border-radius: 4px;
+    list-style: none;
+  }}
+  .dropdown-panel summary::-webkit-details-marker {{ display: none; }}
+  .dropdown-panel summary::before {{ content: "▸ "; font-size: .68rem; color: #4a90c4; }}
+  .dropdown-panel details[open] > summary::before {{ content: "▾ "; }}
+  .dropdown-panel summary:hover {{ background: #eef4fb; }}
+  .dropdown-panel .nav-subgroup {{ margin-left: .9rem; }}
+
+  .filter-panel {{ min-width: 210px; }}
+  .filter-group {{ margin-bottom: .6rem; }}
+  .filter-group-title {{
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #4a90c4;
+    margin-bottom: .3rem;
+  }}
+  .filter-panel label {{
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .82rem;
+    padding: .18rem .2rem;
+    color: #1a3a5c;
+    cursor: pointer;
+  }}
+  .filter-actions {{
+    display: flex;
+    gap: .5rem;
+    margin-top: .5rem;
+    border-top: 1px solid #eef0f3;
+    padding-top: .5rem;
+  }}
+  .filter-actions button {{
+    flex: 1;
+    font-size: .74rem;
+    padding: .3rem .5rem;
+    border: 1px solid #c0d4e8;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #1a3a5c;
+    cursor: pointer;
+    font-family: inherit;
+  }}
+  .filter-actions button:hover {{ background: #eef4fb; }}
 </style>
 </head>
 <body>
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <header>
-  <h1>Michigan High School Tennis Rankings{' — ' + season_label if season_label else ''}</h1>
+  <h1>Michigan High School Tennis Seed Prediction{' — ' + season_label if season_label else ''}</h1>
   <p>Updated automatically every day at 4am EDT. Last update: {updated}.</p>
 </header>
 <nav>
@@ -373,7 +477,40 @@ html = f"""<!DOCTYPE html>
   <button class="nav-tool" onclick="showTool('search')">&#128269; School Search</button>
   <button class="nav-tool" onclick="showTool('compare')">&#9878; Team Compare</button>
   {team_nav}
-  <span class="nav-group-label">Individual</span>{nav_html}
+  <div class="dropdown">
+    <button class="nav-tool dropdown-toggle" type="button" onclick="toggleDropdown('rankings-dropdown', event)">&#127934; Individual Rankings &#9662;</button>
+    <div class="dropdown-panel" id="rankings-dropdown">
+      {rankings_dropdown_html}
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="nav-tool dropdown-toggle" type="button" onclick="toggleDropdown('filter-panel', event)">&#128269; Filter &#9662;</button>
+    <div class="dropdown-panel filter-panel" id="filter-panel">
+      <div class="filter-group">
+        <div class="filter-group-title">Division</div>
+        <label><input type="checkbox" class="filter-cb filter-division" value="1" checked onchange="applyFilters()"> Division 1</label>
+        <label><input type="checkbox" class="filter-cb filter-division" value="2" checked onchange="applyFilters()"> Division 2</label>
+        <label><input type="checkbox" class="filter-cb filter-division" value="3" checked onchange="applyFilters()"> Division 3</label>
+        <label><input type="checkbox" class="filter-cb filter-division" value="4" checked onchange="applyFilters()"> Division 4</label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Category</div>
+        <label><input type="checkbox" class="filter-cb filter-category" value="singles" checked onchange="applyFilters()"> Singles</label>
+        <label><input type="checkbox" class="filter-cb filter-category" value="doubles" checked onchange="applyFilters()"> Doubles</label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Flight</div>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="1" checked onchange="applyFilters()"> Flight 1</label>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="2" checked onchange="applyFilters()"> Flight 2</label>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="3" checked onchange="applyFilters()"> Flight 3</label>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="4" checked onchange="applyFilters()"> Flight 4</label>
+      </div>
+      <div class="filter-actions">
+        <button type="button" onclick="selectAllFilters()">Select all</button>
+        <button type="button" onclick="clearAllFilters()">Clear all</button>
+      </div>
+    </div>
+  </div>
 </nav>
 <main>
 
@@ -427,6 +564,43 @@ function showTool(name) {{
     panel.classList.add('active');
     panel.scrollIntoView({{behavior: 'smooth', block: 'start'}});
   }}
+}}
+
+function toggleDropdown(id, evt) {{
+  if (evt) evt.stopPropagation();
+  document.querySelectorAll('.dropdown-panel').forEach(p => {{
+    if (p.id !== id) p.classList.remove('open');
+  }});
+  document.getElementById(id).classList.toggle('open');
+}}
+
+document.addEventListener('click', e => {{
+  if (!e.target.closest('.dropdown')) {{
+    document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  }}
+}});
+
+function applyFilters() {{
+  const divisions  = Array.from(document.querySelectorAll('.filter-division:checked')).map(cb => cb.value);
+  const categories = Array.from(document.querySelectorAll('.filter-category:checked')).map(cb => cb.value);
+  const flights    = Array.from(document.querySelectorAll('.filter-flight:checked')).map(cb => cb.value);
+
+  document.querySelectorAll('main > section[data-division]').forEach(sec => {{
+    let show = divisions.includes(sec.dataset.division);
+    if (show && sec.dataset.category) show = categories.includes(sec.dataset.category);
+    if (show && sec.dataset.flight)   show = flights.includes(sec.dataset.flight);
+    sec.style.display = show ? '' : 'none';
+  }});
+}}
+
+function selectAllFilters() {{
+  document.querySelectorAll('.filter-cb').forEach(cb => cb.checked = true);
+  applyFilters();
+}}
+
+function clearAllFilters() {{
+  document.querySelectorAll('.filter-cb').forEach(cb => cb.checked = false);
+  applyFilters();
 }}
 
 function makeAutocomplete(inputId, listId, onSelect) {{
