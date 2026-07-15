@@ -362,6 +362,7 @@ html = f"""<!DOCTYPE html>
 </style>
 </head>
 <body>
+<script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <header>
   <h1>Michigan High School Tennis Rankings{' — ' + season_label if season_label else ''}</h1>
   <p>Updated automatically every day at 4am EDT. Last update: {updated}.</p>
@@ -656,7 +657,7 @@ function runCompare() {{
   html += '</div>';
   container.innerHTML = html;
 }}
-<script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+
 function sortTable(th) {{
   const tbody = th.closest('table').querySelector('tbody');
   const rows  = Array.from(tbody.querySelectorAll('tr'));
