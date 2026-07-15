@@ -656,7 +656,7 @@ function runCompare() {{
   html += '</div>';
   container.innerHTML = html;
 }}
-
+<script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 function sortTable(th) {{
   const tbody = th.closest('table').querySelector('tbody');
   const rows  = Array.from(tbody.querySelectorAll('tr'));
