@@ -19,7 +19,7 @@
   .nav-about:hover { background: rgba(255,213,128,.1); }
   .nav-predict { color: #ff9f8a; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(255,159,138,.3); text-decoration: none; margin-right: .4rem; }
   .nav-predict:hover { background: rgba(255,159,138,.1); }
-  .nav-tool { color: #a8e6c0; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(168,230,192,.3); text-decoration: none; margin-right: .4rem; cursor: pointer; background: none; }
+  .nav-tool { color: #a8e6c0; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(168,230,192,.3); text-decoration: none; margin-right: .4rem; cursor: pointer; background: none; font-family: inherit; }
   .nav-tool:hover { background: rgba(168,230,192,.1); }
   main { max-width: 1400px; margin: auto; padding: 1.5rem; }
   section { background: white; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
@@ -86,13 +86,95 @@
   .compare-stat span:last-child { font-weight: 600; color: #1a3a5c; }
   .compare-winner { color: #0a7c42 !important; }
   .no-entry { color: #aaa; font-style: italic; font-size: .82rem; }
+
+  /* Dropdown nav (Individual Rankings + Filter) */
+  .dropdown { position: relative; }
+  .dropdown-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: white;
+    border: 1px solid #c0d4e8;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    padding: .6rem;
+    min-width: 230px;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 300;
+  }
+  .dropdown-panel.open { display: block; }
+  .dropdown-panel a {
+    display: block;
+    color: #1a3a5c;
+    font-size: .8rem;
+    text-decoration: none;
+    padding: .25rem .5rem .25rem 1.1rem;
+    border-radius: 4px;
+  }
+  .dropdown-panel a:hover { background: #eef4fb; }
+  .dropdown-panel details { margin: .1rem 0; }
+  .dropdown-panel summary {
+    cursor: pointer;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #1a3a5c;
+    padding: .3rem .4rem;
+    border-radius: 4px;
+    list-style: none;
+  }
+  .dropdown-panel summary::-webkit-details-marker { display: none; }
+  .dropdown-panel summary::before { content: "▸ "; font-size: .68rem; color: #4a90c4; }
+  .dropdown-panel details[open] > summary::before { content: "▾ "; }
+  .dropdown-panel summary:hover { background: #eef4fb; }
+  .dropdown-panel .nav-subgroup { margin-left: .9rem; }
+
+  .filter-panel { min-width: 210px; }
+  .filter-group { margin-bottom: .6rem; }
+  .filter-group-title {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #4a90c4;
+    margin-bottom: .3rem;
+  }
+  .filter-panel label {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    font-size: .82rem;
+    padding: .18rem .2rem;
+    color: #1a3a5c;
+    cursor: pointer;
+  }
+  .filter-actions {
+    display: flex;
+    gap: .5rem;
+    margin-top: .5rem;
+    border-top: 1px solid #eef0f3;
+    padding-top: .5rem;
+  }
+  .filter-actions button {
+    flex: 1;
+    font-size: .74rem;
+    padding: .3rem .5rem;
+    border: 1px solid #c0d4e8;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #1a3a5c;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .filter-actions button:hover { background: #eef4fb; }
 </style>
 </head>
 <body>
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <header>
-  <h1>Michigan High School Tennis Rankings — 2025 season</h1>
-  <p>Updated automatically every day at 4am EDT. Last update: July 14, 2026 at 10:36 PM EDT.</p>
+  <h1>Michigan High School Tennis Seed Prediction — 2025 season</h1>
+  <p>Updated automatically every day at 4am EDT. Last update: July 15, 2026 at 03:38 PM EDT.</p>
 </header>
 <nav>
   <a class="nav-about" href="about.html">About &amp; Methodology</a>
@@ -100,7 +182,40 @@
   <button class="nav-tool" onclick="showTool('search')">&#128269; School Search</button>
   <button class="nav-tool" onclick="showTool('compare')">&#9878; Team Compare</button>
   <a href="#team_boys_div1">Teams · Boys D1</a><a href="#team_boys_div2">Teams · Boys D2</a><a href="#team_boys_div3">Teams · Boys D3</a><a href="#team_boys_div4">Teams · Boys D4</a>
-  <span class="nav-group-label">Individual</span><span class="nav-group-label">Division 1</span><a href="#div1_flight1_boys_singles">Div 1 · Flight 1 · Boys Singles</a><a href="#div1_flight1_boys_doubles">Div 1 · Flight 1 · Boys Doubles</a><a href="#div1_flight2_boys_singles">Div 1 · Flight 2 · Boys Singles</a><a href="#div1_flight2_boys_doubles">Div 1 · Flight 2 · Boys Doubles</a><a href="#div1_flight3_boys_singles">Div 1 · Flight 3 · Boys Singles</a><a href="#div1_flight3_boys_doubles">Div 1 · Flight 3 · Boys Doubles</a><a href="#div1_flight4_boys_singles">Div 1 · Flight 4 · Boys Singles</a><a href="#div1_flight4_boys_doubles">Div 1 · Flight 4 · Boys Doubles</a><span class="nav-group-label">Division 2</span><a href="#div2_flight1_boys_singles">Div 2 · Flight 1 · Boys Singles</a><a href="#div2_flight1_boys_doubles">Div 2 · Flight 1 · Boys Doubles</a><a href="#div2_flight2_boys_singles">Div 2 · Flight 2 · Boys Singles</a><a href="#div2_flight2_boys_doubles">Div 2 · Flight 2 · Boys Doubles</a><a href="#div2_flight3_boys_singles">Div 2 · Flight 3 · Boys Singles</a><a href="#div2_flight3_boys_doubles">Div 2 · Flight 3 · Boys Doubles</a><a href="#div2_flight4_boys_singles">Div 2 · Flight 4 · Boys Singles</a><a href="#div2_flight4_boys_doubles">Div 2 · Flight 4 · Boys Doubles</a><span class="nav-group-label">Division 3</span><a href="#div3_flight1_boys_singles">Div 3 · Flight 1 · Boys Singles</a><a href="#div3_flight1_boys_doubles">Div 3 · Flight 1 · Boys Doubles</a><a href="#div3_flight2_boys_singles">Div 3 · Flight 2 · Boys Singles</a><a href="#div3_flight2_boys_doubles">Div 3 · Flight 2 · Boys Doubles</a><a href="#div3_flight3_boys_singles">Div 3 · Flight 3 · Boys Singles</a><a href="#div3_flight3_boys_doubles">Div 3 · Flight 3 · Boys Doubles</a><a href="#div3_flight4_boys_singles">Div 3 · Flight 4 · Boys Singles</a><a href="#div3_flight4_boys_doubles">Div 3 · Flight 4 · Boys Doubles</a><span class="nav-group-label">Division 4</span><a href="#div4_flight1_boys_singles">Div 4 · Flight 1 · Boys Singles</a><a href="#div4_flight1_boys_doubles">Div 4 · Flight 1 · Boys Doubles</a><a href="#div4_flight2_boys_singles">Div 4 · Flight 2 · Boys Singles</a><a href="#div4_flight2_boys_doubles">Div 4 · Flight 2 · Boys Doubles</a><a href="#div4_flight3_boys_singles">Div 4 · Flight 3 · Boys Singles</a><a href="#div4_flight3_boys_doubles">Div 4 · Flight 3 · Boys Doubles</a><a href="#div4_flight4_boys_singles">Div 4 · Flight 4 · Boys Singles</a><a href="#div4_flight4_boys_doubles">Div 4 · Flight 4 · Boys Doubles</a>
+  <div class="dropdown">
+    <button class="nav-tool dropdown-toggle" type="button" onclick="toggleDropdown('rankings-dropdown', event)">&#127934; Individual Rankings &#9662;</button>
+    <div class="dropdown-panel" id="rankings-dropdown">
+      <details><summary>Division 1</summary><details class="nav-subgroup"><summary>Boys Singles</summary><a href="#div1_flight1_boys_singles">Flight 1</a><a href="#div1_flight2_boys_singles">Flight 2</a><a href="#div1_flight3_boys_singles">Flight 3</a><a href="#div1_flight4_boys_singles">Flight 4</a></details><details class="nav-subgroup"><summary>Boys Doubles</summary><a href="#div1_flight1_boys_doubles">Flight 1</a><a href="#div1_flight2_boys_doubles">Flight 2</a><a href="#div1_flight3_boys_doubles">Flight 3</a><a href="#div1_flight4_boys_doubles">Flight 4</a></details></details><details><summary>Division 2</summary><details class="nav-subgroup"><summary>Boys Singles</summary><a href="#div2_flight1_boys_singles">Flight 1</a><a href="#div2_flight2_boys_singles">Flight 2</a><a href="#div2_flight3_boys_singles">Flight 3</a><a href="#div2_flight4_boys_singles">Flight 4</a></details><details class="nav-subgroup"><summary>Boys Doubles</summary><a href="#div2_flight1_boys_doubles">Flight 1</a><a href="#div2_flight2_boys_doubles">Flight 2</a><a href="#div2_flight3_boys_doubles">Flight 3</a><a href="#div2_flight4_boys_doubles">Flight 4</a></details></details><details><summary>Division 3</summary><details class="nav-subgroup"><summary>Boys Singles</summary><a href="#div3_flight1_boys_singles">Flight 1</a><a href="#div3_flight2_boys_singles">Flight 2</a><a href="#div3_flight3_boys_singles">Flight 3</a><a href="#div3_flight4_boys_singles">Flight 4</a></details><details class="nav-subgroup"><summary>Boys Doubles</summary><a href="#div3_flight1_boys_doubles">Flight 1</a><a href="#div3_flight2_boys_doubles">Flight 2</a><a href="#div3_flight3_boys_doubles">Flight 3</a><a href="#div3_flight4_boys_doubles">Flight 4</a></details></details><details><summary>Division 4</summary><details class="nav-subgroup"><summary>Boys Singles</summary><a href="#div4_flight1_boys_singles">Flight 1</a><a href="#div4_flight2_boys_singles">Flight 2</a><a href="#div4_flight3_boys_singles">Flight 3</a><a href="#div4_flight4_boys_singles">Flight 4</a></details><details class="nav-subgroup"><summary>Boys Doubles</summary><a href="#div4_flight1_boys_doubles">Flight 1</a><a href="#div4_flight2_boys_doubles">Flight 2</a><a href="#div4_flight3_boys_doubles">Flight 3</a><a href="#div4_flight4_boys_doubles">Flight 4</a></details></details>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="nav-tool dropdown-toggle" type="button" onclick="toggleDropdown('filter-panel', event)">&#128269; Filter &#9662;</button>
+    <div class="dropdown-panel filter-panel" id="filter-panel">
+      <div class="filter-group">
+        <div class="filter-group-title">Division</div>
+        <label><input type="checkbox" class="filter-cb filter-division" value="1" checked onchange="applyFilters()"> Division 1</label>
+        <label><input type="checkbox" class="filter-cb filter-division" value="2" checked onchange="applyFilters()"> Division 2</label>
+        <label><input type="checkbox" class="filter-cb filter-division" value="3" checked onchange="applyFilters()"> Division 3</label>
+        <label><input type="checkbox" class="filter-cb filter-division" value="4" checked onchange="applyFilters()"> Division 4</label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Category</div>
+        <label><input type="checkbox" class="filter-cb filter-category" value="singles" checked onchange="applyFilters()"> Singles</label>
+        <label><input type="checkbox" class="filter-cb filter-category" value="doubles" checked onchange="applyFilters()"> Doubles</label>
+      </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Flight</div>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="1" checked onchange="applyFilters()"> Flight 1</label>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="2" checked onchange="applyFilters()"> Flight 2</label>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="3" checked onchange="applyFilters()"> Flight 3</label>
+        <label><input type="checkbox" class="filter-cb filter-flight" value="4" checked onchange="applyFilters()"> Flight 4</label>
+      </div>
+      <div class="filter-actions">
+        <button type="button" onclick="selectAllFilters()">Select all</button>
+        <button type="button" onclick="clearAllFilters()">Clear all</button>
+      </div>
+    </div>
+  </div>
 </nav>
 <main>
 
@@ -130,7 +245,7 @@
 </section>
 
 
-    <section id="team_boys_div1">
+    <section id="team_boys_div1" data-division="1">
       <div class="section-header">
         <h2>Top 10 Teams · Boys Division 1</h2>
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
@@ -138,7 +253,7 @@
       <div class="table-wrap"><table class="rankings-table team-table"><thead><tr><th onclick="sortTable(this)" title="rank">Rank</th><th onclick="sortTable(this)" title="school">School</th><th onclick="sortTable(this)" title="total_points">Total Pts</th><th onclick="sortTable(this)" title="slots_counted">Slots</th><th onclick="sortTable(this)" title="s1_pts">S-F1</th><th onclick="sortTable(this)" title="s2_pts">S-F2</th><th onclick="sortTable(this)" title="s3_pts">S-F3</th><th onclick="sortTable(this)" title="s4_pts">S-F4</th><th onclick="sortTable(this)" title="d1_pts">D-F1</th><th onclick="sortTable(this)" title="d2_pts">D-F2</th><th onclick="sortTable(this)" title="d3_pts">D-F3</th><th onclick="sortTable(this)" title="d4_pts">D-F4</th><th onclick="sortTable(this)" title="reason_below">Why ranked below team above</th></tr></thead><tbody><tr><td class="rank-cell">1st</td><td>Troy</td><td class="pts-cell">82.5</td><td>8</td><td>7.5</td><td>7.5</td><td>10.0</td><td>12.5</td><td>7.5</td><td>12.5</td><td>12.5</td><td>12.5</td><td class="reason-cell">—</td></tr><tr><td class="rank-cell">2nd</td><td>Bloomfield Hills</td><td class="pts-cell">55.0</td><td>8</td><td>2.5</td><td>12.5</td><td>7.5</td><td>5.0</td><td>10.0</td><td>10.0</td><td>2.5</td><td>5.0</td><td class="reason-cell">−27.5 pts (Singles F1: 4th vs 13th; Singles F3: 2nd vs 3rd; Singles F4: 1st vs 8th)</td></tr><tr><td class="rank-cell">3rd</td><td>Detroit Catholic Central</td><td class="pts-cell">42.5</td><td>8</td><td>2.5</td><td>5.0</td><td>5.0</td><td>2.5</td><td>5.0</td><td>7.5</td><td>5.0</td><td>10.0</td><td class="reason-cell">−12.5 pts (Singles F2: 1st vs 8th; Singles F3: 3rd vs 8th; Singles F4: 8th vs 9th)</td></tr><tr><td class="rank-cell">4th</td><td>Novi</td><td class="pts-cell">37.5</td><td>8</td><td>2.5</td><td>10.0</td><td>2.5</td><td>5.0</td><td>2.5</td><td>5.0</td><td>5.0</td><td>5.0</td><td class="reason-cell">−5.0 pts (Singles F3: 8th vs 11th; Doubles F1: 6th vs 14th; Doubles F2: 4th vs 8th)</td></tr><tr><td class="rank-cell">5th</td><td>Ann Arbor Skyline</td><td class="pts-cell">36.0</td><td>8</td><td>10.0</td><td>2.5</td><td>7.5</td><td>1.0</td><td>2.5</td><td>7.5</td><td>2.5</td><td>2.5</td><td class="reason-cell">−1.5 pts (Singles F2: 2nd vs 10th; Singles F4: 7th vs 18th; Doubles F3: 8th vs 9th)</td></tr><tr><td class="rank-cell">6th</td><td>Ann Arbor Pioneer</td><td class="pts-cell">36.0</td><td>8</td><td>7.5</td><td>5.0</td><td>5.0</td><td>7.5</td><td>2.5</td><td>5.0</td><td>1.0</td><td>2.5</td><td class="reason-cell">−0.0 pts (Singles F1: 2nd vs 3rd; Singles F3: 4th vs 7th; Doubles F2: 3rd vs 7th)</td></tr><tr><td class="rank-cell">7th</td><td>Bloomfield Hills Brother Rice</td><td class="pts-cell">34.5</td><td>7</td><td>1.0</td><td>0.0</td><td>1.0</td><td>2.5</td><td>12.5</td><td>5.0</td><td>5.0</td><td>7.5</td><td class="reason-cell">−1.5 pts (Singles F1: 3rd vs 22nd; Singles F2: 5th vs 50th; Singles F3: 7th vs 26th)</td></tr><tr><td class="rank-cell">8th</td><td>Holland West Ottawa</td><td class="pts-cell">32.5</td><td>8</td><td>2.5</td><td>2.5</td><td>2.5</td><td>10.0</td><td>2.5</td><td>2.5</td><td>7.5</td><td>2.5</td><td class="reason-cell">−2.0 pts (Doubles F1: 1st vs 10th; Doubles F2: 5th vs 12th; Doubles F4: 4th vs 10th)</td></tr><tr><td class="rank-cell">9th</td><td>Troy Athens</td><td class="pts-cell">30.5</td><td>8</td><td>2.5</td><td>1.0</td><td>1.0</td><td>1.0</td><td>7.5</td><td>5.0</td><td>7.5</td><td>5.0</td><td class="reason-cell">−2.0 pts (Singles F2: 14th vs 24th; Singles F3: 14th vs 19th; Singles F4: 2nd vs 21st)</td></tr><tr><td class="rank-cell">10th</td><td>Okemos</td><td class="pts-cell">30.0</td><td>7</td><td>2.5</td><td>0.0</td><td>12.5</td><td>2.5</td><td>5.0</td><td>2.5</td><td>2.5</td><td>2.5</td><td class="reason-cell">−0.5 pts (Singles F2: 24th vs 55th; Doubles F1: 4th vs 8th; Doubles F2: 6th vs 16th)</td></tr></tbody></table></div>
     </section>
     
-    <section id="team_boys_div2">
+    <section id="team_boys_div2" data-division="2">
       <div class="section-header">
         <h2>Top 10 Teams · Boys Division 2</h2>
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
@@ -146,7 +261,7 @@
       <div class="table-wrap"><table class="rankings-table team-table"><thead><tr><th onclick="sortTable(this)" title="rank">Rank</th><th onclick="sortTable(this)" title="school">School</th><th onclick="sortTable(this)" title="total_points">Total Pts</th><th onclick="sortTable(this)" title="slots_counted">Slots</th><th onclick="sortTable(this)" title="s1_pts">S-F1</th><th onclick="sortTable(this)" title="s2_pts">S-F2</th><th onclick="sortTable(this)" title="s3_pts">S-F3</th><th onclick="sortTable(this)" title="s4_pts">S-F4</th><th onclick="sortTable(this)" title="d1_pts">D-F1</th><th onclick="sortTable(this)" title="d2_pts">D-F2</th><th onclick="sortTable(this)" title="d3_pts">D-F3</th><th onclick="sortTable(this)" title="d4_pts">D-F4</th><th onclick="sortTable(this)" title="reason_below">Why ranked below team above</th></tr></thead><tbody><tr><td class="rank-cell">1st</td><td>Midland Dow</td><td class="pts-cell">75.0</td><td>8</td><td>5.0</td><td>12.5</td><td>7.5</td><td>7.5</td><td>12.5</td><td>5.0</td><td>12.5</td><td>12.5</td><td class="reason-cell">—</td></tr><tr><td class="rank-cell">2nd</td><td>Birmingham Seaholm</td><td class="pts-cell">75.0</td><td>8</td><td>7.5</td><td>7.5</td><td>10.0</td><td>12.5</td><td>10.0</td><td>10.0</td><td>7.5</td><td>10.0</td><td class="reason-cell">−0.0 pts (Singles F2: 1st vs 4th; Doubles F1: 1st vs 2nd; Doubles F3: 1st vs 3rd)</td></tr><tr><td class="rank-cell">3rd</td><td>Byron Center</td><td class="pts-cell">56.0</td><td>8</td><td>1.0</td><td>5.0</td><td>5.0</td><td>7.5</td><td>7.5</td><td>12.5</td><td>10.0</td><td>7.5</td><td class="reason-cell">−19.0 pts (Singles F1: 4th vs 19th; Singles F2: 4th vs 7th; Singles F3: 2nd vs 6th)</td></tr><tr><td class="rank-cell">4th</td><td>Portage Central</td><td class="pts-cell">50.0</td><td>8</td><td>10.0</td><td>5.0</td><td>5.0</td><td>10.0</td><td>5.0</td><td>5.0</td><td>5.0</td><td>5.0</td><td class="reason-cell">−6.0 pts (Doubles F1: 3rd vs 5th; Doubles F2: 1st vs 7th; Doubles F3: 2nd vs 8th)</td></tr><tr><td class="rank-cell">5th</td><td>Grand Rapids Forest Hills Northern</td><td class="pts-cell">43.5</td><td>8</td><td>2.5</td><td>10.0</td><td>5.0</td><td>1.0</td><td>5.0</td><td>5.0</td><td>7.5</td><td>7.5</td><td class="reason-cell">−6.5 pts (Singles F1: 2nd vs 10th; Singles F4: 2nd vs 23rd)</td></tr><tr><td class="rank-cell">6th</td><td>Grosse Pointe South</td><td class="pts-cell">42.5</td><td>8</td><td>5.0</td><td>5.0</td><td>7.5</td><td>5.0</td><td>5.0</td><td>5.0</td><td>5.0</td><td>5.0</td><td class="reason-cell">−1.0 pts (Singles F2: 2nd vs 5th; Doubles F3: 4th vs 7th; Doubles F4: 4th vs 6th)</td></tr><tr><td class="rank-cell">7th</td><td>Grand Rapids Forest Hills Central</td><td class="pts-cell">41.0</td><td>8</td><td>1.0</td><td>7.5</td><td>5.0</td><td>5.0</td><td>7.5</td><td>7.5</td><td>2.5</td><td>5.0</td><td class="reason-cell">−1.5 pts (Singles F1: 6th vs 20th; Singles F3: 3rd vs 5th; Doubles F3: 7th vs 12th)</td></tr><tr><td class="rank-cell">8th</td><td>Birmingham Groves</td><td class="pts-cell">33.5</td><td>8</td><td>1.0</td><td>2.5</td><td>2.5</td><td>5.0</td><td>5.0</td><td>7.5</td><td>5.0</td><td>5.0</td><td class="reason-cell">−7.5 pts (Singles F2: 3rd vs 13th; Singles F3: 5th vs 9th; Doubles F1: 4th vs 8th)</td></tr><tr><td class="rank-cell">9th</td><td>Detroit U-D Jesuit</td><td class="pts-cell">31.0</td><td>8</td><td>2.5</td><td>2.5</td><td>12.5</td><td>2.5</td><td>2.5</td><td>2.5</td><td>5.0</td><td>1.0</td><td class="reason-cell">−2.5 pts (Singles F4: 6th vs 9th; Doubles F1: 8th vs 12th; Doubles F2: 4th vs 9th)</td></tr><tr><td class="rank-cell">10th</td><td>South Lyon East</td><td class="pts-cell">24.0</td><td>8</td><td>12.5</td><td>1.0</td><td>2.5</td><td>2.5</td><td>2.5</td><td>1.0</td><td>1.0</td><td>1.0</td><td class="reason-cell">−7.0 pts (Singles F2: 12th vs 21st; Singles F3: 1st vs 10th; Doubles F2: 9th vs 27th)</td></tr></tbody></table></div>
     </section>
     
-    <section id="team_boys_div3">
+    <section id="team_boys_div3" data-division="3">
       <div class="section-header">
         <h2>Top 10 Teams · Boys Division 3</h2>
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
@@ -154,7 +269,7 @@
       <div class="table-wrap"><table class="rankings-table team-table"><thead><tr><th onclick="sortTable(this)" title="rank">Rank</th><th onclick="sortTable(this)" title="school">School</th><th onclick="sortTable(this)" title="total_points">Total Pts</th><th onclick="sortTable(this)" title="slots_counted">Slots</th><th onclick="sortTable(this)" title="s1_pts">S-F1</th><th onclick="sortTable(this)" title="s2_pts">S-F2</th><th onclick="sortTable(this)" title="s3_pts">S-F3</th><th onclick="sortTable(this)" title="s4_pts">S-F4</th><th onclick="sortTable(this)" title="d1_pts">D-F1</th><th onclick="sortTable(this)" title="d2_pts">D-F2</th><th onclick="sortTable(this)" title="d3_pts">D-F3</th><th onclick="sortTable(this)" title="d4_pts">D-F4</th><th onclick="sortTable(this)" title="reason_below">Why ranked below team above</th></tr></thead><tbody><tr><td class="rank-cell">1st</td><td>Bloomfield Hills Cranbrook Kingswood</td><td class="pts-cell">85.0</td><td>8</td><td>10.0</td><td>7.5</td><td>7.5</td><td>12.5</td><td>10.0</td><td>12.5</td><td>12.5</td><td>12.5</td><td class="reason-cell">—</td></tr><tr><td class="rank-cell">2nd</td><td>Detroit Country Day</td><td class="pts-cell">65.0</td><td>8</td><td>12.5</td><td>12.5</td><td>7.5</td><td>7.5</td><td>7.5</td><td>7.5</td><td>5.0</td><td>5.0</td><td class="reason-cell">−20.0 pts (Singles F4: 1st vs 3rd; Doubles F1: 2nd vs 4th; Doubles F2: 1st vs 3rd)</td></tr><tr><td class="rank-cell">3rd</td><td>Holland Christian</td><td class="pts-cell">56.0</td><td>8</td><td>1.0</td><td>7.5</td><td>5.0</td><td>5.0</td><td>12.5</td><td>7.5</td><td>7.5</td><td>10.0</td><td class="reason-cell">−9.0 pts (Singles F1: 1st vs 21st; Singles F2: 1st vs 4th; Singles F3: 4th vs 6th)</td></tr><tr><td class="rank-cell">4th</td><td>Ann Arbor Greenhills</td><td class="pts-cell">56.0</td><td>8</td><td>1.0</td><td>10.0</td><td>5.0</td><td>5.0</td><td>7.5</td><td>10.0</td><td>10.0</td><td>7.5</td><td class="reason-cell">−0.0 pts (Doubles F1: 1st vs 3rd; Doubles F4: 2nd vs 3rd)</td></tr><tr><td class="rank-cell">5th</td><td>Chelsea</td><td class="pts-cell">37.5</td><td>8</td><td>5.0</td><td>2.5</td><td>2.5</td><td>7.5</td><td>5.0</td><td>2.5</td><td>5.0</td><td>7.5</td><td class="reason-cell">−18.5 pts (Singles F2: 2nd vs 11th; Singles F3: 7th vs 14th; Doubles F1: 3rd vs 5th)</td></tr><tr><td class="rank-cell">6th</td><td>Ludington</td><td class="pts-cell">34.0</td><td>8</td><td>1.0</td><td>5.0</td><td>12.5</td><td>10.0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>2.5</td><td class="reason-cell">−3.5 pts (Singles F1: 5th vs 17th; Doubles F1: 5th vs 19th; Doubles F2: 12th vs 18th)</td></tr><tr><td class="rank-cell">7th</td><td>Hudsonville Unity Christian</td><td class="pts-cell">28.5</td><td>8</td><td>5.0</td><td>1.0</td><td>2.5</td><td>2.5</td><td>5.0</td><td>5.0</td><td>2.5</td><td>5.0</td><td class="reason-cell">−5.5 pts (Singles F2: 6th vs 18th; Singles F3: 1st vs 9th; Singles F4: 2nd vs 14th)</td></tr><tr><td class="rank-cell">8th</td><td>East Grand Rapids</td><td class="pts-cell">28.5</td><td>8</td><td>5.0</td><td>5.0</td><td>5.0</td><td>5.0</td><td>1.0</td><td>2.5</td><td>2.5</td><td>2.5</td><td class="reason-cell">−0.0 pts (Doubles F1: 8th vs 22nd; Doubles F2: 8th vs 14th; Doubles F4: 6th vs 9th)</td></tr><tr><td class="rank-cell">9th</td><td>Haslett</td><td class="pts-cell">26.5</td><td>8</td><td>7.5</td><td>2.5</td><td>10.0</td><td>1.0</td><td>2.5</td><td>1.0</td><td>1.0</td><td>1.0</td><td class="reason-cell">−2.0 pts (Singles F2: 5th vs 9th; Singles F4: 7th vs 17th; Doubles F2: 14th vs 20th)</td></tr><tr><td class="rank-cell">10th</td><td>Grand Rapids South Christian</td><td class="pts-cell">25.0</td><td>8</td><td>2.5</td><td>2.5</td><td>2.5</td><td>2.5</td><td>2.5</td><td>5.0</td><td>5.0</td><td>2.5</td><td class="reason-cell">−1.5 pts (Singles F1: 3rd vs 16th; Singles F3: 2nd vs 10th)</td></tr></tbody></table></div>
     </section>
     
-    <section id="team_boys_div4">
+    <section id="team_boys_div4" data-division="4">
       <div class="section-header">
         <h2>Top 10 Teams · Boys Division 4</h2>
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
@@ -163,7 +278,7 @@
     </section>
     
 
-    <section id="div1_flight1_boys_singles">
+    <section id="div1_flight1_boys_singles" data-division="1" data-category="singles" data-flight="1">
       <div class="section-header">
         <h2>Div 1 · Flight 1 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_1.csv">Download CSV</a>
@@ -173,7 +288,7 @@
       </div>
     </section>
     
-    <section id="div1_flight1_boys_doubles">
+    <section id="div1_flight1_boys_doubles" data-division="1" data-category="doubles" data-flight="1">
       <div class="section-header">
         <h2>Div 1 · Flight 1 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_1.csv">Download CSV</a>
@@ -183,7 +298,7 @@
       </div>
     </section>
     
-    <section id="div1_flight2_boys_singles">
+    <section id="div1_flight2_boys_singles" data-division="1" data-category="singles" data-flight="2">
       <div class="section-header">
         <h2>Div 1 · Flight 2 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_1.csv">Download CSV</a>
@@ -193,7 +308,7 @@
       </div>
     </section>
     
-    <section id="div1_flight2_boys_doubles">
+    <section id="div1_flight2_boys_doubles" data-division="1" data-category="doubles" data-flight="2">
       <div class="section-header">
         <h2>Div 1 · Flight 2 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_1.csv">Download CSV</a>
@@ -203,7 +318,7 @@
       </div>
     </section>
     
-    <section id="div1_flight3_boys_singles">
+    <section id="div1_flight3_boys_singles" data-division="1" data-category="singles" data-flight="3">
       <div class="section-header">
         <h2>Div 1 · Flight 3 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_1.csv">Download CSV</a>
@@ -213,7 +328,7 @@
       </div>
     </section>
     
-    <section id="div1_flight3_boys_doubles">
+    <section id="div1_flight3_boys_doubles" data-division="1" data-category="doubles" data-flight="3">
       <div class="section-header">
         <h2>Div 1 · Flight 3 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_1.csv">Download CSV</a>
@@ -223,7 +338,7 @@
       </div>
     </section>
     
-    <section id="div1_flight4_boys_singles">
+    <section id="div1_flight4_boys_singles" data-division="1" data-category="singles" data-flight="4">
       <div class="section-header">
         <h2>Div 1 · Flight 4 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_1.csv">Download CSV</a>
@@ -233,7 +348,7 @@
       </div>
     </section>
     
-    <section id="div1_flight4_boys_doubles">
+    <section id="div1_flight4_boys_doubles" data-division="1" data-category="doubles" data-flight="4">
       <div class="section-header">
         <h2>Div 1 · Flight 4 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_1.csv">Download CSV</a>
@@ -243,7 +358,7 @@
       </div>
     </section>
     
-    <section id="div2_flight1_boys_singles">
+    <section id="div2_flight1_boys_singles" data-division="2" data-category="singles" data-flight="1">
       <div class="section-header">
         <h2>Div 2 · Flight 1 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_2.csv">Download CSV</a>
@@ -253,7 +368,7 @@
       </div>
     </section>
     
-    <section id="div2_flight1_boys_doubles">
+    <section id="div2_flight1_boys_doubles" data-division="2" data-category="doubles" data-flight="1">
       <div class="section-header">
         <h2>Div 2 · Flight 1 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_2.csv">Download CSV</a>
@@ -263,7 +378,7 @@
       </div>
     </section>
     
-    <section id="div2_flight2_boys_singles">
+    <section id="div2_flight2_boys_singles" data-division="2" data-category="singles" data-flight="2">
       <div class="section-header">
         <h2>Div 2 · Flight 2 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_2.csv">Download CSV</a>
@@ -273,7 +388,7 @@
       </div>
     </section>
     
-    <section id="div2_flight2_boys_doubles">
+    <section id="div2_flight2_boys_doubles" data-division="2" data-category="doubles" data-flight="2">
       <div class="section-header">
         <h2>Div 2 · Flight 2 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_2.csv">Download CSV</a>
@@ -283,7 +398,7 @@
       </div>
     </section>
     
-    <section id="div2_flight3_boys_singles">
+    <section id="div2_flight3_boys_singles" data-division="2" data-category="singles" data-flight="3">
       <div class="section-header">
         <h2>Div 2 · Flight 3 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_2.csv">Download CSV</a>
@@ -293,7 +408,7 @@
       </div>
     </section>
     
-    <section id="div2_flight3_boys_doubles">
+    <section id="div2_flight3_boys_doubles" data-division="2" data-category="doubles" data-flight="3">
       <div class="section-header">
         <h2>Div 2 · Flight 3 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_2.csv">Download CSV</a>
@@ -303,7 +418,7 @@
       </div>
     </section>
     
-    <section id="div2_flight4_boys_singles">
+    <section id="div2_flight4_boys_singles" data-division="2" data-category="singles" data-flight="4">
       <div class="section-header">
         <h2>Div 2 · Flight 4 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_2.csv">Download CSV</a>
@@ -313,7 +428,7 @@
       </div>
     </section>
     
-    <section id="div2_flight4_boys_doubles">
+    <section id="div2_flight4_boys_doubles" data-division="2" data-category="doubles" data-flight="4">
       <div class="section-header">
         <h2>Div 2 · Flight 4 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_2.csv">Download CSV</a>
@@ -323,7 +438,7 @@
       </div>
     </section>
     
-    <section id="div3_flight1_boys_singles">
+    <section id="div3_flight1_boys_singles" data-division="3" data-category="singles" data-flight="1">
       <div class="section-header">
         <h2>Div 3 · Flight 1 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_3.csv">Download CSV</a>
@@ -333,7 +448,7 @@
       </div>
     </section>
     
-    <section id="div3_flight1_boys_doubles">
+    <section id="div3_flight1_boys_doubles" data-division="3" data-category="doubles" data-flight="1">
       <div class="section-header">
         <h2>Div 3 · Flight 1 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_3.csv">Download CSV</a>
@@ -343,7 +458,7 @@
       </div>
     </section>
     
-    <section id="div3_flight2_boys_singles">
+    <section id="div3_flight2_boys_singles" data-division="3" data-category="singles" data-flight="2">
       <div class="section-header">
         <h2>Div 3 · Flight 2 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_3.csv">Download CSV</a>
@@ -353,7 +468,7 @@
       </div>
     </section>
     
-    <section id="div3_flight2_boys_doubles">
+    <section id="div3_flight2_boys_doubles" data-division="3" data-category="doubles" data-flight="2">
       <div class="section-header">
         <h2>Div 3 · Flight 2 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_3.csv">Download CSV</a>
@@ -363,7 +478,7 @@
       </div>
     </section>
     
-    <section id="div3_flight3_boys_singles">
+    <section id="div3_flight3_boys_singles" data-division="3" data-category="singles" data-flight="3">
       <div class="section-header">
         <h2>Div 3 · Flight 3 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_3.csv">Download CSV</a>
@@ -373,7 +488,7 @@
       </div>
     </section>
     
-    <section id="div3_flight3_boys_doubles">
+    <section id="div3_flight3_boys_doubles" data-division="3" data-category="doubles" data-flight="3">
       <div class="section-header">
         <h2>Div 3 · Flight 3 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_3.csv">Download CSV</a>
@@ -383,7 +498,7 @@
       </div>
     </section>
     
-    <section id="div3_flight4_boys_singles">
+    <section id="div3_flight4_boys_singles" data-division="3" data-category="singles" data-flight="4">
       <div class="section-header">
         <h2>Div 3 · Flight 4 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_3.csv">Download CSV</a>
@@ -393,7 +508,7 @@
       </div>
     </section>
     
-    <section id="div3_flight4_boys_doubles">
+    <section id="div3_flight4_boys_doubles" data-division="3" data-category="doubles" data-flight="4">
       <div class="section-header">
         <h2>Div 3 · Flight 4 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_3.csv">Download CSV</a>
@@ -403,7 +518,7 @@
       </div>
     </section>
     
-    <section id="div4_flight1_boys_singles">
+    <section id="div4_flight1_boys_singles" data-division="4" data-category="singles" data-flight="1">
       <div class="section-header">
         <h2>Div 4 · Flight 1 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_4.csv">Download CSV</a>
@@ -413,7 +528,7 @@
       </div>
     </section>
     
-    <section id="div4_flight1_boys_doubles">
+    <section id="div4_flight1_boys_doubles" data-division="4" data-category="doubles" data-flight="1">
       <div class="section-header">
         <h2>Div 4 · Flight 1 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_4.csv">Download CSV</a>
@@ -423,7 +538,7 @@
       </div>
     </section>
     
-    <section id="div4_flight2_boys_singles">
+    <section id="div4_flight2_boys_singles" data-division="4" data-category="singles" data-flight="2">
       <div class="section-header">
         <h2>Div 4 · Flight 2 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_4.csv">Download CSV</a>
@@ -433,7 +548,7 @@
       </div>
     </section>
     
-    <section id="div4_flight2_boys_doubles">
+    <section id="div4_flight2_boys_doubles" data-division="4" data-category="doubles" data-flight="2">
       <div class="section-header">
         <h2>Div 4 · Flight 2 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_4.csv">Download CSV</a>
@@ -443,7 +558,7 @@
       </div>
     </section>
     
-    <section id="div4_flight3_boys_singles">
+    <section id="div4_flight3_boys_singles" data-division="4" data-category="singles" data-flight="3">
       <div class="section-header">
         <h2>Div 4 · Flight 3 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_4.csv">Download CSV</a>
@@ -453,7 +568,7 @@
       </div>
     </section>
     
-    <section id="div4_flight3_boys_doubles">
+    <section id="div4_flight3_boys_doubles" data-division="4" data-category="doubles" data-flight="3">
       <div class="section-header">
         <h2>Div 4 · Flight 3 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_4.csv">Download CSV</a>
@@ -463,7 +578,7 @@
       </div>
     </section>
     
-    <section id="div4_flight4_boys_singles">
+    <section id="div4_flight4_boys_singles" data-division="4" data-category="singles" data-flight="4">
       <div class="section-header">
         <h2>Div 4 · Flight 4 · Boys Singles</h2>
         <a class="dl-btn" href="csv/singles_boys_division_4.csv">Download CSV</a>
@@ -473,7 +588,7 @@
       </div>
     </section>
     
-    <section id="div4_flight4_boys_doubles">
+    <section id="div4_flight4_boys_doubles" data-division="4" data-category="doubles" data-flight="4">
       <div class="section-header">
         <h2>Div 4 · Flight 4 · Boys Doubles</h2>
         <a class="dl-btn" href="csv/doubles_boys_division_4.csv">Download CSV</a>
@@ -506,6 +621,43 @@ function showTool(name) {
     panel.classList.add('active');
     panel.scrollIntoView({behavior: 'smooth', block: 'start'});
   }
+}
+
+function toggleDropdown(id, evt) {
+  if (evt) evt.stopPropagation();
+  document.querySelectorAll('.dropdown-panel').forEach(p => {
+    if (p.id !== id) p.classList.remove('open');
+  });
+  document.getElementById(id).classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown')) {
+    document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  }
+});
+
+function applyFilters() {
+  const divisions  = Array.from(document.querySelectorAll('.filter-division:checked')).map(cb => cb.value);
+  const categories = Array.from(document.querySelectorAll('.filter-category:checked')).map(cb => cb.value);
+  const flights    = Array.from(document.querySelectorAll('.filter-flight:checked')).map(cb => cb.value);
+
+  document.querySelectorAll('main > section[data-division]').forEach(sec => {
+    let show = divisions.includes(sec.dataset.division);
+    if (show && sec.dataset.category) show = categories.includes(sec.dataset.category);
+    if (show && sec.dataset.flight)   show = flights.includes(sec.dataset.flight);
+    sec.style.display = show ? '' : 'none';
+  });
+}
+
+function selectAllFilters() {
+  document.querySelectorAll('.filter-cb').forEach(cb => cb.checked = true);
+  applyFilters();
+}
+
+function clearAllFilters() {
+  document.querySelectorAll('.filter-cb').forEach(cb => cb.checked = false);
+  applyFilters();
 }
 
 function makeAutocomplete(inputId, listId, onSelect) {
