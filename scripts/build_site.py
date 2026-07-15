@@ -252,10 +252,7 @@ for csv_path in sorted(src_dir.glob("*.csv")):
 schools_json = json.dumps(all_schools)
 csv_data_json = json.dumps(csv_full_data)
 
-team_nav = "".join(
-    f'<a href="#team_{e["gender"].lower()}_div{e["division"].replace(" ","")}">Teams · {e["gender"]} D{e["division"]}</a>'
-    for e in team_data
-)
+
 
 # ── Build the Division > Singles/Doubles > Flight dropdown nav ───────────────
 _DIVISION_SORT = {"1": 0, "2": 1, "3": 2, "4": 3}
