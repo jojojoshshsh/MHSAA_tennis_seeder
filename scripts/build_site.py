@@ -473,7 +473,6 @@ html = f"""<!DOCTYPE html>
   {prediction_nav_link}
   <button class="nav-tool" onclick="showTool('search')">&#128269; School Search</button>
   <button class="nav-tool" onclick="showTool('compare')">&#9878; Team Compare</button>
-  {team_nav}
   <div class="dropdown">
     <button class="nav-tool dropdown-toggle" type="button" onclick="toggleDropdown('rankings-dropdown', event)">&#127934; Individual Rankings &#9662;</button>
     <div class="dropdown-panel" id="rankings-dropdown">
