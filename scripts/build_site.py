@@ -179,8 +179,8 @@ nav_tree = defaultdict(lambda: defaultdict(list))
 _PREVIEW_COL_ORDER = [
     "rank", "name", "pair_name", "school",
     "division", "flight", "wins", "losses",
-    "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "local_ts_mu", "ts_sigma",
-    "reachability", "local_reachability",
+    "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "ts_sigma",
+    "reachability",
     "sos", "local_sos", "quality_wins",
     "last_match_date", "reason_below",
 ]
@@ -313,20 +313,20 @@ html = f"""<!DOCTYPE html>
   .nav-predict:hover {{ background: rgba(255,159,138,.1); }}
   .nav-tool {{ color: #a8e6c0; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(168,230,192,.3); text-decoration: none; margin-right: .4rem; cursor: pointer; background: none; font-family: inherit; }}
   .nav-tool:hover {{ background: rgba(168,230,192,.1); }}
-  main {{ max-width: 1400px; margin: auto; padding: 1.5rem; }}
-  section {{ background: white; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }}
-  .section-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: .5rem; }}
+  main {{ max-width: 100%; width: 100%; margin: auto; padding: 1rem 1.25rem; }}
+  section {{ background: white; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,.07); }}
+  .section-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; flex-wrap: wrap; gap: .5rem; }}
   h2 {{ font-size: 1.05rem; font-weight: 600; color: #1a3a5c; }}
   .scoring-note {{ font-size: .72rem; color: #5a7a9a; background: #eef4fb; border: 1px solid #c0d4e8; border-radius: 5px; padding: .25rem .6rem; white-space: nowrap; }}
   .dl-btn {{ font-size: .8rem; color: #1a3a5c; text-decoration: none; border: 1px solid #c0d4e8; border-radius: 6px; padding: .3rem .7rem; }}
   .dl-btn:hover {{ background: #e8f0f8; }}
-  .table-wrap {{ overflow-x: auto; }}
-  .rankings-table {{ width: 100%; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }}
-  .rankings-table th {{ background: #1a3a5c; color: white; padding: 6px 10px; text-align: left; font-weight: 500; cursor: pointer; user-select: none; }}
+  .table-wrap {{ overflow-x: auto; width: 100%; }}
+  .rankings-table {{ width: 100%; table-layout: auto; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }}
+  .rankings-table th {{ background: #1a3a5c; color: white; padding: 5px 8px; text-align: left; font-weight: 500; cursor: pointer; user-select: none; }}
   .rankings-table th:hover {{ background: #245180; }}
   .rankings-table th.asc::after  {{ content: " ▲"; font-size: .65rem; }}
   .rankings-table th.desc::after {{ content: " ▼"; font-size: .65rem; }}
-  .rankings-table td {{ padding: 5px 10px; border-bottom: 1px solid #eef0f3; }}
+  .rankings-table td {{ padding: 4px 8px; border-bottom: 1px solid #eef0f3; }}
   .rankings-table tr:nth-child(even) td {{ background: #f8fafc; }}
   .rankings-table tr:hover td {{ background: #eef4fb; }}
   .rankings-table td:first-child {{ font-weight: 600; color: #1a3a5c; width: 36px; }}
@@ -776,8 +776,8 @@ function runCompare() {{
   const SHOW_COLS = [
     'rank', 'name', 'pair_name',
     'wins', 'losses',
-    'TGRS', 'TGRS_scaled', 'ts_rating', 'ts_mu', 'local_ts_mu',
-    'reachability', 'local_reachability',
+    'TGRS', 'TGRS_scaled', 'ts_rating', 'ts_mu',
+    'reachability',
     'sos', 'local_sos', 'quality_wins',
     'last_match_date'
   ];
