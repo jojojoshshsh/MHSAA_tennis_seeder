@@ -321,7 +321,7 @@ html = f"""<!DOCTYPE html>
   .dl-btn {{ font-size: .8rem; color: #1a3a5c; text-decoration: none; border: 1px solid #c0d4e8; border-radius: 6px; padding: .3rem .7rem; }}
   .dl-btn:hover {{ background: #e8f0f8; }}
   .table-wrap {{ overflow-x: auto; width: 100%; }}
-  .rankings-table {{ width: 100%; table-layout: auto; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }}
+  .rankings-table {{ width: auto; max-width: 100%; table-layout: auto; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }}
   .rankings-table th {{ background: #1a3a5c; color: white; padding: 5px 8px; text-align: left; font-weight: 500; cursor: pointer; user-select: none; }}
   .rankings-table th:hover {{ background: #245180; }}
   .rankings-table th.asc::after  {{ content: " ▲"; font-size: .65rem; }}
