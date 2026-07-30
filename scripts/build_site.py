@@ -314,7 +314,7 @@ html = f"""<!DOCTYPE html>
   .nav-tool {{ color: #a8e6c0; font-size: .8rem; padding: .2rem .6rem; border-radius: 4px; border: 1px solid rgba(168,230,192,.3); text-decoration: none; margin-right: .4rem; cursor: pointer; background: none; font-family: inherit; }}
   .nav-tool:hover {{ background: rgba(168,230,192,.1); }}
   main {{ max-width: 100%; width: 100%; margin: auto; padding: 1rem 1.25rem; }}
-  section {{ background: white; border-radius: 10px; padding: 1rem; margin: 0 auto 1rem; max-width: 1100px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }}
+  section {{ background: white; border-radius: 10px; padding: 1rem; margin: 0 auto 1rem; max-width: 1600px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }}
   .section-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; flex-wrap: wrap; gap: .5rem; }}
   h2 {{ font-size: 1.05rem; font-weight: 600; color: #1a3a5c; }}
   .scoring-note {{ font-size: .72rem; color: #5a7a9a; background: #eef4fb; border: 1px solid #c0d4e8; border-radius: 5px; padding: .25rem .6rem; white-space: nowrap; }}
@@ -827,6 +827,34 @@ function runCompare() {{
   html += '</div>';
   container.innerHTML = html;
 }}
+
+function equalizeSectionWidths() {{
+  const tables = document.querySelectorAll('.rankings-table');
+  let maxContentWidth = 0;
+  tables.forEach(t => {{
+    const prevWidth = t.style.width;
+    t.style.width = 'max-content';
+    maxContentWidth = Math.max(maxContentWidth, t.scrollWidth);
+    t.style.width = prevWidth;
+  }});
+  window._maxTableContentWidth = maxContentWidth;
+  applySectionWidth();
+}}
+
+function applySectionWidth() {{
+  const contentWidth = window._maxTableContentWidth || 0;
+  if (!contentWidth) return;
+  const sectionPadding = 34; // section's left+right padding (1rem each side) plus a hair of slack
+  const desired = contentWidth + sectionPadding;
+  const viewportCap = Math.max(320, window.innerWidth - 40); // leave a small page margin
+  const finalWidth = Math.min(desired, viewportCap);
+  document.querySelectorAll('main > section').forEach(sec => {{
+    sec.style.maxWidth = finalWidth + 'px';
+  }});
+}}
+
+window.addEventListener('load', equalizeSectionWidths);
+window.addEventListener('resize', applySectionWidth);
 
 function sortTable(th) {{
   const tbody = th.closest('table').querySelector('tbody');
