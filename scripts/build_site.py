@@ -460,6 +460,18 @@ html = f"""<!DOCTYPE html>
     font-family: inherit;
   }}
   .filter-actions button:hover {{ background: #eef4fb; }}
+
+  @media (max-width: 600px) {{
+    .scoring-note {{
+      white-space: normal;
+      font-size: .68rem;
+      line-height: 1.4;
+    }}
+    .section-header {{
+      flex-direction: column;
+      align-items: flex-start;
+    }}
+  }}
 </style>
 </head>
 <body>
