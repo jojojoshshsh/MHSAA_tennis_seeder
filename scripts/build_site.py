@@ -182,8 +182,20 @@ _PREVIEW_COL_ORDER = [
     "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "ts_sigma",
     "reachability",
     "sos", "local_sos", "quality_wins",
+    "won_after_set1_loss", "vs_weaker_opp", "vs_mid_opp", "vs_top_opp",
     "last_match_date", "reason_below",
 ]
+
+# Human-readable header labels for the individual ranking tables (team
+# tables have their own COL_LABELS map above, built per-entry since it's
+# scoped inside the team_html loop). Any column not listed here just uses
+# its raw name, same as before.
+INDIVIDUAL_COL_LABELS = {
+    "won_after_set1_loss": "Won After S1 Loss",
+    "vs_weaker_opp": "vs Weaker Opp",
+    "vs_mid_opp": "vs Mid Opp",
+    "vs_top_opp": "vs Top Opp",
+}
 
 tables_html = ""
 for entry in all_data:
@@ -200,7 +212,7 @@ for entry in all_data:
     label = f"Div {division} · Flight {flight} · {gender} {category}"
 
     thead = "<thead><tr>" + "".join(
-        f'<th onclick="sortTable(this)">{_html_escape_py(col)}</th>'
+        f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">{_html_escape_py(INDIVIDUAL_COL_LABELS.get(col, col))}</th>'
         for col in preview_cols
     ) + "</tr></thead>"
 
@@ -712,7 +724,7 @@ function doSchoolSearch(school) {{
     }}
 
     const thead = '<thead><tr>' +
-      data.cols.map(c => `<th onclick="sortTable(this)">${{escapeHtml(c)}}</th>`).join('') +
+      data.cols.map(c => `<th onclick="sortTable(this)">${{escapeHtml(INDIVIDUAL_COL_LABELS_JS[c] || c)}}</th>`).join('') +
       '</tr></thead>';
     const tbody = '<tbody>' +
       data.rows.map(r =>
@@ -729,6 +741,15 @@ function doSchoolSearch(school) {{
       '</div>';
   }}
 }}
+
+// Mirrors INDIVIDUAL_COL_LABELS on the Python side, for the School Search
+// results tables which are built purely client-side from CSV_DATA.
+const INDIVIDUAL_COL_LABELS_JS = {{
+  won_after_set1_loss: 'Won After S1 Loss',
+  vs_weaker_opp: 'vs Weaker Opp',
+  vs_mid_opp: 'vs Mid Opp',
+  vs_top_opp: 'vs Top Opp',
+}};
 
 let selectedA = '';
 let selectedB = '';
@@ -784,7 +805,9 @@ function runCompare() {{
   const allKeys = [...new Set([...Object.keys(dataA), ...Object.keys(dataB)])].sort();
 
   // reason_below is context-specific to each table and not meaningful
-  // in a side-by-side compare view, so exclude it here.
+  // in a side-by-side compare view, so exclude it here. won_after_set1_loss
+  // and the vs_*_opp records are formatted strings (not plain numbers), so
+  // they're also excluded from this numeric-style compare view.
   const SHOW_COLS = [
     'rank', 'name', 'pair_name',
     'wins', 'losses',
@@ -879,6 +902,9 @@ function sortTable(th) {{
   rows.sort((a, b) => {{
     const av = a.cells[col].textContent.trim();
     const bv = b.cells[col].textContent.trim();
+    // Try to sort by a LEADING number in the cell (handles plain numbers
+    // like "12.5" as well as our "3/5 (60%)" / "5-0 (100%)" style
+    // formatted stats, which sort by the leading win-count number).
     const an = parseFloat(av), bn = parseFloat(bv);
     if (!isNaN(an) && !isNaN(bn)) return asc ? an - bn : bn - an;
     return asc ? av.localeCompare(bv) : bv.localeCompare(av);
