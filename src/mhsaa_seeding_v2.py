@@ -102,6 +102,13 @@ RECORDS (WINS/LOSSES) — COUNTED BEFORE ANY REMOVAL
   output column is affected by this — only the `wins`/`losses`/
   `matches`/`last_match_date` figures are sourced from the wider set.
 
+  The new comeback stat (won_after_set1_loss) and the opponent-strength
+  record (vs_weaker_opp / vs_mid_opp / vs_top_opp) are ALSO sourced from
+  this same wide, pre-filter/pre-dedup snapshot — see section 9c below —
+  for exactly the same reason: they should reflect everything a player
+  actually played, not just the matches that survived MIN_MATCHES/dedup
+  filtering.
+
 TRUESKILL (UPDATED — now margin-aware)
 -------------------------------
   Ratings are computed by trueskill_engine_v2.compute_trueskill_margin(),
@@ -133,11 +140,20 @@ OUTPUT LAYER (UPDATED)
     rank, name / pair_name, school, division, flight, wins, losses,
     TGRS, TGRS_scaled, ts_rating, ts_mu, local_ts_mu, ts_sigma,
     reachability, local_reachability, sos, local_sos, quality_wins,
+    won_after_set1_loss, vs_weaker_opp, vs_mid_opp, vs_top_opp,
     last_match_date, reason_below
 
   "reason_below" is a human-readable explanation of why this player is
   seeded below the player immediately above them (e.g. "Lost head-to-head",
   "Fewer wins vs common opponents"). Empty for the #1 seed.
+
+  "won_after_set1_loss" is a comeback-rate stat: of the matches where this
+  player lost set 1, what fraction did they still go on to win overall
+  (formatted "3/5 (60%)"). Blank if they never lost a first set.
+
+  "vs_weaker_opp" / "vs_mid_opp" / "vs_top_opp" is a win-loss record
+  against opponents grouped by TrueSkill conservative-rating percentile
+  — see section 9c for exactly how the thresholds and buckets work.
 
   "local_*" columns are computed within just that player's division/
   flight group (the existing per-division ranking pass); the non-local
@@ -151,12 +167,14 @@ OUTPUT LAYER (UPDATED)
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
 unchanged from the previous version, aside from the determinism fixes
-called out above. Section 12 (output helpers), run() (section 11), and
-the TrueSkill import/call in process_group (section 10) were rewritten.
+called out above. Section 9c (comeback stat + opponent-strength record),
+section 12 (output helpers), run() (section 11), and the TrueSkill
+import/call in process_group (section 10) were added/rewritten.
 """
 
 import csv
 import json
+import math
 import os
 import re
 import sys
@@ -289,9 +307,11 @@ def division_from_school(school_id, gender: str, school_meta: dict) -> str | Non
 def _parse_set_tokens(score_str: str) -> list[tuple[int, int]]:
     """
     Parse a score string like "6-2 6-3" or "2-0 2-0" into a list of
-    (won, lost) integer tuples, one per set token. Non-numeric or
-    malformed tokens are skipped, matching parse_score_margin's existing
-    tolerance for messy data.
+    (won, lost) integer tuples, one per set token — from the MATCH
+    WINNER's perspective (i.e. token[0] is games won by whoever won the
+    overall match, token[1] is games won by whoever lost it). Non-numeric
+    or malformed tokens are skipped, matching parse_score_margin's
+    existing tolerance for messy data.
     """
     sets: list[tuple[int, int]] = []
     for part in score_str.split():
@@ -558,7 +578,7 @@ def build_records(
 
     IMPORTANT: callers should pass a results_idx built from the FULL,
     unfiltered match set for the bucket (i.e. before the MIN_MATCHES
-    drop and before per-school dedup, and including matches against
+    drop and before per-school dedup pass, and including matches against
     players from every division in the bucket) — records intentionally
     still count single-set / "2-0 2-0" matches, matches against players
     who were later dropped from ranking, and matches against opponents
@@ -1105,6 +1125,156 @@ def _scale_tgrs(raw_scores: dict[str, float]) -> dict[str, float]:
 
 
 # ============================================================================
+# 9c.  Comeback rate + opponent-strength record  (feeds build_site.py)
+# ============================================================================
+#
+#   won_after_set1_loss
+#   --------------------
+#   For every match a player appears in, look at set token #1 (from the
+#   MATCH WINNER's perspective, per _parse_set_tokens). If the player
+#   lost that first set, this was a "comeback opportunity"; if they went
+#   on to win the match anyway, it counts as a "comeback win". Reported
+#   as "wins/opportunities (pct%)", e.g. "3/5 (60%)". Blank if the player
+#   never lost a first set.
+#
+#   Sourced from the FULL, unfiltered bucket snapshot (same population as
+#   `records`/wins/losses) — not the MIN_MATCHES/dedup-filtered set, and
+#   not restricted to ranking-eligible matches — because this is a
+#   descriptive stat about what actually happened on court, not an input
+#   to the ranking core.
+#
+#   vs_weaker_opp / vs_mid_opp / vs_top_opp
+#   -----------------------------------------
+#   Per the request: instead of bucketing by opponent's raw win%, bucket
+#   by opponent's TrueSkill conservative rating (mu - 3*sigma), which
+#   already accounts for strength of schedule instead of just counting
+#   wins against whoever they happened to play.
+#
+#   Thresholds (p50 / p75) are computed ONCE per division/flight pool,
+#   from the ts_rating of that division/flight's own seeded roster only
+#   (the same population `local_sos` is computed from) — this is what
+#   "for each specific division and flight pool" means here. But once
+#   the thresholds exist, a player's record against them counts EVERY
+#   opponent they played, including ones from other divisions/flights,
+#   exactly as requested ("the record would count against everybody").
+# ============================================================================
+
+def compute_won_after_set1_loss(
+    player: str,
+    results_idx: dict[str, list[dict]],
+) -> tuple[int, int]:
+    """
+    Returns (wins, opportunities):
+      opportunities = matches in which `player` lost set 1
+      wins          = how many of those matches `player` still won overall
+    """
+    wins = 0
+    opportunities = 0
+    for m in results_idx.get(player, []):
+        sets = _parse_set_tokens(m["score"])
+        if not sets:
+            continue
+        w_games, l_games = sets[0]  # match-winner-perspective, set 1 only
+        is_match_winner = (m["winner"] == player)
+        player_games, opp_games = (w_games, l_games) if is_match_winner else (l_games, w_games)
+        if player_games < opp_games:
+            opportunities += 1
+            if is_match_winner:
+                wins += 1
+    return wins, opportunities
+
+
+def _percentile(sorted_vals: list[float], pct: float) -> float:
+    """Linear-interpolation percentile over an already-sorted list."""
+    if not sorted_vals:
+        return 0.0
+    if len(sorted_vals) == 1:
+        return sorted_vals[0]
+    k = (len(sorted_vals) - 1) * pct
+    f = math.floor(k)
+    c = math.ceil(k)
+    if f == c:
+        return sorted_vals[int(k)]
+    return sorted_vals[f] + (sorted_vals[c] - sorted_vals[f]) * (k - f)
+
+
+def compute_opponent_strength_thresholds(
+    division_roster: list[str],
+    trueskill_ratings: dict,
+) -> tuple[float, float]:
+    """
+    p50 and p75 of TrueSkill conservative rating, computed over this
+    division/flight's own seeded roster (`division_roster`) — the same
+    population `local_sos`/`local_quality_wins` are scoped to.
+
+    Returns (p50, p75). If the roster has no rated players, returns
+    (0.0, 0.0), which will bucket everyone as "top" — harmless edge case
+    for an empty/degenerate group.
+    """
+    vals = sorted(
+        trueskill_ratings[p].conservative
+        for p in division_roster
+        if p in trueskill_ratings
+    )
+    return _percentile(vals, 0.50), _percentile(vals, 0.75)
+
+
+def compute_opponent_strength_record(
+    player: str,
+    results_idx: dict[str, list[dict]],
+    trueskill_ratings: dict,
+    p50: float,
+    p75: float,
+) -> dict[str, list[int]]:
+    """
+    Win-loss record for `player`, bucketed by OPPONENT's TrueSkill
+    conservative rating against the (p50, p75) thresholds:
+        < p50        -> "weak"  (bottom 50% of the pool)
+        p50 to <p75  -> "mid"   (50th-75th percentile)
+        >= p75       -> "top"   (top quartile)
+
+    Uses `results_idx` for ALL of the player's matches (any division,
+    any flight, including matches later dropped from ranking) — only the
+    thresholds themselves are scoped to the player's own division/flight
+    pool. Opponents with no TrueSkill rating on record are skipped (can
+    happen for players who never had enough matches to be rated at all).
+    """
+    buckets: dict[str, list[int]] = {"weak": [0, 0], "mid": [0, 0], "top": [0, 0]}
+    for m in results_idx.get(player, []):
+        opp = m["loser"] if m["winner"] == player else m["winner"]
+        r = trueskill_ratings.get(opp)
+        if r is None:
+            continue
+        rating = r.conservative
+        if rating < p50:
+            key = "weak"
+        elif rating < p75:
+            key = "mid"
+        else:
+            key = "top"
+        buckets[key][0 if m["winner"] == player else 1] += 1
+    return buckets
+
+
+def _format_fraction(wins: int, opportunities: int) -> str:
+    """"3/5 (60%)" style formatting; blank if there were no opportunities."""
+    if opportunities == 0:
+        return ""
+    pct = round(100 * wins / opportunities)
+    return f"{wins}/{opportunities} ({pct}%)"
+
+
+def _format_record(wl: list[int]) -> str:
+    """"5-0 (100%)" style formatting; blank if the bucket is empty."""
+    w, l = wl
+    total = w + l
+    if total == 0:
+        return ""
+    pct = round(100 * w / total)
+    return f"{w}-{l} ({pct}%)"
+
+
+# ============================================================================
 # 10.  Per-group pipeline
 # ============================================================================
 
@@ -1117,11 +1287,12 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
 
     # Snapshot of every match in this bucket exactly as loaded, before
     # the MIN_MATCHES drop or the per-school dedup pass below. Records
-    # (wins/losses/matches/last_match_date) are computed from THIS full
-    # snapshot — spanning every division in the bucket — so a player's
-    # record reflects everyone they actually played, not just the
-    # opponents who survived filtering. Nothing else in the pipeline
-    # uses this snapshot; ranking still runs on the filtered set.
+    # (wins/losses/matches/last_match_date), the comeback stat, and the
+    # opponent-strength record are all computed from THIS full snapshot —
+    # spanning every division in the bucket — so they reflect everyone the
+    # player actually played, not just the opponents who survived
+    # filtering. Nothing else in the pipeline uses this snapshot; ranking
+    # still runs on the filtered set.
     original_group_matches = list(group_matches)
 
     # ── STEP 0a: iteratively drop players with fewer than MIN_MATCHES
@@ -1184,7 +1355,9 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     # Records: built from the full pre-filter/pre-dedup bucket snapshot,
     # not from the filtered `group_matches`, so wins/losses/matches count
     # everything the player actually played (including opponents from
-    # other divisions and opponents later dropped from ranking).
+    # other divisions and opponents later dropped from ranking). The
+    # comeback stat and opponent-strength record (section 9c) are also
+    # sourced from this same snapshot's results index.
     original_results_idx = build_results_index(original_group_matches)
     records = build_records(players, original_results_idx)
 
@@ -1273,6 +1446,7 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
             "unified_explanations": None,
             "swap_log": swap_log,
             "records": records,
+            "original_results_idx": original_results_idx,
             "reach": reach,
             "trueskill_ratings": trueskill_ratings,
             "sos": sos_full,
@@ -1348,6 +1522,8 @@ _INDIVIDUAL_FIELDS = [
     "ts_rating", "ts_mu", "local_ts_mu", "ts_sigma",
     "reachability", "local_reachability",
     "sos", "local_sos", "quality_wins",
+    "won_after_set1_loss",
+    "vs_weaker_opp", "vs_mid_opp", "vs_top_opp",
     "last_match_date",
     "reason_below",   # ← why this player is ranked below the one above them
 ]
@@ -1372,6 +1548,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
 
     school_map = r.get("school_map", {})
     records = r.get("records", {})
+    original_results_idx = r.get("original_results_idx", {})
     reach = r.get("reach", {})
     trueskill_ratings = r.get("trueskill_ratings", {})
     sos = r.get("sos", {})
@@ -1379,6 +1556,12 @@ def _result_rows_for_division(r: dict) -> list[dict]:
     quality_wins = r.get("quality_wins", {})
     tgrs_raw = r.get("tgrs_raw", {})
     tgrs_scaled = r.get("tgrs_scaled", {})
+
+    # Opponent-strength thresholds: p50/p75 of TrueSkill conservative
+    # rating computed over THIS division/flight's own seeded roster —
+    # same population local_sos is scoped to. Computed once per division
+    # rather than per player since it doesn't depend on the player.
+    p50, p75 = compute_opponent_strength_thresholds(r["seeds"], trueskill_ratings)
 
     _, gender_l = _category_filename_stem(r["match_type"], r["gender"])
     is_doubles = "/" in (r["seeds"][0] if r["seeds"] else "")
@@ -1396,6 +1579,14 @@ def _result_rows_for_division(r: dict) -> list[dict]:
         else:
             raw_reason = expl_raw.get(player, "")
             reason_below = _format_reason(raw_reason) if raw_reason else ""
+
+        # Comeback stat + opponent-strength record — both sourced from the
+        # full, unfiltered bucket snapshot (same population as wins/losses),
+        # so they reflect everything the player actually played.
+        wins_after_l1, opportunities_l1 = compute_won_after_set1_loss(player, original_results_idx)
+        strength_record = compute_opponent_strength_record(
+            player, original_results_idx, trueskill_ratings, p50, p75
+        )
 
         row = {
             "rank": seed,
@@ -1416,6 +1607,10 @@ def _result_rows_for_division(r: dict) -> list[dict]:
             "sos": round(sos.get(player, 0.0), 2),
             "local_sos": round(local_sos.get(player, 0.0), 2),
             "quality_wins": quality_wins.get(player, 0),
+            "won_after_set1_loss": _format_fraction(wins_after_l1, opportunities_l1),
+            "vs_weaker_opp": _format_record(strength_record["weak"]),
+            "vs_mid_opp": _format_record(strength_record["mid"]),
+            "vs_top_opp": _format_record(strength_record["top"]),
             "last_match_date": last_dt.date().isoformat() if last_dt and last_dt.year > 1 else "",
             "reason_below": reason_below,
         }
