@@ -300,6 +300,77 @@ TGRS = (2.0 × reachability)
   </section>
 
   <section>
+    <h2>Additional Player Stats</h2>
+    <p>
+      Beyond the seed ranking itself, the individual tables include two extra descriptive stats.
+      Neither one feeds into the ranking pipeline or the TGRS score — they're shown purely as
+      additional context about how a player has actually performed.
+    </p>
+
+    <h3>Won After Set 1 Loss</h3>
+    <p>
+      A simple comeback-rate stat. For every match a player has played, the engine checks who won
+      the first set. If the player lost set 1 but still went on to win the match overall, that
+      counts as a comeback win. The column shows <strong>wins / opportunities</strong> along with
+      the percentage — for example, <code>3/5 (60%)</code> means the player lost the first set five
+      times and came back to win the match three of those times. The cell is left blank for players
+      who have never lost a first set.
+    </p>
+    <p>
+      This stat is drawn from every match on record for that player, including matches against
+      opponents in other divisions and matches that were later excluded from the ranking graph
+      (single-set or "2-0 2-0" scores) — the same broad match history used for the win/loss record
+      shown elsewhere on the site.
+    </p>
+
+    <h3>Record vs Weaker / Mid / Top Opponents</h3>
+    <p>
+      Rather than bucket opponents by their raw win percentage — which doesn't account for who
+      those wins came against — this stat groups opponents by <strong>TrueSkill conservative
+      rating</strong> (μ − 3σ), the same rating used elsewhere in the pipeline. This means a
+      player's schedule strength is measured by how good their opponents actually are, not just
+      how often those opponents happened to win.
+    </p>
+    <p>
+      The two dividing lines (the 50th and 75th percentile of TrueSkill rating) are calculated
+      once per division/flight group, using only the ratings of players seeded in that specific
+      group. A player's record is then measured against those thresholds:
+    </p>
+    <table class="component-table">
+      <thead><tr><th>Column</th><th>Opponent rating</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>vs Weaker Opp</td>
+          <td>Below the 50th percentile</td>
+          <td>Record against opponents in the bottom half of this division/flight's rating spread</td>
+        </tr>
+        <tr>
+          <td>vs Mid Opp</td>
+          <td>50th–75th percentile</td>
+          <td>Record against opponents in the upper-middle of the spread</td>
+        </tr>
+        <tr>
+          <td>vs Top Opp</td>
+          <td>75th percentile and above</td>
+          <td>Record against the top quarter of the spread — the toughest opponents in this group</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      Once those thresholds are set, a player's record against them counts every opponent they've
+      played — including opponents from other divisions or flights, not just opponents from the
+      player's own group. Each column is formatted as <strong>wins-losses (win %)</strong>, e.g.
+      <code>5-2 (71%)</code>, and is left blank if the player has no recorded matches in that
+      bucket.
+    </p>
+    <div class="caveat">
+      <strong>Note:</strong> a player's TrueSkill rating reflects results across an entire season,
+      so early-season opponent-strength buckets can shift as more matches are played and ratings
+      settle. Treat this as a current snapshot rather than a fixed classification.
+    </div>
+  </section>
+
+  <section>
     <h2>Team Rankings</h2>
     <p>
       Team scores aggregate each school's best-ranked player or pair across all eight lineup slots
