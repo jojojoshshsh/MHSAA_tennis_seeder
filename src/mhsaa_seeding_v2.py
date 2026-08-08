@@ -1104,7 +1104,7 @@ def _compute_tgrs(
         + 5.0 * ts_conservative
         + 0.5 * sos
         + 1.5 * quality_wins
-        + 1.0 * win_pct
+        + 0.1 * win_pct
     )
 
 
