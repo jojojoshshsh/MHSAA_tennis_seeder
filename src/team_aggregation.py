@@ -172,32 +172,14 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
         "d3_pts": "Doubles F3", "d4_pts": "Doubles F4",
     }
     SLOT_COLS_ORDERED = list(SLOT_LABELS.keys())
-
-    for i, r in enumerate(team_rows):
-        if i == 0 or i >= len(team_rows):
-            r["reason_below"] = "—"
-            continue
-        above = team_rows[i - 1]
-        diff = round(above["total_points"] - r["total_points"], 1)
-        # Find the slot(s) where above outscores this team
-        gaps = []
+    for r in team_rows:
+        entries = []
         for col in SLOT_COLS_ORDERED:
-            a_pts = above.get(col, 0.0)
-            b_pts = r.get(col, 0.0)
-            if a_pts > b_pts:
-                a_rank = above["_slot_ranks"].get(col, 0)
-                b_rank = r["_slot_ranks"].get(col, 0)
+            rank = r["_slot_ranks"].get(col, 0)
+            if rank > 0:
                 label = SLOT_LABELS[col]
-                if a_rank > 0 and b_rank > 0:
-                    gaps.append(f"{label}: {_ordinal(a_rank)} vs {_ordinal(b_rank)}")
-                elif a_rank > 0:
-                    gaps.append(f"{label}: {_ordinal(a_rank)} vs unranked")
-                else:
-                    gaps.append(label)
-        if gaps:
-            r["reason_below"] = f"−{diff} pts ({'; '.join(gaps[:3])})"
-        else:
-            r["reason_below"] = f"−{diff} pts"
+                entries.append(f"{label}: {_ordinal(rank)}")
+        r["reason_below"] = "; ".join(entries) if entries else "—"
 
     # Strip internal fields and reorder keys
     ordered_rows = []
