@@ -245,26 +245,28 @@
     <p>
       TGRS ("Group Ranking Score") is a composite number computed after the seed order is
       finalised. It is not used for ranking — it exists purely so the site has a single
-      sortable number per player. The formula is:
+      sortable number per player. Because it blends reach, rating, schedule strength, quality
+      wins, and win percentage into one figure, it also doubles as a solid at-a-glance read on a
+      player's overall skill level. The formula is:
     </p>
     <div class="formula-box">
-TGRS = (2.0 × reachability)
-     + (1.0 × ts_rating)
+TGRS = (2.0 × reach_size)
+     + (5.0 × ts_conservative)
      + (0.5 × sos)
      + (1.5 × quality_wins)
-     + (5.0 × win_pct)
+     + (0.1 × win_pct)
     </div>
     <table class="component-table">
       <thead><tr><th>Component</th><th>Weight</th><th>What it measures</th></tr></thead>
       <tbody>
         <tr>
-          <td>reachability</td>
+          <td>reach_size</td>
           <td>2.0</td>
           <td>Number of players reachable through chains of wins in the cross-division match graph</td>
         </tr>
         <tr>
-          <td>ts_rating</td>
-          <td>1.0</td>
+          <td>ts_conservative</td>
+          <td>5.0</td>
           <td>TrueSkill conservative rating (μ − 3σ) from the full cross-division model</td>
         </tr>
         <tr>
@@ -279,11 +281,17 @@ TGRS = (2.0 × reachability)
         </tr>
         <tr>
           <td>win_pct</td>
-          <td>5.0</td>
+          <td>0.1</td>
           <td>Wins ÷ total matches played in this group</td>
         </tr>
       </tbody>
     </table>
+    <p>
+      With <code>ts_conservative</code> carrying the heaviest weight, TGRS leans on the same
+      Bayesian rating used for tiebreaks elsewhere in the pipeline, topped up with reach, schedule
+      strength, and quality wins — which is why it holds up well as a general skill rating even
+      though it isn't what drives the actual seed order.
+    </p>
 
     <h3>TGRS Scaled</h3>
     <p>
