@@ -33,7 +33,7 @@ for csv_path in sorted(src_dir.glob("team_*.csv")):
     stem = csv_path.stem
     gender = "Boys" if "_boys_" in stem else "Girls"
     division = stem.split("_division_")[-1].replace("_", " ")
-    team_data.append({"gender": gender, "division": division, "df": df.head(10)})
+    team_data.append({"gender": gender, "division": division, "df": df.head(10), "df_full": df})
 
 DIVISION_ORDER_T = {"1": 0, "2": 1, "3": 2, "4": 3, "4 other": 4}
 team_data.sort(key=lambda x: (
@@ -63,7 +63,9 @@ for entry in team_data:
     label = f"Top 10 Teams · {entry['gender']} Division {entry['division']}"
     anchor = f"team_{entry['gender'].lower()}_div{entry['division'].replace(' ','')}"
     df = entry["df"]
+    df_full = entry["df_full"]
     div_attr = _norm_division(entry["division"])
+    has_more = len(df_full) > len(df)
 
     COL_LABELS = {
         "rank": "Rank",
@@ -81,10 +83,10 @@ for entry in team_data:
         "reason_below": "Why ranked below team above",
     }
 
-    cols = list(df.columns)
+    cols = list(df_full.columns)
 
     tbody_rows = ""
-    for _, row in df.iterrows():
+    for i, (_, row) in enumerate(df_full.iterrows()):
         cells = ""
         for col in cols:
             val = _html_escape_py(row[col])
@@ -96,13 +98,20 @@ for entry in team_data:
                 cells += f'<td class="pts-cell">{val}</td>'
             else:
                 cells += f"<td>{val}</td>"
-        tbody_rows += f"<tr>{cells}</tr>"
+        row_class = ' class="extra-team-row" style="display:none;"' if i >= 10 else ""
+        tbody_rows += f"<tr{row_class}>{cells}</tr>"
+
+    show_all_btn = (
+        f'<button type="button" class="dl-btn show-all-btn" onclick="toggleShowAllTeams(this, \'{anchor}\')">Show All Teams</button>'
+        if has_more else ""
+    )
 
     team_html += f"""
     <section id="{anchor}" data-division="{_html_escape_py(div_attr)}">
       <div class="section-header">
         <h2>{_html_escape_py(label)}</h2>
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
+        {show_all_btn}
       </div>
       <div class="table-wrap"><table class="rankings-table team-table"><thead><tr>{"".join(
           f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">{_html_escape_py(COL_LABELS.get(col, col))}</th>'
@@ -330,7 +339,7 @@ html = f"""<!DOCTYPE html>
   .section-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; flex-wrap: wrap; gap: .5rem; }}
   h2 {{ font-size: 1.05rem; font-weight: 600; color: #1a3a5c; }}
   .scoring-note {{ font-size: .72rem; color: #5a7a9a; background: #eef4fb; border: 1px solid #c0d4e8; border-radius: 5px; padding: .25rem .6rem; white-space: nowrap; }}
-  .dl-btn {{ font-size: .8rem; color: #1a3a5c; text-decoration: none; border: 1px solid #c0d4e8; border-radius: 6px; padding: .3rem .7rem; }}
+  .dl-btn {{ font-size: .8rem; color: #1a3a5c; text-decoration: none; border: 1px solid #c0d4e8; border-radius: 6px; padding: .3rem .7rem; background: #f8fafc; cursor: pointer; font-family: inherit; }}
   .dl-btn:hover {{ background: #e8f0f8; }}
   .table-wrap {{ overflow-x: auto; width: 100%; }}
   .rankings-table {{ width: 100%; table-layout: auto; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }}
@@ -599,6 +608,15 @@ document.addEventListener('click', e => {{
     document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
   }}
 }});
+
+function toggleShowAllTeams(btn, anchor) {{
+  const section = document.getElementById(anchor);
+  if (!section) return;
+  const extraRows = section.querySelectorAll('.extra-team-row');
+  const isHidden = extraRows.length > 0 && extraRows[0].style.display === 'none';
+  extraRows.forEach(r => {{ r.style.display = isHidden ? '' : 'none'; }});
+  btn.textContent = isHidden ? 'Show Top 10' : 'Show All Teams';
+}}
 
 function applyFilters() {{
   const divisions  = Array.from(document.querySelectorAll('.filter-division:checked')).map(cb => cb.value);
