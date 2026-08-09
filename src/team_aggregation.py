@@ -36,10 +36,28 @@ Scoring blends TWO independent systems, each on a 0-100 scale, weighted
 
          depth_score = average(flight_score across all 8 flights)
 
-  combined_score = 0.5 * total_points + 0.5 * depth_score
+  IMPORTANT - why raw scores aren't blended directly:
+  total_points is heavily backloaded (only strong flight finishes earn
+  real points, so most teams cluster near the low end), while
+  depth_score is roughly linear across the whole field. Averaging the
+  two raw 0-100 numbers together lets depth_score dominate, since it
+  has far more spread among ordinary teams than total_points does.
 
-Both total_points and depth_score are reported independently alongside
-combined_score, and teams are ranked by combined_score.
+  To fix this, each system is first converted to a PERCENTILE (0-100)
+  based on how teams actually distributed within this league for that
+  metric (ties get the average rank of their tie group):
+
+      legacy_pct = percentile_rank(total_points among all teams)
+      depth_pct  = percentile_rank(depth_score among all teams)
+
+      combined_score = 0.5 * legacy_pct + 0.5 * depth_pct
+
+  This guarantees each system contributes equally to the spread of the
+  final ranking, regardless of how skewed its raw scale is.
+
+Both raw scores (total_points, depth_score) and their percentiles
+(legacy_percentile, depth_percentile) are reported independently
+alongside combined_score, and teams are ranked by combined_score.
 
   - reason_below column explains why each team ranks below the one above it
 """
@@ -123,6 +141,46 @@ SLOT_COLS_ORDERED = list(SLOT_LABELS.keys())
 # can tweak the blend without touching the aggregation logic.
 LEGACY_WEIGHT = 0.5
 DEPTH_WEIGHT = 0.5
+
+
+def _rank_percentiles(scores: list[float]) -> list[float]:
+    """
+    Convert a list of raw scores into percentile scores (0-100), where
+    the highest raw score -> ~100 and the lowest raw score -> ~(100/n).
+    Ties receive the AVERAGE percentile of their tie group, so a block
+    of tied teams doesn't arbitrarily favor whichever one sorted first.
+
+    This is what lets two differently-shaped distributions (e.g. a
+    backloaded points system vs. a linear depth system) be combined
+    fairly: each team's percentile reflects its standing relative to
+    the rest of the field on that metric alone, not the metric's raw
+    scale.
+    """
+    n = len(scores)
+    if n == 0:
+        return []
+    if n == 1:
+        return [100.0]
+
+    order = sorted(range(n), key=lambda i: scores[i], reverse=True)
+    percentiles = [0.0] * n
+
+    i = 0
+    while i < n:
+        j = i
+        # extend the tie group while scores match
+        while j + 1 < n and scores[order[j + 1]] == scores[order[i]]:
+            j += 1
+        # 1-indexed rank positions [i+1 .. j+1] map to percentile via
+        # the same (n - rank + 1) / n * 100 shape used for flight_score,
+        # averaged across the tie group
+        avg_rank = ((i + 1) + (j + 1)) / 2
+        pct = (n - avg_rank + 1) / n * 100
+        for k in range(i, j + 1):
+            percentiles[order[k]] = pct
+        i = j + 1
+
+    return percentiles
 
 
 def build_team_rankings(player_rows: list[dict]) -> list[dict]:
@@ -220,17 +278,29 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
             flight_scores.append(flight_score)
 
         depth_score = sum(flight_scores) / len(flight_scores) if flight_scores else 0.0
-        combined_score = LEGACY_WEIGHT * total_points + DEPTH_WEIGHT * depth_score
 
         team_rows.append({
             "school": school,
             "total_points": round(total_points, 1),
             "depth_score": round(depth_score, 1),
-            "combined_score": round(combined_score, 1),
             "slots_counted": slots_counted,
             **slot_pts,
             "_slot_ranks": slot_ranks,   # internal, stripped before writing
         })
+
+    # Convert each raw system into a percentile (0-100) based on how
+    # teams actually distributed within THIS league for that metric.
+    # This is what prevents depth_score (roughly linear, wide spread)
+    # from drowning out total_points (backloaded, narrow spread) when
+    # they're blended.
+    legacy_pcts = _rank_percentiles([r["total_points"] for r in team_rows])
+    depth_pcts = _rank_percentiles([r["depth_score"] for r in team_rows])
+
+    for r, legacy_pct, depth_pct in zip(team_rows, legacy_pcts, depth_pcts):
+        combined_score = LEGACY_WEIGHT * legacy_pct + DEPTH_WEIGHT * depth_pct
+        r["legacy_percentile"] = round(legacy_pct, 1)
+        r["depth_percentile"] = round(depth_pct, 1)
+        r["combined_score"] = round(combined_score, 1)
 
     # Sort by combined_score descending (ties broken by legacy total_points,
     # then depth_score, for stability)
