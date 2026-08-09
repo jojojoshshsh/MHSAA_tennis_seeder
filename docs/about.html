@@ -373,11 +373,19 @@ TGRS = (2.0 × reachability)
   <section>
     <h2>Team Rankings</h2>
     <p>
-      Team scores aggregate each school's best-ranked player or pair across all eight lineup slots
-      (Singles flights 1–4, Doubles flights 1–4). Only one entry per school per slot counts — the
-      highest-seeded player or pair from that school in that flight.
+      Team scores blend two independent 0–100 scores into a single <strong>combined score</strong>,
+      weighted 50/50. Both are built from the same eight lineup slots — Singles flights 1–4 and
+      Doubles flights 1–4 — using only one entry per school per slot: the highest-seeded player or
+      pair from that school in that flight.
     </p>
-    <p>Point values by finishing position:</p>
+    <div class="formula-box">
+combined_score = (0.5 × total_points) + (0.5 × depth_score)
+    </div>
+
+    <h3>Legacy Flight-Finish Points</h3>
+    <p>
+      Each slot awards points to a school based on where its best entrant in that flight finished:
+    </p>
     <table class="component-table">
       <thead><tr><th>Finish</th><th>Points</th></tr></thead>
       <tbody>
@@ -391,15 +399,47 @@ TGRS = (2.0 × reachability)
       </tbody>
     </table>
     <p>
-      Total points are summed across all eight slots for a maximum of 100 (12.5 × 8). A school
-      with no ranked player in a slot scores 0 for that slot. The team table shows the top 10
-      schools per gender+division combination, along with the deciding reason why each school
-      sits below the one ranked above it.
+      <strong>total_points</strong> is the sum across all eight slots, for a maximum of 100
+      (12.5 × 8). A school with no ranked entrant in a slot scores 0 for that slot.
+    </p>
+
+    <h3>Depth Score</h3>
+    <p>
+      The depth score rewards schools that field strong entrants across the whole lineup rather
+      than a couple of standout flights. For a league of <strong>N</strong> schools — every school
+      fielding at least one ranked entrant anywhere in this gender/division group — each flight
+      rank is converted to a 0–100 scale:
+    </p>
+    <div class="formula-box">
+flight_score = (N − rank + 1) / N × 100
+depth_score  = average(flight_score across all 8 flights)
+    </div>
+    <p>
+      On this scale, 1st place in a flight scores 100 and last place (rank N) scores just above 0.
+      If a school has <strong>no entrant</strong> in a given flight, that flight isn't left out of
+      the average — it's scored as if the school finished in rank N + 1, worse than every other
+      school in the league. This keeps a school that only fielded a handful of flights from posting
+      an inflated depth score by having weak flights excluded rather than counted against it.
+    </p>
+    <div class="note">
+      <strong>Why two scores?</strong> Legacy points reward marquee finishes — a flight winner is
+      worth more than a strong-but-not-top finisher — while the depth score rewards fielding a
+      genuinely deep lineup across all eight slots, including flights that don't place highly.
+      Blending them 50/50 keeps either effect from dominating the team table on its own.
+    </div>
+
+    <p>
+      The team table shows the top 10 schools per gender+division combination, ranked by combined
+      score (ties are broken first by total_points, then by depth_score). Each row also lists the
+      finishing position of that school's best entrant in every flight it filled, as a quick summary
+      of where its points came from — this is a recap of that team's own results, not a
+      comparison against the team ranked directly above it.
     </p>
     <div class="caveat">
       <strong>Note:</strong> team rankings are experimental. Because individual rankings require
       a minimum match count (default: 5), some schools may be missing players in certain slots
-      even if they competed in that flight.
+      even if they competed in that flight — and under the current scoring, a missing slot counts
+      against both total_points and depth_score.
     </div>
   </section>
 
