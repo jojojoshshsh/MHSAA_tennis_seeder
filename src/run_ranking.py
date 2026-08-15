@@ -14,7 +14,6 @@ run_ranking.py — Phase 2: rank → src/rankings_by_division_flight/*.csv
 #     into the repo from a previous fetch) and just re-runs this — much
 #     faster since no network calls happen.
 """
-
 import logging
 import os
 import sys
@@ -30,6 +29,35 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "rankings_by_division_flight")
+
+
+def _clear_stale_csvs(path: str) -> int:
+    """Remove all existing ranking CSVs in `path` before writing this
+    run's output.
+
+    Without this, a (division, gender, category) combo that produces
+    zero rows in the current run — e.g. early in a new season before
+    every division has played, or a division that's been dropped/
+    renamed — would leave LAST SEASON's file untouched. build_site.py
+    has no concept of "this file is from an old season"; it just globs
+    every *.csv in this directory and renders it under the *current*
+    season's header/timestamp. That means the site can look freshly
+    updated while quietly showing stale data for whichever slots
+    weren't re-ranked this run.
+
+    Called only after seeding.run() has already succeeded, so a failed
+    ranking run never wipes out a working (if stale) previous output.
+    """
+    if not os.path.isdir(path):
+        return 0
+    removed = 0
+    for name in os.listdir(path):
+        if name.endswith(".csv"):
+            os.remove(os.path.join(path, name))
+            removed += 1
+    if removed:
+        log.info("Cleared %d stale CSV(s) from %s before writing this run's output", removed, path)
+    return removed
 
 
 def main() -> None:
@@ -61,6 +89,11 @@ def main() -> None:
 
     results = seeding.run(csv_path)
     seeding.print_results(results)
+
+    # Only clear old output once ranking has actually succeeded — see
+    # _clear_stale_csvs() docstring for why this matters on a season
+    # rollover.
+    _clear_stale_csvs(OUTPUT_DIR)
 
     written_div = seeding.write_division_csvs(results, OUTPUT_DIR)
     written_team = seeding.write_team_csvs(results, OUTPUT_DIR)
