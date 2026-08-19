@@ -1299,20 +1299,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     #    total matches in the group. Records still count ranking-excluded
     #    matches so a player isn't unfairly dropped just because some of
     #    their matches are single-set / "2-0 2-0". ──────────────────────
-    MIN_MATCHES = getattr(_config, "MIN_MATCHES", 5)
-    for _ in range(len(group_matches) + 1):
-        idx = build_results_index(group_matches)
-        keep_players = {
-            p for p in players_in_group(group_matches)
-            if len(idx.get(p, [])) >= MIN_MATCHES
-        }
-        filtered = [
-            m for m in group_matches
-            if m["winner"] in keep_players and m["loser"] in keep_players
-        ]
-        if len(filtered) == len(group_matches):
-            break
-        group_matches = filtered
 
     # ── STEP 0b: per-school deduplication within this slot.
     full_idx_for_dedup = build_results_index(group_matches)
@@ -1542,10 +1528,7 @@ def _category_filename_stem(match_type: str, gender: str) -> str:
 def _result_rows_for_division(r: dict) -> list[dict]:
     """One row per seeded player/pair in this division/flight result,
     using the column names build_site.py looks for."""
-    # expl maps player -> raw decided_by string for why they sit below
-    # the player immediately above them in the final ranking.
     expl_raw = {e["seed_below"]: e["decided_by"] for e in r["explanations"]}
-
     school_map = r.get("school_map", {})
     records = r.get("records", {})
     original_results_idx = r.get("original_results_idx", {})
@@ -1557,18 +1540,22 @@ def _result_rows_for_division(r: dict) -> list[dict]:
     tgrs_raw = r.get("tgrs_raw", {})
     tgrs_scaled = r.get("tgrs_scaled", {})
 
-    # Opponent-strength thresholds: p50/p75 of TrueSkill conservative
-    # rating computed over THIS division/flight's own seeded roster —
-    # same population local_sos is scoped to. Computed once per division
-    # rather than per player since it doesn't depend on the player.
+    # NEW: MIN_MATCHES is now applied only here, at output time — every
+    # player/pair was fully part of ranking (cycles, transitive closure,
+    # h2h, dominance, TrueSkill) regardless of match count. This just
+    # decides who actually appears in the published seed list.
+    MIN_MATCHES = getattr(_config, "MIN_MATCHES", 5)
+    seeds = [
+        p for p in r["seeds"]
+        if records.get(p, {}).get("matches", 0) >= MIN_MATCHES
+    ]
+
     p50, p75 = compute_opponent_strength_thresholds(r["seeds"], trueskill_ratings)
-
     _, gender_l = _category_filename_stem(r["match_type"], r["gender"])
-    is_doubles = "/" in (r["seeds"][0] if r["seeds"] else "")
+    is_doubles = "/" in (seeds[0] if seeds else "")
     name_field = "pair_name" if is_doubles else "name"
-
     rows = []
-    for seed, player in enumerate(r["seeds"], start=1):
+    for seed, player in enumerate(seeds, start=1):
         rec = records.get(player, {"matches": 0, "wins": 0, "losses": 0, "last_match_date": None})
         ts = trueskill_ratings.get(player)
         last_dt = rec.get("last_match_date")
