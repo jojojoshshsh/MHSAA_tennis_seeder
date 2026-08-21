@@ -1303,6 +1303,7 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     # ── STEP 0b: per-school deduplication within this slot.
     full_idx_for_dedup = build_results_index(group_matches)
     school_map_pre = build_school_map(group_matches)
+    MIN_MATCHES = getattr(_config, "MIN_MATCHES", 5)
 
     school_to_players: dict[str, list[str]] = defaultdict(list)
     for p in players_in_group(group_matches):
@@ -1315,16 +1316,31 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         if len(candidates) <= 1:
             continue
 
+        def _match_count(p: str, _idx=full_idx_for_dedup) -> int:
+            return len(_idx.get(p, []))
+
         def _last_date(p: str, _idx=full_idx_for_dedup) -> datetime:
             ms = _idx.get(p, [])
             return max((m["date"] for m in ms), default=datetime.min)
 
-        best = max(candidates, key=_last_date)
+        # Only players who've cleared MIN_MATCHES are eligible to be
+        # picked as the school's "current" rep on recency grounds — a
+        # one-off substitute with a single late match shouldn't bump a
+        # regular starter with a full season of matches just because
+        # their one match happened to be more recent. If NO candidate
+        # at this school clears MIN_MATCHES (e.g. an injury-shuffled
+        # slot where nobody's played enough yet), fall back to picking
+        # by recency among all candidates so the school isn't dropped
+        # from this slot entirely.
+        qualified = [p for p in candidates if _match_count(p) >= MIN_MATCHES]
+        pool = qualified if qualified else candidates
+
+        best = max(pool, key=_last_date)
         dropped = [p for p in candidates if p != best]
         drop_players.update(dropped)
         print(
             f"  Dedup ({gender} {match_type} flight={flight}): "
-            f"school={school!r}  kept={best!r}  "
+            f"school={school!r}  kept={best!r} ({_match_count(best)} matches)  "
             f"dropped={', '.join(repr(p) for p in dropped)}"
         )
 
