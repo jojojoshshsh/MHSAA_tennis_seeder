@@ -78,10 +78,15 @@ RANKING-EXCLUDED MATCHES
   Some matches are short-circuited results that shouldn't influence
   anyone's ranking but should still be visible in win/loss records:
     - matches that end after only ONE set (e.g. a retirement: the score
-      string contains exactly one "W-L" set token), and
+      string contains exactly one "W-L" set token),
     - matches whose score is literally "2-0 2-0" (a placeholder/forfeit-
       style short-set score, not a real two real sets played to a normal
-      conclusion).
+      conclusion), and
+    - matches where either side's name contains the word "default"
+      (case-insensitive; e.g. a placeholder opponent name like "Smith
+      Default" or, for doubles, "Jones/Default") — these are walkovers
+      recorded as a "match" against a stand-in name rather than a real
+      completed result.
   These matches are flagged at load time (is_ranking_excluded) and are
   then filtered out of every consideration the ranking core makes:
   cycle-detection, the beats graph, the transitive closure, head-to-head,
@@ -350,6 +355,30 @@ def is_ranking_excluded_score(score_str: str) -> bool:
     return False
 
 
+def _name_is_default(name: str) -> bool:
+    """
+    True if "default" appears anywhere in a player/pair name
+    (case-insensitive) — e.g. "Smith Default", "Default", or a doubles
+    pair like "Jones/Default" (the substring check naturally covers
+    either half of a slash-joined pair name, so nothing pair-specific is
+    needed here). Used to flag walkover/default "matches" so they can be
+    excluded from ranking consideration while still counting toward
+    win/loss records.
+    """
+    return "default" in (name or "").lower()
+
+
+def is_default_match(winner: str, loser: str) -> bool:
+    """
+    True if either side of the match has "default" in their name. These
+    are treated as ranking-excluded for the same reason as
+    is_ranking_excluded_score: not a real completed result, but the
+    outcome should still show up in wins/losses/matches/last_match_date
+    for the real player involved.
+    """
+    return _name_is_default(winner) or _name_is_default(loser)
+
+
 # ============================================================================
 # 1.  CSV Loading  (adds is_ranking_excluded flag)
 # ============================================================================
@@ -438,7 +467,14 @@ def load_matches(filepath: str, school_meta: dict | None = None,
                     unknown_div_values.add(raw_div)
                 continue
 
-            ranking_excluded = is_ranking_excluded_score(score)
+            # A match is excluded from ranking consideration (but still
+            # kept in win/loss records) if it's a short-circuited score
+            # (single set / "2-0 2-0") OR if either side's name contains
+            # "default" (a walkover recorded against a placeholder name).
+            ranking_excluded = (
+                is_ranking_excluded_score(score)
+                or is_default_match(winner, loser)
+            )
             if ranking_excluded:
                 excluded_from_ranking += 1
 
@@ -472,8 +508,9 @@ def load_matches(filepath: str, school_meta: dict | None = None,
             print("  Add these to _DIVISION_MAP or fix school_meta.json to include them.")
 
     if excluded_from_ranking:
-        print(f"  NOTE: {excluded_from_ranking} match(es) end in a single set or "
-              f"\"2-0 2-0\" — kept in records, excluded from ranking consideration.")
+        print(f"  NOTE: {excluded_from_ranking} match(es) end in a single set, "
+              f"\"2-0 2-0\", or involve a 'default' placeholder name — kept in "
+              f"records, excluded from ranking consideration.")
 
     return matches
 
@@ -491,10 +528,25 @@ def bucket_matches(matches: list[dict]) -> dict[tuple, list[dict]]:
 
 
 def players_in_group(matches: list[dict]) -> list[str]:
+    """
+    Every distinct player/pair name that appears in this group's matches
+    — EXCEPT names containing "default" (see _name_is_default). Those
+    are placeholder walkover names, not real players, so they're kept
+    out of the player pool entirely here: they never get a records
+    entry, never enter the ranking core, never occupy a seeded slot in
+    output, and — critically — never get picked as a school's dedup
+    representative (build_school_map/school_to_players in process_group
+    both derive their candidate lists from this function). The real
+    opponent in a default match still keeps that match on their own
+    record via original_group_matches/original_results_idx, which is
+    unaffected by this filter.
+    """
     seen: set[str] = set()
     for m in matches:
-        seen.add(m["winner"])
-        seen.add(m["loser"])
+        if not _name_is_default(m["winner"]):
+            seen.add(m["winner"])
+        if not _name_is_default(m["loser"]):
+            seen.add(m["loser"])
     return sorted(seen)
 
 
@@ -580,11 +632,11 @@ def build_records(
     unfiltered match set for the bucket (i.e. before the MIN_MATCHES
     drop and before per-school dedup pass, and including matches against
     players from every division in the bucket) — records intentionally
-    still count single-set / "2-0 2-0" matches, matches against players
-    who were later dropped from ranking, and matches against opponents
-    in other divisions. This is purely a "how many matches did this
-    player actually play, and what was the outcome" tally; it never
-    feeds the ranking core."""
+    still count single-set / "2-0 2-0" / "default"-name matches, matches
+    against players who were later dropped from ranking, and matches
+    against opponents in other divisions. This is purely a "how many
+    matches did this player actually play, and what was the outcome"
+    tally; it never feeds the ranking core."""
     records: dict[str, dict] = {}
     for p in players:
         ms = results_idx.get(p, [])
@@ -1298,7 +1350,7 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     # ── STEP 0a: iteratively drop players with fewer than MIN_MATCHES
     #    total matches in the group. Records still count ranking-excluded
     #    matches so a player isn't unfairly dropped just because some of
-    #    their matches are single-set / "2-0 2-0". ──────────────────────
+    #    their matches are single-set / "2-0 2-0" / "default"-name. ──────
 
     # ── STEP 0b: per-school deduplication within this slot.
     full_idx_for_dedup = build_results_index(group_matches)
