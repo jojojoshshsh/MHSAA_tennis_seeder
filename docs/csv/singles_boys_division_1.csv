@@ -1,149 +1,154 @@
 rank,name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,local_ts_mu,ts_sigma,reachability,local_reachability,sos,local_sos,quality_wins,won_after_set1_loss,vs_weaker_opp,vs_mid_opp,vs_top_opp,last_match_date,reason_below
-1,Zac Clouse,Macomb Dakota,1,1,6,0,141.62,95.1,19.34,38.99,38.99,6.55,15,15,23.65,25.45,2,,3-0 (100%),1-0 (100%),1-0 (100%),2026-08-19,
-2,Thomas McCormick,Clarkston,1,1,5,0,145.73,97.2,17.79,38.1,38.1,6.77,22,22,19.39,19.39,2,1/1 (100%),4-0 (100%),,1-0 (100%),2026-08-20,Lower TrueSkill rating
-3,Simon Wolters,East Kentwood,1,1,4,0,151.18,100.0,19.41,37.45,37.45,6.02,20,20,22.1,28.64,2,,2-0 (100%),2-0 (100%),,2026-08-22,Lower TrueSkill rating
-4,Drake Apol,Jenison,1,1,6,0,89.31,68.1,13.47,35.74,35.74,7.42,7,7,15.76,14.14,0,,5-0 (100%),,,2026-08-22,Lower TrueSkill rating
-5,Graham Long,Detroit Catholic Central,1,1,4,0,78.49,62.6,11.64,33.51,33.51,7.29,5,5,17.42,17.42,1,,3-0 (100%),1-0 (100%),,2026-08-22,Lower TrueSkill rating
-6,Rohan Nagaram,Troy Athens,1,1,1,4,97.78,72.5,12.85,30.57,30.57,5.91,8,8,32.01,26.43,1,0/3 (0%),,1-0 (100%),0-3 (0%),2026-08-20,Lower TrueSkill rating
-7,Marcelo Rocha,Oxford,1,1,3,1,87.36,67.1,10.83,29.08,29.08,6.08,8,8,28.28,28.55,2,0/1 (0%),1-0 (100%),2-0 (100%),0-1 (0%),2026-08-20,Lower TrueSkill rating
-8,Jagger Freed,Grand Ledge,1,1,3,2,76.33,61.4,10.92,28.64,28.64,5.91,5,5,23.38,29.73,0,0/2 (0%),3-0 (100%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
-9,Keegan Parrish,Brighton,1,1,2,1,120.19,84.0,10.02,28.38,28.38,6.12,27,27,29.01,0.0,1,,1-0 (100%),,1-1 (50%),2026-08-20,Lower TrueSkill rating
-10,Dheeraj Yelleti,Troy,1,1,5,3,121.29,84.6,8.7,26.82,26.82,6.04,30,30,29.47,28.1,2,0/3 (0%),2-0 (100%),2-0 (100%),0-3 (0%),2026-08-20,Lower TrueSkill rating
-11,Gavin Luchies,Hudsonville,1,1,3,2,116.17,82.0,10.75,28.1,28.1,5.78,24,24,25.69,26.82,1,0/2 (0%),1-0 (100%),0-2 (0%),1-0 (100%),2026-08-20,Lost head-to-head vs player above
-12,Sahaj Pakala,Okemos,1,1,3,2,107.43,77.5,11.31,27.95,27.95,5.55,18,18,26.62,23.83,1,0/2 (0%),2-0 (100%),1-0 (100%),0-2 (0%),2026-08-20,Lower TrueSkill rating
-13,Cameron Galicia,Utica Eisenhower,1,1,5,4,75.92,61.2,8.68,26.43,26.43,5.92,7,7,27.93,26.32,3,0/4 (0%),2-0 (100%),3-0 (100%),0-3 (0%),2026-08-19,Lower TrueSkill rating
-14,Ryan Ursescu,Macomb L'Anse Creuse North,1,1,3,1,92.37,69.7,13.54,31.2,31.2,5.89,5,5,29.2,31.86,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Worse score margin vs common opponents
-15,Jose Manalese,Livonia Stevenson,1,1,3,1,75.89,61.2,10.98,29.07,29.07,6.03,4,4,25.84,21.19,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-21,Lower TrueSkill rating
-16,Theodor Kazanmashev,Dearborn,1,1,2,1,73.46,60.0,11.19,29.34,29.34,6.05,3,3,22.89,21.19,0,1/2 (50%),2-0 (100%),,0-1 (0%),2026-08-21,Worse score margin vs common opponents
-17,Neel Natarajan,Plymouth,1,1,2,1,72.67,59.6,10.59,28.72,28.72,6.04,3,3,24.33,30.6,1,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
-18,Kris Thomas,Novi,1,1,2,1,54.74,50.3,7.41,27.91,27.91,6.83,3,3,23.22,23.22,0,,2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
-19,Carlwyn Lerias,Clinton Township Chippewa Valley,1,1,2,1,62.55,54.3,9.2,27.28,27.28,6.03,3,3,21.01,22.58,0,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
-20,Joseph Small,Utica,1,1,2,1,58.31,52.2,8.15,27.56,27.56,6.47,3,3,19.98,19.98,1,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-14,Worse score margin vs common opponents
-21,Lucas Chang,Rochester,1,1,2,2,57.69,51.8,7.71,27.1,27.1,6.46,4,4,22.17,22.17,0,0/2 (0%),2-0 (100%),,0-1 (0%),2026-08-22,Lower TrueSkill rating
-22,Max McCormick,Grand Blanc,1,1,2,1,50.33,48.1,7.14,25.89,25.89,6.25,2,2,21.1,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-17,Lower TrueSkill rating
-23,Nalin Soundararajan,Sterling Heights Stevenson,1,1,3,3,50.73,48.3,7.37,25.83,25.83,6.15,2,2,19.65,20.56,0,0/3 (0%),2-0 (100%),0-2 (0%),,2026-08-18,Lower TrueSkill rating
-24,Rami Itaw,Kalamazoo Loy Norrix,1,1,2,2,82.82,64.8,7.69,25.59,25.59,5.97,14,14,29.6,0.0,1,1/3 (33%),1-0 (100%),,1-2 (33%),2026-08-22,Lower TrueSkill rating
-25,Beau Bradford,Lapeer,1,1,2,4,37.04,41.2,4.18,21.89,21.89,5.9,2,2,24.16,23.3,0,0/3 (0%),2-0 (100%),0-4 (0%),,2026-08-19,Lower TrueSkill rating
-26,Gavin Habicht,Romeo,1,1,2,4,46.44,46.0,4.62,21.51,21.51,5.63,5,5,26.62,18.53,0,0/4 (0%),2-0 (100%),0-1 (0%),0-2 (0%),2026-08-22,Lower TrueSkill rating
-27,Wyatt Walker,Port Huron Northern,1,1,2,2,51.03,48.4,7.38,24.73,24.73,5.78,2,2,20.17,31.2,0,0/2 (0%),2-1 (67%),,0-1 (0%),2026-08-20,Fewer wins vs common opponents
-28,Christian Lambert,Rochester Hills Stoney Creek,1,1,1,2,30.21,37.7,3.04,21.73,21.73,6.23,1,1,25.95,0.0,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-20,Lower TrueSkill rating
-29,Jon Harrison,Dearborn Edsel Ford,1,1,1,2,32.12,38.7,3.02,21.19,21.19,6.06,2,2,25.97,29.21,0,0/1 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-21,Lower TrueSkill rating
-30,Alex Moore,Rockford,1,1,2,4,16.41,30.6,-0.01,18.88,18.88,6.29,2,2,24.81,24.81,0,0/4 (0%),2-1 (67%),0-1 (0%),0-2 (0%),2026-08-22,Lower TrueSkill rating
-31,Nikolas Barbes,Fraser,1,1,1,2,13.04,28.8,-0.26,18.73,18.73,6.33,1,1,24.65,24.65,0,0/2 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-19,Lower TrueSkill rating
-32,Grant Snook,Holt,1,1,0,3,2.13,23.2,-2.67,18.53,18.53,7.07,0,0,30.98,21.51,0,0/3 (0%),0-1 (0%),,0-1 (0%),2026-08-15,Lower TrueSkill rating
-33,Cooper Sowerby,Caledonia,1,1,1,5,-7.17,18.4,-4.49,16.96,16.96,7.15,0,0,30.51,0.0,0,0/5 (0%),0-1 (0%),1-3 (25%),0-1 (0%),2026-08-21,Lower TrueSkill rating
-34,Soren Traver,Holland West Ottawa,1,1,1,5,-17.97,12.9,-6.73,14.14,14.14,6.95,0,0,31.31,32.12,0,0/5 (0%),,0-2 (0%),0-3 (0%),2026-08-22,Lower TrueSkill rating
-35,Sagar Nandwana,Northville,1,1,0,6,-35.83,3.7,-10.06,9.56,9.56,6.54,0,0,28.92,28.92,0,0/6 (0%),0-2 (0%),,0-4 (0%),2026-08-22,Worse score margin vs common opponents
-36,Max Hong,Saline,1,1,0,6,-26.71,8.4,-8.51,12.66,12.66,7.06,0,0,31.64,28.3,0,0/6 (0%),0-2 (0%),,0-4 (0%),2026-08-25,Worse score margin vs common opponents
-37,Zeke Schuler,Utica Ford,1,1,0,6,-42.96,0.0,-10.95,7.67,7.67,6.21,0,0,23.57,24.64,0,0/6 (0%),0-4 (0%),0-2 (0%),,2026-08-19,Lower TrueSkill rating
-1,Evan Geisz,Clarkston,1,2,5,0,164.79,85.3,14.44,35.95,35.95,7.17,39,39,22.95,22.95,2,,2-0 (100%),1-0 (100%),1-0 (100%),2026-08-20,
-2,Krish Gupta,Troy,1,2,5,2,195.8,100.0,17.27,33.19,33.19,5.31,45,45,29.77,0.0,3,0/2 (0%),2-0 (100%),,3-1 (75%),2026-08-20,Lower TrueSkill rating
-3,AJ Vondracek,Detroit Catholic Central,1,2,4,0,184.37,94.6,19.11,38.16,38.16,6.35,38,38,22.41,22.41,1,1/1 (100%),2-0 (100%),1-0 (100%),1-0 (100%),2026-08-22,Worse score margin vs common opponents
-4,Pranshu Gandhe,Northville,1,2,2,5,156.1,81.1,13.53,29.35,29.35,5.27,37,37,28.84,28.84,0,0/5 (0%),1-1 (50%),1-0 (100%),0-3 (0%),2026-08-22,Lost head-to-head vs player above
-5,Jack Zernicke,Holland West Ottawa,1,2,3,3,126.42,67.0,8.4,24.49,24.49,5.36,34,34,29.73,31.25,1,0/2 (0%),2-0 (100%),,1-3 (25%),2026-08-22,Lost head-to-head vs player above
-6,Calvin Soukup,Jenison,1,2,6,1,194.26,99.3,23.75,39.84,39.84,5.36,30,30,24.82,25.91,2,0/1 (0%),3-0 (100%),0-1 (0%),2-0 (100%),2026-08-22,Lost head-to-head vs player above
-7,Holden Davis,Grand Ledge,1,2,4,1,103.41,56.1,14.54,31.85,31.85,5.77,8,8,26.29,28.95,1,0/1 (0%),3-0 (100%),,1-1 (50%),2026-08-22,Lower TrueSkill rating
-8,Saikrish Balaji,Troy Athens,1,2,3,3,108.43,58.5,10.72,29.3,29.3,6.19,17,17,35.54,33.37,2,0/3 (0%),,,2-2 (50%),2026-08-20,Lower TrueSkill rating
-9,Eli Layson,Utica Eisenhower,1,2,6,3,121.03,64.4,17.54,33.37,33.37,5.28,8,8,25.51,25.55,3,0/3 (0%),2-0 (100%),3-1 (75%),0-1 (0%),2026-08-19,Lost head-to-head vs player above
-10,Lucas Furness,Brighton,1,2,3,0,80.04,45.0,12.93,32.8,32.8,6.62,3,3,18.55,0.0,0,,2-0 (100%),,,2026-08-20,Lower TrueSkill rating
-11,Julian Saputo,Romeo,1,2,4,2,78.67,44.3,10.76,28.83,28.83,6.02,6,6,25.63,18.0,0,0/1 (0%),3-0 (100%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
-12,Matt Hurlbert,Utica Ford,1,2,4,2,80.16,45.0,10.7,26.97,26.97,5.42,6,6,26.15,27.6,1,0/2 (0%),2-0 (100%),1-0 (100%),0-2 (0%),2026-08-19,Lower TrueSkill rating
-13,Eli Feenstra,Hudsonville,1,2,2,3,82.34,46.0,10.52,26.42,26.42,5.3,9,9,23.37,0.0,0,0/3 (0%),2-1 (67%),,0-2 (0%),2026-08-20,Lower TrueSkill rating
-14,Liam Rhoades,Oxford,1,2,2,2,68.19,39.3,7.26,24.67,24.67,5.8,6,6,33.64,31.5,2,2/3 (67%),,,2-2 (50%),2026-08-20,Lower TrueSkill rating
-15,Henry Morris,Lapeer,1,2,4,2,80.64,45.2,11.9,30.15,30.15,6.08,5,5,22.12,22.28,0,0/1 (0%),4-1 (80%),,0-1 (0%),2026-08-19,Lost head-to-head vs player above
-16,Tommy Mccormick,Grand Blanc,1,2,2,1,69.23,39.8,10.57,30.06,30.06,6.5,2,2,24.63,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-17,Lower TrueSkill rating
-17,Macauley Douglas,Port Huron Northern,1,2,3,1,77.71,43.8,11.12,29.46,29.46,6.12,5,5,24.11,35.04,0,0/1 (0%),3-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
-18,Leo Wetzel,Dearborn,1,2,2,1,71.76,41.0,10.5,28.79,28.79,6.1,4,4,22.43,19.08,0,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-21,Lower TrueSkill rating
-19,Arnav Bhatia,Novi,1,2,2,1,69.72,40.0,9.6,28.53,28.53,6.31,5,5,23.3,23.3,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
-20,Zach Ulmer,Clinton Township Chippewa Valley,1,2,2,1,71.39,40.8,10.96,27.91,27.91,5.65,3,3,21.08,33.37,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
-21,Dom Amaro,Macomb Dakota,1,2,2,1,60.75,35.8,8.85,27.07,27.07,6.08,3,3,20.91,23.37,0,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
-22,Ali Monzer,Dearborn Edsel Ford,1,2,2,1,62.66,36.7,8.92,26.42,26.42,5.83,3,3,24.0,19.08,0,2/3 (67%),2-0 (100%),,0-1 (0%),2026-08-21,Lower TrueSkill rating
-23,Quinn Cook,Caledonia,1,2,3,2,40.56,26.2,5.33,25.85,25.85,6.84,1,1,23.7,0.0,0,0/2 (0%),3-1 (75%),,0-1 (0%),2026-08-21,Lower TrueSkill rating
-24,Jee Weis,Kalamazoo Loy Norrix,1,2,1,3,49.68,30.5,5.83,23.21,23.21,5.79,3,3,29.02,0.0,0,0/2 (0%),1-1 (50%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
-25,Rithik Parthasarathy,Okemos,1,2,1,2,38.54,25.2,4.04,22.59,22.59,6.18,2,2,28.58,0.0,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-20,Lower TrueSkill rating
-26,James Pham,Sterling Heights Stevenson,1,2,1,2,28.54,20.5,2.47,21.73,21.73,6.42,1,1,28.34,0.0,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-18,Lower TrueSkill rating
-27,Varun Garigipati,East Kentwood,1,2,2,2,33.67,22.9,3.52,21.39,21.39,5.96,2,2,24.06,39.84,0,0/1 (0%),2-0 (100%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
-28,Colin Ray,Fraser,1,2,1,2,19.95,16.4,1.68,19.77,19.77,6.03,1,1,18.98,27.07,0,0/2 (0%),1-1 (50%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
-29,Nick Macyda,Livonia Stevenson,1,2,1,3,17.98,15.4,1.02,19.08,19.08,6.02,1,1,21.69,27.61,0,0/2 (0%),1-0 (100%),0-2 (0%),,2026-08-21,Lower TrueSkill rating
-30,Broderik Gee,Rockford,1,2,2,4,24.0,18.3,0.44,18.12,18.12,5.9,4,4,27.58,27.58,0,0/4 (0%),2-0 (100%),0-1 (0%),0-3 (0%),2026-08-22,Lower TrueSkill rating
-31,Brody Dai,Saline,1,2,1,5,-0.43,6.7,-3.26,15.81,15.81,6.36,1,1,27.69,27.53,0,0/5 (0%),1-1 (50%),0-1 (0%),0-3 (0%),2026-08-25,Lost head-to-head vs player above
-32,Eunjun Choi,Rochester Hills Stoney Creek,1,2,1,2,29.93,21.1,2.9,20.55,20.55,5.88,1,1,26.81,0.0,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-20,Worse score margin vs common opponents
-33,Pratham Merugu,Plymouth,1,2,1,2,2.14,7.9,-2.7,18.43,18.43,7.04,0,0,31.25,31.25,0,1/3 (33%),,0-2 (0%),,2026-08-20,Lower TrueSkill rating
-34,Kellen Flahie,Holt,1,2,1,2,0.24,7.0,-3.01,18.0,18.0,7.0,0,0,30.53,28.83,0,0/2 (0%),,0-1 (0%),0-1 (0%),2026-08-15,Lower TrueSkill rating
-35,Yibei Guo,Rochester,1,2,1,3,10.93,12.1,-0.61,17.67,17.67,6.09,1,1,23.94,23.94,0,0/3 (0%),1-1 (50%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
-36,Zack Sharrah,Utica,1,2,1,2,-6.3,3.9,-4.28,16.59,16.59,6.96,0,0,30.17,30.17,0,0/2 (0%),,0-1 (0%),0-1 (0%),2026-08-14,Lower TrueSkill rating
-37,Kapish Rajan,Salem,1,2,0,3,-14.5,0.0,-5.57,15.0,15.0,6.86,0,0,26.72,26.72,0,0/2 (0%),0-1 (0%),0-2 (0%),,2026-08-20,Lower TrueSkill rating
-1,Nikhil Verma,Detroit Catholic Central,1,3,4,0,140.88,69.7,19.06,38.16,38.16,6.37,16,16,20.95,20.95,2,,3-0 (100%),,1-0 (100%),2026-08-22,
-2,Nate Keller,Clarkston,1,3,5,0,218.34,100.0,20.72,39.75,39.75,6.34,49,49,24.25,24.25,3,1/1 (100%),3-0 (100%),1-0 (100%),1-0 (100%),2026-08-20,Worse score margin vs common opponents
-3,Ayan Arora,Okemos,1,3,4,1,193.82,90.4,19.93,38.12,38.12,6.06,39,39,26.15,24.44,2,,2-0 (100%),1-0 (100%),1-1 (50%),2026-08-20,Lost head-to-head vs player above
-4,Matthew Wendrick,Brighton,1,3,3,0,169.42,80.9,19.31,37.72,37.72,6.14,30,30,22.56,0.0,1,,2-0 (100%),,1-0 (100%),2026-08-20,Lower TrueSkill rating
-5,Tiger Zhu,Troy,1,3,6,2,149.8,73.2,11.98,29.72,29.72,5.91,36,36,26.7,13.73,3,0/2 (0%),4-0 (100%),2-0 (100%),0-2 (0%),2026-08-20,Lower TrueSkill rating
-6,Angelo Restauri,Utica Eisenhower,1,3,7,2,155.67,75.5,22.03,38.72,38.72,5.57,14,14,25.92,24.16,3,0/2 (0%),3-0 (100%),1-0 (100%),2-1 (67%),2026-08-19,Worse score margin vs common opponents
-7,Tyler Tanudjaja,Plymouth,1,3,3,0,92.18,50.7,13.16,34.02,34.02,6.95,8,8,20.58,19.14,0,,3-0 (100%),,,2026-08-20,Lower TrueSkill rating
-8,Maxwell Bouck,Grand Ledge,1,3,4,1,110.89,58.0,14.49,32.01,32.01,5.84,12,12,25.75,23.55,1,1/2 (50%),3-0 (100%),1-0 (100%),0-1 (0%),2026-08-22,Lower TrueSkill rating
-9,Scott Stylianou,Rochester,1,3,3,1,118.6,61.0,14.43,31.64,31.64,5.74,15,15,26.71,26.71,2,0/1 (0%),3-0 (100%),,0-1 (0%),2026-08-22,Lower TrueSkill rating
-10,Ty Burton,East Kentwood,1,3,3,1,87.0,48.7,13.53,31.44,31.44,5.97,4,4,22.58,0.0,0,1/2 (50%),3-0 (100%),,0-1 (0%),2026-08-22,Lower TrueSkill rating
-11,Nolan Cybulski,Utica Ford,1,3,4,2,112.06,58.5,14.74,31.26,31.26,5.51,11,11,29.55,31.5,1,1/3 (33%),2-0 (100%),,1-2 (33%),2026-08-19,Lower TrueSkill rating
-12,Reyu Kini,Novi,1,3,2,1,91.48,50.4,11.2,30.24,30.24,6.35,10,10,27.84,27.84,1,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
-13,Charlie Scott,Caledonia,1,3,5,1,105.95,56.1,8.59,27.48,27.48,6.3,23,23,30.84,0.0,1,1/2 (50%),4-0 (100%),,1-1 (50%),2026-08-21,Lower TrueSkill rating
-14,Gavin Lemm,Saline,1,3,3,3,67.55,41.1,7.3,26.52,26.52,6.41,9,9,25.96,29.08,0,1/4 (25%),3-0 (100%),0-1 (0%),0-2 (0%),2026-08-25,Lower TrueSkill rating
-15,Jaren Habicht,Romeo,1,3,4,2,84.67,47.8,12.09,29.08,29.08,5.66,5,5,25.33,13.95,1,0/2 (0%),3-0 (100%),,1-2 (33%),2026-08-22,Worse score margin vs common opponents
-16,William (Liam) Beck,Port Huron Northern,1,3,3,1,100.68,54.0,16.2,36.37,36.37,6.72,4,4,20.19,0.0,1,0/1 (0%),3-0 (100%),,,2026-08-20,Worse score margin vs common opponents
-17,Ethan Winter,Macomb L'Anse Creuse North,1,3,2,1,75.02,44.0,12.05,33.0,33.0,6.98,3,3,17.41,0.0,0,0/1 (0%),2-0 (100%),,,2026-08-18,Lower TrueSkill rating
-18,Ethan Wu,Rochester Hills Stoney Creek,1,3,2,1,77.86,45.1,11.96,31.88,31.88,6.64,3,3,23.99,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
-19,Mason McMahon,New Baltimore Anchor Bay,1,3,2,1,60.08,38.2,9.11,30.67,30.67,7.19,3,3,16.9,20.59,0,0/1 (0%),2-0 (100%),,,2026-08-18,Lower TrueSkill rating
-20,Adam Cunningham,Clinton Township Chippewa Valley,1,3,2,1,80.89,46.3,11.87,29.85,29.85,6.0,4,4,27.0,29.62,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
-21,Dhan Patel,Grand Blanc,1,3,2,1,67.34,41.0,10.18,29.48,29.48,6.43,2,2,24.78,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-17,Lower TrueSkill rating
-22,Isaac Watkin,Holland West Ottawa,1,3,3,3,75.71,44.3,7.75,25.81,25.81,6.02,11,11,26.87,26.99,1,1/4 (25%),2-0 (100%),1-0 (100%),0-3 (0%),2026-08-22,Lower TrueSkill rating
-23,Jack Devereaux,Jenison,1,3,5,2,83.23,47.2,11.29,29.02,29.02,5.91,8,8,21.39,28.91,0,0/1 (0%),4-1 (80%),,0-1 (0%),2026-08-22,Lost head-to-head vs player above
-24,John Polster,Dearborn Edsel Ford,1,3,2,1,72.28,42.9,10.46,28.04,28.04,5.86,4,4,23.8,20.28,0,1/2 (50%),2-0 (100%),,0-1 (0%),2026-08-21,Lower TrueSkill rating
-25,Isaiah Holland,Fraser,1,3,1,2,37.93,29.5,3.35,21.82,21.82,6.15,3,3,30.25,29.62,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-19,Lower TrueSkill rating
-26,Heyaw Temesgen,Dearborn,1,3,1,2,32.84,27.5,2.99,20.77,20.77,5.93,2,2,27.72,28.04,0,0/1 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-21,Lower TrueSkill rating
-27,Marcus Khoushi,Sterling Heights Stevenson,1,3,1,2,21.69,23.2,1.42,20.59,20.59,6.39,1,1,25.13,30.67,0,0/2 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-18,Lower TrueSkill rating
-28,Jack Archambault,Macomb Dakota,1,3,1,2,28.15,25.7,2.66,20.52,20.52,5.95,2,2,21.63,25.83,0,0/2 (0%),1-1 (50%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
-29,Grant Wilson,Kalamazoo Loy Norrix,1,3,1,3,24.19,24.2,1.97,19.81,19.81,5.95,1,1,24.64,0.0,0,0/2 (0%),1-2 (33%),,0-1 (0%),2026-08-22,Lower TrueSkill rating
-30,Austin Pastula,Livonia Stevenson,1,3,1,3,19.66,22.4,1.31,19.8,19.8,6.16,1,1,22.13,28.04,0,0/1 (0%),1-0 (100%),0-2 (0%),,2026-08-21,Lower TrueSkill rating
-31,Reyer Thornell Timmer,Grand Haven,1,3,0,3,3.1,15.9,-2.88,18.72,18.72,7.2,0,0,34.98,34.04,0,0/3 (0%),,0-1 (0%),0-2 (0%),2026-08-22,Lower TrueSkill rating
-32,Parker Rayner,Oxford,1,3,1,3,13.11,19.8,-0.3,18.33,18.33,6.21,1,1,25.21,19.68,0,0/3 (0%),1-0 (100%),0-1 (0%),0-2 (0%),2026-08-20,Lower TrueSkill rating
-33,Gavin Wurm,Rockford,1,3,1,5,7.04,17.5,-1.92,17.23,17.23,6.38,1,1,29.24,29.24,0,0/5 (0%),1-1 (50%),0-1 (0%),0-3 (0%),2026-08-22,Lower TrueSkill rating
-34,Jack Park,Utica,1,3,1,2,-2.0,13.9,-3.91,17.07,17.07,6.99,0,0,34.99,34.99,0,0/1 (0%),,,0-2 (0%),2026-08-14,Lower TrueSkill rating
-35,Max Langschwager,Holt,1,3,0,3,-13.41,9.5,-5.82,13.95,13.95,6.59,0,0,31.37,29.08,0,0/3 (0%),,,0-3 (0%),2026-08-15,Lower TrueSkill rating
-36,Rishik Rajaram,Troy Athens,1,3,0,6,-17.42,7.9,-7.05,13.73,13.73,6.92,0,0,35.64,34.22,0,0/6 (0%),,0-1 (0%),0-4 (0%),2026-08-20,Lower TrueSkill rating
-37,Jace DeJong,Hudsonville,1,3,0,5,-35.68,0.8,-10.08,10.63,10.63,6.9,0,0,29.41,0.0,0,0/5 (0%),0-2 (0%),0-1 (0%),0-2 (0%),2026-08-20,Lower TrueSkill rating
-38,Allan Hu,Northville,1,3,0,7,-37.42,0.1,-10.66,9.12,9.12,6.59,0,0,31.76,31.76,0,0/7 (0%),0-2 (0%),0-1 (0%),0-3 (0%),2026-08-22,Lower TrueSkill rating
-39,Scotty Porter,Lapeer,1,3,0,6,-37.63,0.0,-10.11,9.1,9.1,6.4,0,0,25.83,22.56,0,0/6 (0%),0-4 (0%),,0-2 (0%),2026-08-19,Lower TrueSkill rating
-1,Alex Tsai,Okemos,1,4,4,0,211.95,79.6,21.08,40.15,40.15,6.36,43,43,31.93,37.99,3,,1-0 (100%),1-0 (100%),2-0 (100%),2026-08-20,
-2,Zain Taqi,Troy,1,4,7,1,275.26,100.0,22.11,39.6,39.6,5.83,72,72,29.23,26.21,4,1/2 (50%),3-0 (100%),1-0 (100%),2-1 (67%),2026-08-20,Lower TrueSkill rating
-3,Athan Brozovich,Clarkston,1,4,4,1,190.79,72.8,20.62,37.99,37.99,5.79,34,34,30.18,30.18,3,0/1 (0%),1-0 (100%),2-0 (100%),1-1 (50%),2026-08-20,Lower TrueSkill rating
-4,Ryan Michaels,Brighton,1,4,3,0,137.83,55.7,18.49,37.56,37.56,6.36,17,17,19.56,0.0,1,,2-0 (100%),1-0 (100%),,2026-08-20,Lower TrueSkill rating
-5,Rocco Lachapelle,Detroit Catholic Central,1,4,4,0,172.16,66.8,18.54,37.5,37.5,6.32,33,33,23.68,23.68,1,,2-0 (100%),1-0 (100%),1-0 (100%),2026-08-22,Lower TrueSkill rating
-6,Achilles Coutinho,Utica Eisenhower,1,4,6,3,133.63,54.4,20.02,37.18,37.18,5.72,8,8,25.97,25.34,3,1/4 (25%),3-0 (100%),2-1 (67%),,2026-08-19,Lower TrueSkill rating
-7,Connor McGrath,Romeo,1,4,5,1,117.3,49.1,15.62,33.93,33.93,6.1,14,14,22.21,15.07,0,,4-0 (100%),1-0 (100%),0-1 (0%),2026-08-22,Lower TrueSkill rating
-8,Chris Darrow,Northville,1,4,4,3,158.46,62.4,16.24,32.54,32.54,5.43,32,32,26.41,26.41,0,0/3 (0%),3-0 (100%),1-0 (100%),0-2 (0%),2026-08-22,Lower TrueSkill rating
-9,Stanley Kang,Novi,1,4,2,1,105.72,45.4,11.96,29.95,29.95,6.0,15,15,28.75,28.75,1,0/1 (0%),1-0 (100%),1-0 (100%),0-1 (0%),2026-08-20,Lower TrueSkill rating
-10,Hekar Bingol,Hudsonville,1,4,3,2,206.44,77.8,13.28,29.69,29.69,5.47,60,60,30.99,0.0,3,1/2 (50%),,2-1 (67%),1-1 (50%),2026-08-20,Lower TrueSkill rating
-11,Gavin White,Holland West Ottawa,1,4,3,3,83.23,38.2,6.85,24.22,24.22,5.79,17,17,26.84,28.48,1,0/3 (0%),2-0 (100%),1-1 (50%),0-2 (0%),2026-08-22,Transitively beaten by player above
-12,Grant Compston,Jenison,1,4,3,3,99.94,43.5,11.27,28.47,28.47,5.73,14,14,28.1,26.94,1,1/3 (33%),1-0 (100%),1-2 (33%),0-1 (0%),2026-08-22,Lost head-to-head vs player above
-13,Carter Iszler,Grand Ledge,1,4,4,1,102.33,44.3,13.41,29.67,29.67,5.42,12,12,22.37,24.86,0,1/1 (100%),4-0 (100%),0-1 (0%),,2026-08-22,Lost head-to-head vs player above
-14,Doug LaDue IV,East Kentwood,1,4,3,1,108.96,46.4,14.47,31.87,31.87,5.8,12,12,25.05,0.0,0,0/1 (0%),3-0 (100%),,0-1 (0%),2026-08-22,Worse score margin vs common opponents
-15,Noah Clark,Rockford,1,4,2,4,70.81,34.1,5.27,22.57,22.57,5.77,14,14,29.85,29.85,1,0/4 (0%),1-0 (100%),1-1 (50%),0-3 (0%),2026-08-22,Lower TrueSkill rating
-16,Critter Ignacio,Saline,1,4,3,3,87.26,39.4,10.05,25.68,25.68,5.21,12,12,25.87,30.17,0,0/3 (0%),2-1 (67%),1-1 (50%),0-1 (0%),2026-08-25,Lost head-to-head vs player above
-17,Anik Batra,Rochester Hills Stoney Creek,1,4,3,0,121.83,50.6,17.33,37.08,37.08,6.58,12,12,22.12,0.0,0,1/1 (100%),2-0 (100%),1-0 (100%),,2026-08-20,Worse score margin vs common opponents
-18,Beckett Baker,Port Huron Northern,1,4,3,1,98.55,43.1,16.21,36.37,36.37,6.72,4,4,18.87,0.0,0,0/1 (0%),3-0 (100%),,,2026-08-20,Lower TrueSkill rating
-19,Youssaf Gatea,Dearborn Edsel Ford,1,4,3,0,83.07,38.1,12.44,33.4,33.4,6.98,5,5,21.51,24.06,0,1/1 (100%),3-0 (100%),,,2026-08-21,Lower TrueSkill rating
-20,Nick Ivanov,Clinton Township Chippewa Valley,1,4,2,1,65.3,32.4,8.84,27.91,27.91,6.36,4,4,26.09,26.09,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
-21,Ganesh Nambu,Troy Athens,1,4,1,2,65.12,32.3,6.3,26.21,26.21,6.64,7,7,36.19,39.6,1,0/2 (0%),,,1-2 (33%),2026-08-20,Lower TrueSkill rating
-22,Jagr Nestorovski,Utica,1,4,2,1,47.34,26.6,5.24,25.1,25.1,6.62,3,3,30.1,30.1,0,0/1 (0%),1-0 (100%),,0-1 (0%),2026-08-14,Lower TrueSkill rating
-23,Meryk Rogers,Oxford,1,4,3,1,35.92,22.9,4.51,24.75,24.75,6.75,1,1,22.63,22.63,0,0/1 (0%),1-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
-24,Arnav Ranjan,Plymouth,1,4,2,1,54.8,29.0,7.54,24.74,24.74,5.73,2,2,23.06,26.99,1,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-20,Lower TrueSkill rating
-25,Adam Osta,Dearborn,1,4,1,2,44.74,25.8,5.59,24.06,24.06,6.16,2,2,25.53,25.3,0,0/2 (0%),1-0 (100%),0-2 (0%),,2026-08-21,Lower TrueSkill rating
-26,Artur Kurtaj,Utica Ford,1,4,3,3,44.54,25.7,5.39,23.02,23.02,5.88,2,2,27.04,27.04,0,0/2 (0%),1-1 (50%),0-1 (0%),0-1 (0%),2026-08-19,Lower TrueSkill rating
-27,Lucas Taylor,Fraser,1,4,1,2,15.88,16.5,0.47,17.99,17.99,5.84,1,1,22.95,23.02,0,0/2 (0%),1-1 (50%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
-28,Jordan Nugyen,Livonia Stevenson,1,4,1,3,11.84,15.2,-0.27,17.21,17.21,5.82,1,1,22.3,24.06,0,0/2 (0%),1-1 (50%),,0-1 (0%),2026-08-21,Lower TrueSkill rating
-29,Desmond Brownell,Kalamazoo Loy Norrix,1,4,1,3,15.51,16.3,-1.52,15.77,15.77,5.76,4,4,27.2,0.0,1,0/1 (0%),0-1 (0%),1-2 (33%),,2026-08-22,Lower TrueSkill rating
-30,Isaac Judd,Caledonia,1,4,3,0,0.1,11.4,,,,,0,0,0.0,0.0,0,,2-0 (100%),,,2026-08-21,Tied — no deciding criterion found
-31,Nishan Starks,Macomb Dakota,1,4,1,2,1.87,11.9,-2.5,18.06,18.06,6.86,0,0,28.71,27.91,0,0/2 (0%),,0-2 (0%),,2026-08-19,Lower TrueSkill rating
-32,Josiah Johnson,Macomb L'Anse Creuse North,1,4,1,2,-5.35,9.6,-3.88,17.09,17.09,6.99,0,0,28.01,29.95,0,0/2 (0%),,0-2 (0%),,2026-08-18,Lower TrueSkill rating
-33,Max Fiebelkorn,Rochester,1,4,1,3,-7.97,8.8,-4.41,15.41,15.41,6.61,0,0,28.1,28.1,0,0/3 (0%),0-1 (0%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
-34,Simon VanLiew,Holt,1,4,0,3,-13.45,7.0,-5.96,15.07,15.07,7.01,0,0,32.74,33.93,0,0/3 (0%),0-1 (0%),,0-2 (0%),2026-08-15,Lower TrueSkill rating
-35,Jonathan Miller,Lapeer,1,4,0,5,-35.21,0.0,-9.68,10.95,10.95,6.88,0,0,26.38,25.84,0,0/4 (0%),0-3 (0%),0-2 (0%),,2026-08-19,Lower TrueSkill rating
+1,Zac Clouse,Macomb Dakota,1,1,6,0,141.62,86.3,19.34,38.99,38.99,6.55,15,15,23.65,25.45,2,,3-0 (100%),1-0 (100%),1-0 (100%),2026-08-19,
+2,Thomas McCormick,Clarkston,1,1,5,0,146.81,88.7,18.01,38.24,38.24,6.74,22,22,19.27,19.27,2,1/1 (100%),3-0 (100%),2-0 (100%),,2026-08-20,Lower TrueSkill rating
+3,Simon Wolters,East Kentwood,1,1,4,0,149.45,89.9,19.09,37.16,37.16,6.02,20,20,21.8,28.56,2,,2-0 (100%),2-0 (100%),,2026-08-22,Lower TrueSkill rating
+4,Keegan Parrish,Brighton,1,1,2,1,146.23,88.4,10.42,28.66,28.66,6.08,39,39,29.11,0.0,1,,,1-0 (100%),1-1 (50%),2026-08-20,Lower TrueSkill rating
+5,Dheeraj Yelleti,Troy,1,1,5,3,137.9,84.6,9.37,27.37,27.37,6.0,37,37,30.92,36.85,1,0/3 (0%),3-0 (100%),,1-3 (25%),2026-08-20,Lower TrueSkill rating
+6,Gavin Luchies,Hudsonville,1,1,6,2,171.17,100.0,18.87,36.85,36.85,5.99,31,31,23.48,22.53,2,1/3 (33%),3-0 (100%),1-1 (50%),1-0 (100%),2026-08-22,Lost head-to-head vs player above
+7,Drake Apol,Jenison,1,1,6,0,91.67,63.1,13.9,36.04,36.04,7.38,7,7,16.16,15.88,0,,5-0 (100%),,,2026-08-22,Lower TrueSkill rating
+8,Jose Manalese,Livonia Stevenson,1,1,4,1,106.4,70.0,14.74,32.1,32.1,5.79,9,9,26.24,24.33,1,0/1 (0%),2-0 (100%),1-0 (100%),0-1 (0%),2026-08-24,Lower TrueSkill rating
+9,Marcelo Rocha,Oxford,1,1,3,1,99.86,66.9,13.31,30.67,30.67,5.79,8,8,28.42,27.7,2,0/1 (0%),1-0 (100%),2-0 (100%),0-1 (0%),2026-08-20,Lower TrueSkill rating
+10,Rohan Nagaram,Troy Athens,1,1,1,4,97.78,66.0,12.85,30.57,30.57,5.91,8,8,32.01,26.43,1,0/3 (0%),,1-0 (100%),0-3 (0%),2026-08-20,Lower TrueSkill rating
+11,Graham Long,Detroit Catholic Central,1,1,4,1,71.37,53.7,10.15,29.07,29.07,6.31,5,5,21.09,21.09,0,,4-0 (100%),,0-1 (0%),2026-08-22,Lower TrueSkill rating
+12,Jagger Freed,Grand Ledge,1,1,3,2,75.83,55.8,10.87,28.56,28.56,5.9,5,5,22.87,29.58,0,0/2 (0%),3-0 (100%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+13,Sahaj Pakala,Okemos,1,1,3,2,100.28,67.1,9.95,26.91,26.91,5.65,18,18,25.92,23.85,1,0/2 (0%),2-0 (100%),1-0 (100%),0-2 (0%),2026-08-20,Lower TrueSkill rating
+14,Cameron Galicia,Utica Eisenhower,1,1,5,4,75.79,55.7,8.68,26.43,26.43,5.92,7,7,27.67,26.02,3,0/4 (0%),4-0 (100%),1-0 (100%),0-3 (0%),2026-08-19,Lower TrueSkill rating
+15,Ryan Ursescu,Macomb L'Anse Creuse North,1,1,3,4,93.21,63.8,13.54,31.2,31.2,5.89,5,5,27.93,32.21,1,0/4 (0%),1-3 (25%),1-0 (100%),0-1 (0%),2026-08-24,Worse score margin vs common opponents
+16,Theodor Kazanmashev,Dearborn,1,1,2,1,77.65,56.6,11.19,29.33,29.33,6.05,4,4,24.28,25.37,1,1/2 (50%),1-0 (100%),1-0 (100%),0-1 (0%),2026-08-21,Lower TrueSkill rating
+17,Kris Thomas,Novi,1,1,2,1,56.03,46.6,7.65,28.06,28.06,6.8,3,3,23.38,23.38,0,,2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
+18,Carlwyn Lerias,Clinton Township Chippewa Valley,1,1,2,1,62.31,49.5,9.15,27.24,27.24,6.03,3,3,20.97,22.58,0,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
+19,Max McCormick,Grand Blanc,1,1,2,1,50.58,44.1,7.14,25.89,25.89,6.25,2,2,21.6,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-17,Lower TrueSkill rating
+20,Joseph Small,Utica,1,1,2,2,53.66,45.5,6.77,25.83,25.83,6.35,3,3,24.52,19.97,1,0/2 (0%),2-0 (100%),0-1 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
+21,Nalin Soundararajan,Sterling Heights Stevenson,1,1,3,3,50.51,44.0,7.37,25.83,25.83,6.15,2,2,19.21,19.97,0,0/3 (0%),2-1 (67%),0-1 (0%),,2026-08-18,Lost head-to-head vs player above
+22,Lucas Chang,Rochester,1,1,2,3,53.04,45.2,6.48,24.25,24.25,5.92,4,4,25.2,25.2,0,0/3 (0%),2-0 (100%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+23,Rami Itawi,Kalamazoo Loy Norrix,1,1,4,3,73.68,54.8,6.17,23.75,23.75,5.86,14,14,26.59,0.0,1,1/4 (25%),3-0 (100%),,1-3 (25%),2026-08-24,Lower TrueSkill rating
+24,Gavin Habicht,Romeo,1,1,2,4,47.9,42.8,4.09,21.22,21.22,5.71,7,7,26.84,18.6,0,0/4 (0%),2-0 (100%),0-1 (0%),0-2 (0%),2026-08-22,Lower TrueSkill rating
+25,Wyatt Walker,Port Huron Northern,1,1,3,3,62.41,49.5,8.62,25.43,25.43,5.6,4,4,22.5,31.2,0,0/2 (0%),3-1 (75%),,0-2 (0%),2026-08-24,Fewer wins vs common opponents
+26,Jon Harrison,Dearborn Edsel Ford,1,1,2,2,57.09,47.1,7.74,25.37,25.37,5.88,3,3,24.69,30.72,0,0/1 (0%),2-0 (100%),0-1 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
+27,Neel Natarajan,Plymouth,1,1,2,2,48.06,42.9,5.47,23.28,23.28,5.93,3,3,26.26,31.1,1,0/2 (0%),2-0 (100%),,0-2 (0%),2026-08-24,Worse score margin vs common opponents
+28,Christian Lambert,Rochester Hills Stoney Creek,1,1,1,2,31.69,35.3,3.21,22.06,22.06,6.28,1,1,27.23,0.0,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-20,Lower TrueSkill rating
+29,Beau Bradford,Lapeer,1,1,2,5,23.05,31.3,1.27,19.21,19.21,5.98,2,2,25.34,24.55,0,0/4 (0%),2-1 (67%),0-2 (0%),0-2 (0%),2026-08-24,Lower TrueSkill rating
+30,Alex Moore,Rockford,1,1,2,4,16.68,28.3,0.16,19.01,19.01,6.28,2,2,23.66,23.66,0,0/4 (0%),2-1 (67%),0-2 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+31,Nikolas Barbes,Fraser,1,1,1,2,12.96,26.6,-0.28,18.72,18.72,6.33,1,1,24.63,24.63,0,0/2 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-19,Lower TrueSkill rating
+32,Grant Snook,Holt,1,1,0,3,2.24,21.6,-2.64,18.6,18.6,7.08,0,0,30.92,21.22,0,0/3 (0%),0-1 (0%),,0-1 (0%),2026-08-15,Lower TrueSkill rating
+33,Bryce Hoggard,Davison,1,1,1,2,10.96,25.7,-0.32,18.43,18.43,6.25,1,1,21.03,19.21,0,1/3 (33%),1-1 (50%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
+34,Cooper Sowerby,Caledonia,1,1,1,5,-7.12,17.3,-4.49,16.96,16.96,7.15,0,0,30.6,0.0,0,0/5 (0%),0-1 (0%),1-3 (25%),0-1 (0%),2026-08-21,Lower TrueSkill rating
+35,Soren Traver,Holland West Ottawa,1,1,1,5,-7.41,17.2,-4.51,15.88,15.88,6.8,0,0,30.25,29.78,0,0/5 (0%),0-1 (0%),0-1 (0%),0-2 (0%),2026-08-22,Lower TrueSkill rating
+36,Sagar Nandwana,Northville,1,1,0,7,-44.38,0.0,-11.81,9.46,9.46,7.09,0,0,29.31,29.31,0,0/7 (0%),0-2 (0%),0-2 (0%),0-3 (0%),2026-08-22,Worse score margin vs common opponents
+37,Max Hong,Saline,1,1,0,6,-23.23,9.8,-7.79,12.9,12.9,6.9,0,0,31.46,28.44,0,0/6 (0%),0-1 (0%),0-1 (0%),0-4 (0%),2026-08-25,Worse score margin vs common opponents
+38,Zeke Schuler,Utica Ford,1,1,0,6,-43.17,0.6,-10.96,7.64,7.64,6.2,0,0,23.26,24.2,0,0/6 (0%),0-5 (0%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
+1,Evan Geisz,Clarkston,1,2,5,0,169.06,83.8,14.5,35.98,35.98,7.16,41,41,22.87,22.87,2,,2-0 (100%),1-0 (100%),1-0 (100%),2026-08-20,
+2,Krish Gupta,Troy,1,2,5,2,204.05,100.0,17.28,33.97,33.97,5.56,49,49,30.14,0.0,3,0/2 (0%),2-0 (100%),1-0 (100%),1-1 (50%),2026-08-20,Lower TrueSkill rating
+3,AJ Vondracek,Detroit Catholic Central,1,2,5,0,183.45,90.5,17.98,37.48,37.48,6.5,40,40,23.89,23.89,1,2/2 (100%),2-0 (100%),1-0 (100%),1-0 (100%),2026-08-22,Worse score margin vs common opponents
+4,Pranshu Gandhe,Northville,1,2,3,5,156.99,78.3,12.93,28.88,28.88,5.32,39,39,28.6,28.6,0,1/6 (17%),2-1 (67%),,0-3 (0%),2026-08-22,Lost head-to-head vs player above
+5,Jack Zernicke,Holland West Ottawa,1,2,3,3,126.73,64.3,7.32,23.63,23.63,5.44,36,36,33.19,32.63,1,0/2 (0%),,1-0 (100%),1-3 (25%),2026-08-22,Lost head-to-head vs player above
+6,Calvin Soukup,Jenison,1,2,6,1,190.71,93.8,23.11,39.26,39.26,5.38,30,30,24.15,24.58,2,0/1 (0%),3-1 (75%),,2-0 (100%),2026-08-22,Lost head-to-head vs player above
+7,Johnny Alwardt,Macomb L'Anse Creuse North,1,2,4,0,122.4,62.3,15.35,35.04,35.04,6.56,13,13,36.09,36.09,1,,3-0 (100%),,1-0 (100%),2026-08-24,Lower TrueSkill rating
+8,Macauley Douglas,Port Huron Northern,1,2,5,1,130.79,66.2,18.56,36.09,36.09,5.84,12,12,24.81,35.04,1,0/1 (0%),4-0 (100%),,1-1 (50%),2026-08-24,Lost head-to-head vs player above
+9,Holden Davis,Grand Ledge,1,2,4,1,93.39,48.9,12.64,30.6,30.6,5.99,8,8,25.25,28.66,1,0/1 (0%),3-0 (100%),1-0 (100%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+10,Saikrish Balaji,Troy Athens,1,2,3,3,111.29,57.1,10.83,29.82,29.82,6.33,18,18,36.15,33.44,2,0/3 (0%),,,2-2 (50%),2026-08-20,Lower TrueSkill rating
+11,Eli Layson,Utica Eisenhower,1,2,6,3,121.4,61.8,17.62,33.44,33.44,5.27,8,8,25.48,25.43,3,0/3 (0%),2-0 (100%),3-1 (75%),0-1 (0%),2026-08-19,Lost head-to-head vs player above
+12,Lucas Furness,Brighton,1,2,3,0,79.69,42.5,12.93,32.8,32.8,6.62,3,3,17.83,0.0,0,,2-0 (100%),,,2026-08-20,Lower TrueSkill rating
+13,Julian Saputo,Romeo,1,2,4,2,85.71,45.3,12.18,29.53,29.53,5.78,6,6,25.46,18.0,0,0/1 (0%),3-0 (100%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
+14,Leo Wetzel,Dearborn,1,2,2,1,71.41,38.7,10.55,28.83,28.83,6.09,4,4,21.16,15.04,0,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-21,Lower TrueSkill rating
+15,Ali Monzer,Dearborn Edsel Ford,1,2,3,1,77.9,41.7,11.76,29.39,29.39,5.88,4,4,22.05,15.04,0,2/3 (67%),3-0 (100%),,0-1 (0%),2026-08-24,Worse score margin vs common opponents
+16,Arnav Bhatia,Novi,1,2,2,1,88.13,46.4,9.68,28.6,28.6,6.31,14,14,23.32,23.32,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
+17,Matt Hurlbert,Utica Ford,1,2,4,2,80.27,42.8,10.75,27.02,27.02,5.42,6,6,25.95,27.34,1,0/2 (0%),2-0 (100%),1-0 (100%),0-2 (0%),2026-08-19,Lower TrueSkill rating
+18,Liam Rhoades,Oxford,1,2,2,2,77.01,41.3,9.12,25.83,25.83,5.57,6,6,32.7,29.57,2,2/3 (67%),1-0 (100%),,1-2 (33%),2026-08-20,Lower TrueSkill rating
+19,Henry Morris,Lapeer,1,2,4,3,63.22,34.9,8.25,25.73,25.73,5.83,5,5,23.84,21.51,0,0/2 (0%),4-0 (100%),0-1 (0%),0-2 (0%),2026-08-24,Lost head-to-head vs player above
+20,Broderik Gee,Rockford,1,2,2,4,42.72,25.5,0.48,18.16,18.16,5.89,13,13,28.61,28.61,0,0/4 (0%),1-0 (100%),1-1 (50%),0-3 (0%),2026-08-22,Lower TrueSkill rating
+21,Yibei Guo,Rochester,1,2,2,3,80.25,42.8,9.31,24.89,24.89,5.19,11,11,23.3,23.3,0,0/3 (0%),2-2 (50%),,0-1 (0%),2026-08-22,Lost head-to-head vs player above
+22,Tommy Mccormick,Grand Blanc,1,2,2,1,69.53,37.8,10.57,30.06,30.06,6.5,2,2,25.22,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-17,Lower TrueSkill rating
+23,Zach Ulmer,Clinton Township Chippewa Valley,1,2,2,1,71.61,38.8,10.99,27.95,27.95,5.65,3,3,21.18,33.44,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
+24,Dom Amaro,Macomb Dakota,1,2,2,1,61.48,34.1,8.98,27.15,27.15,6.06,3,3,21.05,23.42,0,0/1 (0%),2-0 (100%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
+25,Quinn Cook,Caledonia,1,2,3,2,40.04,24.2,5.33,25.85,25.85,6.84,1,1,22.66,0.0,0,0/2 (0%),3-1 (75%),0-1 (0%),,2026-08-21,Lower TrueSkill rating
+26,Rithik Parthasarathy,Okemos,1,2,1,2,48.0,27.9,4.33,22.81,22.81,6.16,6,6,28.63,0.0,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-20,Lower TrueSkill rating
+27,Eli Feenstra,Hudsonville,1,2,2,4,59.13,33.0,5.73,20.79,20.79,5.02,9,9,24.95,24.89,0,0/4 (0%),2-0 (100%),0-3 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+28,Jee Weis,Kalamazoo Loy Norrix,1,2,2,5,50.82,29.2,5.8,23.62,23.62,5.94,4,4,27.61,0.0,0,0/3 (0%),2-1 (67%),,0-4 (0%),2026-08-24,Worse score margin vs common opponents
+29,Pratham Merugu,Plymouth,1,2,2,2,37.34,23.0,4.08,22.37,22.37,6.1,2,2,25.78,25.78,0,1/3 (33%),1-0 (100%),0-2 (0%),,2026-08-24,Lower TrueSkill rating
+30,James Pham,Sterling Heights Stevenson,1,2,1,2,26.91,18.2,2.47,21.73,21.73,6.42,1,1,25.09,0.0,0,0/2 (0%),1-1 (50%),0-1 (0%),,2026-08-18,Lower TrueSkill rating
+31,Colin Ray,Fraser,1,2,1,2,20.22,15.1,1.73,19.81,19.81,6.03,1,1,19.08,27.15,0,0/2 (0%),1-1 (50%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
+32,Varun Garigipati,East Kentwood,1,2,2,2,27.14,18.3,1.71,19.5,19.5,5.93,2,2,29.04,39.26,0,0/1 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+33,Juventino Alvarez,Davison,1,2,1,2,18.37,14.2,1.11,17.19,17.19,5.36,1,1,21.57,25.73,0,0/2 (0%),1-2 (33%),,,2026-08-19,Lower TrueSkill rating
+34,Brody Dai,Saline,1,2,1,5,-2.26,4.7,-3.63,15.82,15.82,6.48,1,1,27.73,27.58,0,0/5 (0%),1-1 (50%),0-1 (0%),0-3 (0%),2026-08-25,Lower TrueSkill rating
+35,Eunjun Choi,Rochester Hills Stoney Creek,1,2,1,2,31.76,20.4,3.21,21.64,21.64,6.14,1,1,27.35,0.0,0,0/2 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-20,Worse score margin vs common opponents
+36,Kellen Flahie,Holt,1,2,1,2,0.37,5.9,-3.01,18.0,18.0,7.0,0,0,30.77,29.53,0,0/2 (0%),,,0-2 (0%),2026-08-15,Lower TrueSkill rating
+37,Kapish Rajan,Salem,1,2,0,3,-8.66,1.7,-4.64,16.44,16.44,7.03,0,0,29.07,29.07,0,0/2 (0%),,0-3 (0%),,2026-08-20,Lower TrueSkill rating
+38,Zack Sharrah,Utica,1,2,1,3,-12.38,0.0,-5.52,15.33,15.33,6.95,0,0,30.36,30.23,0,0/3 (0%),,0-2 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
+39,Nick Macyda,Livonia Stevenson,1,2,1,4,2.68,7.0,-2.13,15.04,15.04,5.72,1,1,22.62,26.86,0,0/3 (0%),1-1 (50%),0-2 (0%),,2026-08-24,Lower TrueSkill rating
+1,Nate Keller,Clarkston,1,3,5,0,204.86,100.0,19.21,38.99,38.99,6.59,47,47,23.36,23.36,2,1/1 (100%),3-0 (100%),1-0 (100%),1-0 (100%),2026-08-20,
+2,Ayan Arora,Okemos,1,3,4,1,201.72,98.8,20.32,38.41,38.41,6.03,42,42,26.12,23.79,2,,2-0 (100%),1-0 (100%),1-1 (50%),2026-08-20,Lost head-to-head vs player above
+3,Matthew Wendrick,Brighton,1,3,3,0,177.79,89.4,19.03,37.47,37.47,6.15,35,35,22.08,0.0,1,,2-0 (100%),,1-0 (100%),2026-08-20,Lower TrueSkill rating
+4,Nikhil Verma,Detroit Catholic Central,1,3,5,0,125.63,68.9,15.8,37.29,37.29,7.16,18,18,18.08,18.08,1,1/1 (100%),4-0 (100%),1-0 (100%),,2026-08-22,Lower TrueSkill rating
+5,Tiger Zhu,Troy,1,3,6,2,159.97,82.4,11.97,29.71,29.71,5.92,41,41,27.11,13.72,3,0/2 (0%),3-0 (100%),3-0 (100%),0-2 (0%),2026-08-20,Lower TrueSkill rating
+6,Angelo Restauri,Utica Eisenhower,1,3,7,2,158.9,82.0,22.26,38.87,38.87,5.54,15,15,26.08,24.35,3,0/2 (0%),3-0 (100%),1-0 (100%),2-1 (67%),2026-08-19,Worse score margin vs common opponents
+7,Tyler Tanudjaja,Plymouth,1,3,4,0,110.37,63.0,14.89,35.89,35.89,7.0,13,13,19.62,19.18,0,,4-0 (100%),,,2026-08-24,Lower TrueSkill rating
+8,Owen Goodrich,Macomb L'Anse Creuse North,1,3,3,1,113.42,64.2,15.42,35.11,35.11,6.56,9,9,33.48,33.48,1,0/1 (0%),1-1 (50%),1-0 (100%),1-0 (100%),2026-08-24,Lower TrueSkill rating
+9,William (Liam) Beck,Port Huron Northern,1,3,5,1,105.96,61.2,15.07,33.48,33.48,6.14,8,8,23.09,35.11,2,0/1 (0%),5-0 (100%),,0-1 (0%),2026-08-24,Lower TrueSkill rating
+10,Maxwell Bouck,Grand Ledge,1,3,4,1,111.87,63.6,13.94,31.65,31.65,5.9,14,14,25.15,22.54,1,1/2 (50%),3-0 (100%),1-0 (100%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+11,Nolan Cybulski,Utica Ford,1,3,4,2,116.62,65.4,15.23,31.61,31.61,5.46,12,12,29.83,31.61,1,1/3 (33%),2-0 (100%),,1-2 (33%),2026-08-19,Lower TrueSkill rating
+12,Mason McMahon,New Baltimore Anchor Bay,1,3,2,1,62.96,44.4,9.6,30.99,30.99,7.13,3,3,17.73,21.32,0,0/1 (0%),2-0 (100%),,,2026-08-18,Lower TrueSkill rating
+13,Scott Stylianou,Rochester,1,3,4,1,103.17,60.1,11.56,30.94,30.94,6.46,17,17,22.59,22.59,0,1/2 (50%),4-0 (100%),,0-1 (0%),2026-08-22,Lower TrueSkill rating
+14,John Polster,Dearborn Edsel Ford,1,3,3,1,85.73,53.3,12.85,30.59,30.59,5.91,5,5,22.78,19.93,0,1/2 (50%),3-0 (100%),0-1 (0%),,2026-08-24,Lower TrueSkill rating
+15,Ty Burton,East Kentwood,1,3,3,1,92.98,56.2,12.26,30.42,30.42,6.05,9,9,27.17,0.0,0,1/2 (50%),2-0 (100%),,0-1 (0%),2026-08-22,Lower TrueSkill rating
+16,Adam Cunningham,Clinton Township Chippewa Valley,1,3,2,1,82.85,52.2,12.22,30.08,30.08,5.95,4,4,27.38,29.93,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
+17,Jaren Habicht,Romeo,1,3,4,2,88.69,54.5,12.91,29.4,29.4,5.5,5,5,25.19,13.95,1,0/2 (0%),3-0 (100%),,1-2 (33%),2026-08-22,Lower TrueSkill rating
+18,Reyu Kini,Novi,1,3,2,1,66.89,45.9,9.1,28.8,28.8,6.57,4,4,26.67,26.67,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
+19,Charlie Scott,Caledonia,1,3,5,1,116.01,65.2,8.59,27.48,27.48,6.3,28,28,30.96,0.0,1,1/2 (50%),3-0 (100%),1-0 (100%),1-1 (50%),2026-08-21,Lower TrueSkill rating
+20,Isaac Watkin,Holland West Ottawa,1,3,3,3,68.75,46.7,5.9,24.22,24.22,6.1,12,12,27.36,25.96,1,1/4 (25%),1-0 (100%),1-2 (33%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+21,Jack Devereaux,Jenison,1,3,5,2,72.69,48.2,8.44,27.01,27.01,6.19,10,10,20.79,27.93,0,0/1 (0%),4-1 (80%),,0-1 (0%),2026-08-22,Lost head-to-head vs player above
+22,Gavin Lemm,Saline,1,3,3,3,45.17,37.4,5.2,24.53,24.53,6.44,3,3,26.26,28.09,0,1/4 (25%),2-0 (100%),0-1 (0%),0-2 (0%),2026-08-25,Lower TrueSkill rating
+23,Ethan Wu,Rochester Hills Stoney Creek,1,3,2,1,69.88,47.1,10.35,30.68,30.68,6.78,3,3,24.15,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-20,Worse score margin vs common opponents
+24,Dhan Patel,Grand Blanc,1,3,2,1,67.68,46.2,10.18,29.48,29.48,6.43,2,2,25.44,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-17,Lower TrueSkill rating
+25,Isaiah Holland,Fraser,1,3,1,2,38.67,34.9,3.46,22.02,22.02,6.19,3,3,30.63,29.93,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-19,Lower TrueSkill rating
+26,Marcus Khoushi,Sterling Heights Stevenson,1,3,1,2,26.83,30.2,2.35,21.32,21.32,6.32,1,1,26.06,30.99,0,0/2 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-18,Lower TrueSkill rating
+27,Jack Archambault,Macomb Dakota,1,3,1,2,31.56,32.1,3.3,20.98,20.98,5.89,2,2,22.08,26.05,0,0/2 (0%),1-1 (50%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
+28,Heyaw Temesgen,Dearborn,1,3,1,2,33.26,32.7,2.99,20.77,20.77,5.93,2,2,28.57,30.59,0,0/1 (0%),1-0 (100%),,0-2 (0%),2026-08-21,Lower TrueSkill rating
+29,Austin Pastula,Livonia Stevenson,1,3,1,4,13.17,24.9,-0.39,19.09,19.09,6.49,1,1,26.21,33.24,0,0/2 (0%),1-0 (100%),0-1 (0%),0-2 (0%),2026-08-24,Lower TrueSkill rating
+30,Grant Wilson,Kalamazoo Loy Norrix,1,3,2,5,25.63,29.8,1.92,19.09,19.09,5.72,2,2,23.98,0.0,0,0/4 (0%),2-1 (67%),0-4 (0%),,2026-08-24,Lower TrueSkill rating
+31,Reyer Thornell Timmer,Grand Haven,1,3,0,3,3.22,21.0,-2.84,18.75,18.75,7.2,0,0,34.86,34.04,0,0/3 (0%),,0-1 (0%),0-2 (0%),2026-08-22,Lower TrueSkill rating
+32,Parker Rayner,Oxford,1,3,1,3,9.72,23.5,-1.0,18.06,18.06,6.36,1,1,25.43,19.52,0,0/3 (0%),1-0 (100%),0-1 (0%),0-2 (0%),2026-08-20,Lower TrueSkill rating
+33,Ethan Houser,Davison,1,3,1,2,10.07,23.7,-0.56,17.68,17.68,6.08,1,1,21.66,8.84,0,0/1 (0%),1-1 (50%),,0-1 (0%),2026-08-19,Worse score margin vs common opponents
+34,Jack Park,Utica,1,3,1,2,-1.88,19.0,-3.91,17.07,17.07,6.99,0,0,35.24,35.24,0,0/1 (0%),,,0-2 (0%),2026-08-14,Lower TrueSkill rating
+35,Gavin Wurm,Rockford,1,3,1,5,2.79,20.8,-2.66,16.49,16.49,6.39,1,1,28.19,28.19,0,0/5 (0%),1-1 (50%),0-2 (0%),0-2 (0%),2026-08-22,Lower TrueSkill rating
+36,Max Langschwager,Holt,1,3,0,3,-13.3,14.5,-5.82,13.95,13.95,6.59,0,0,31.58,29.4,0,0/3 (0%),,,0-3 (0%),2026-08-15,Lower TrueSkill rating
+37,Rishik Rajaram,Troy Athens,1,3,0,6,-17.4,12.9,-7.05,13.72,13.72,6.92,0,0,35.67,34.29,0,0/6 (0%),,0-1 (0%),0-4 (0%),2026-08-20,Lower TrueSkill rating
+38,Jace DeJong,Hudsonville,1,3,0,8,-50.29,0.0,-13.24,10.16,10.16,7.8,0,0,31.8,34.11,0,0/6 (0%),0-2 (0%),0-3 (0%),0-3 (0%),2026-08-22,Lower TrueSkill rating
+39,Scotty Porter,Lapeer,1,3,0,7,-47.93,0.9,-12.18,8.84,8.84,7.01,0,0,25.95,17.87,0,0/7 (0%),0-4 (0%),,0-3 (0%),2026-08-24,Lower TrueSkill rating
+40,Allan Hu,Northville,1,3,1,7,-38.76,4.5,-10.87,8.58,8.58,6.48,0,0,31.15,31.15,0,0/7 (0%),1-2 (33%),0-1 (0%),0-3 (0%),2026-08-22,Lower TrueSkill rating
+1,Alex Tsai,Okemos,1,4,4,0,287.45,100.0,21.75,40.64,40.64,6.29,79,79,32.16,37.76,3,,1-0 (100%),1-0 (100%),2-0 (100%),2026-08-20,
+2,Zain Taqi,Troy,1,4,7,1,273.25,95.7,22.11,39.6,39.6,5.83,71,71,29.22,26.21,4,1/2 (50%),3-0 (100%),1-0 (100%),2-1 (67%),2026-08-20,Lower TrueSkill rating
+3,Rocco Lachapelle,Detroit Catholic Central,1,4,5,0,255.76,90.3,18.94,38.3,38.3,6.45,73,73,23.92,23.92,2,1/1 (100%),3-0 (100%),1-0 (100%),1-0 (100%),2026-08-22,Lower TrueSkill rating
+4,Athan Brozovich,Clarkston,1,4,4,1,267.93,94.0,20.33,37.76,37.76,5.81,74,74,30.38,30.38,2,0/1 (0%),1-0 (100%),2-0 (100%),1-1 (50%),2026-08-20,Lower TrueSkill rating
+5,Ryan Michaels,Brighton,1,4,3,0,135.73,53.7,18.14,37.25,37.25,6.37,17,17,18.86,0.0,1,,2-0 (100%),1-0 (100%),,2026-08-20,Lower TrueSkill rating
+6,Achilles Coutinho,Utica Eisenhower,1,4,6,3,131.86,52.6,20.02,37.18,37.18,5.72,8,8,25.44,24.29,2,1/4 (25%),3-0 (100%),2-1 (67%),,2026-08-19,Lower TrueSkill rating
+7,Chris Darrow,Northville,1,4,5,3,251.42,89.0,18.56,34.82,34.82,5.42,72,72,26.15,26.15,1,1/4 (25%),4-0 (100%),1-0 (100%),0-2 (0%),2026-08-22,Lower TrueSkill rating
+8,Connor McGrath,Romeo,1,4,5,1,131.11,52.3,16.5,34.4,34.4,5.97,18,18,22.06,15.07,1,,4-0 (100%),1-0 (100%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+9,Stanley Kang,Novi,1,4,2,1,110.46,46.0,11.66,29.72,29.72,6.02,19,19,28.16,28.16,0,0/1 (0%),1-0 (100%),1-0 (100%),0-1 (0%),2026-08-20,Lower TrueSkill rating
+10,Hekar Bingol,Hudsonville,1,4,4,4,178.51,66.8,8.14,25.77,25.77,5.88,59,59,30.55,29.03,3,1/2 (50%),1-1 (50%),2-0 (100%),1-3 (25%),2026-08-22,Lower TrueSkill rating
+11,Noah Clark,Rockford,1,4,2,4,76.35,35.6,5.08,22.43,22.43,5.78,18,18,29.81,29.81,0,0/4 (0%),1-0 (100%),1-1 (50%),0-3 (0%),2026-08-22,Worse score margin vs common opponents
+12,Critter Ignacio,Saline,1,4,3,3,88.3,39.3,8.39,24.3,24.3,5.3,16,16,25.64,29.97,1,0/3 (0%),2-1 (67%),1-1 (50%),0-1 (0%),2026-08-25,Lost head-to-head vs player above
+13,Anik Batra,Rochester Hills Stoney Creek,1,4,3,0,128.61,51.6,16.24,36.85,36.85,6.87,16,16,24.64,0.0,2,1/1 (100%),1-0 (100%),2-0 (100%),,2026-08-20,Worse score margin vs common opponents
+14,Ethan Winter,Macomb L'Anse Creuse North,1,4,3,0,106.23,44.7,15.34,35.04,35.04,6.57,6,6,31.83,31.83,1,1/1 (100%),1-0 (100%),1-0 (100%),,2026-08-24,Lower TrueSkill rating
+15,Youssaf Gatea,Dearborn Edsel Ford,1,4,3,0,83.07,37.7,12.44,33.4,33.4,6.98,5,5,21.51,24.06,0,1/1 (100%),3-0 (100%),,,2026-08-21,Lower TrueSkill rating
+16,Gavin White,Holland West Ottawa,1,4,3,3,71.94,34.3,4.81,22.59,22.59,5.93,16,16,28.65,28.7,1,0/3 (0%),1-0 (100%),1-1 (50%),0-2 (0%),2026-08-22,Lower TrueSkill rating
+17,Grant Compston,Jenison,1,4,3,3,96.09,41.7,10.56,27.72,27.72,5.72,14,14,27.5,25.77,1,1/3 (33%),1-1 (50%),1-1 (50%),0-1 (0%),2026-08-22,Lost head-to-head vs player above
+18,Carter Iszler,Grand Ledge,1,4,4,1,99.18,42.6,12.82,28.95,28.95,5.38,12,12,22.01,24.49,0,1/1 (100%),4-0 (100%),0-1 (0%),,2026-08-22,Lost head-to-head vs player above
+19,Doug LaDue IV,East Kentwood,1,4,3,1,108.8,45.5,14.42,31.89,31.89,5.82,12,12,25.21,0.0,0,0/1 (0%),3-0 (100%),,0-1 (0%),2026-08-22,Worse score margin vs common opponents
+20,Beckett Baker,Port Huron Northern,1,4,5,1,88.48,39.3,13.45,31.83,31.83,6.13,5,5,22.31,35.04,0,0/1 (0%),4-0 (100%),,0-1 (0%),2026-08-24,Lower TrueSkill rating
+21,Nick Ivanov,Clinton Township Chippewa Valley,1,4,2,1,65.3,32.3,8.84,27.91,27.91,6.36,4,4,26.09,26.09,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
+22,Ganesh Nambu,Troy Athens,1,4,1,2,65.12,32.2,6.3,26.21,26.21,6.64,7,7,36.19,39.6,1,0/2 (0%),,,1-2 (33%),2026-08-20,Lower TrueSkill rating
+23,Arnav Ranjan,Plymouth,1,4,3,1,65.03,32.2,9.45,28.34,28.34,6.3,3,3,20.45,22.23,1,0/1 (0%),3-1 (75%),,,2026-08-24,Lost head-to-head vs player above
+24,Pierce Wilson,Davison,1,4,2,1,48.48,27.1,6.79,26.17,26.17,6.46,2,2,20.96,9.94,0,1/1 (100%),2-0 (100%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
+25,Meryk Rogers,Oxford,1,4,3,1,35.66,23.2,4.51,24.75,24.75,6.75,1,1,22.13,22.13,0,0/1 (0%),1-0 (100%),,0-1 (0%),2026-08-20,Lower TrueSkill rating
+26,Adam Osta,Dearborn,1,4,1,2,44.5,25.9,5.59,24.06,24.06,6.16,2,2,25.06,24.6,0,0/2 (0%),1-0 (100%),0-2 (0%),,2026-08-21,Lower TrueSkill rating
+27,Jagr Nestorovski,Utica,1,4,2,2,38.77,24.2,3.5,21.92,21.92,6.14,3,3,30.45,30.1,0,0/2 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
+28,Artur Kurtaj,Utica Ford,1,4,3,3,44.14,25.8,5.39,23.02,23.02,5.88,2,2,26.25,26.25,0,0/2 (0%),1-1 (50%),0-1 (0%),0-1 (0%),2026-08-19,Lost head-to-head vs player above
+29,Lucas Taylor,Fraser,1,4,1,2,15.88,17.2,0.47,17.99,17.99,5.84,1,1,22.95,23.02,0,0/2 (0%),1-1 (50%),0-1 (0%),,2026-08-19,Lower TrueSkill rating
+30,Jordan Nugyen,Livonia Stevenson,1,4,1,4,3.34,13.4,-2.12,15.8,15.8,5.97,1,1,23.81,26.2,0,0/3 (0%),1-1 (50%),0-1 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
+31,Desmond Brownell,Kalamazoo Loy Norrix,1,4,2,5,5.39,14.0,-3.43,14.49,14.49,5.97,4,4,25.99,0.0,1,0/3 (0%),1-2 (33%),1-3 (25%),,2026-08-24,Lower TrueSkill rating
+32,Isaac Judd,Caledonia,1,4,3,0,0.1,12.4,,,,,0,0,0.0,0.0,0,,2-0 (100%),,,2026-08-21,Tied — no deciding criterion found
+33,Nishan Starks,Macomb Dakota,1,4,1,2,1.87,12.9,-2.5,18.06,18.06,6.86,0,0,28.71,27.91,0,0/2 (0%),,0-2 (0%),,2026-08-19,Lower TrueSkill rating
+34,Simon VanLiew,Holt,1,4,0,3,-13.47,8.2,-5.96,15.07,15.07,7.01,0,0,32.7,34.4,0,0/3 (0%),0-1 (0%),,0-2 (0%),2026-08-15,Lower TrueSkill rating
+35,Max Fiebelkorn,Rochester,1,4,1,4,-17.02,7.2,-6.14,13.98,13.98,6.7,0,0,27.27,27.27,0,0/4 (0%),0-2 (0%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
+36,Jonathan Miller,Lapeer,1,4,0,6,-40.5,0.0,-10.77,9.94,9.94,6.9,0,0,26.65,25.46,0,0/5 (0%),0-4 (0%),0-1 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
