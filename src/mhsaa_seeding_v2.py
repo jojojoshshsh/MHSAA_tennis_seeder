@@ -47,6 +47,17 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       No new comparisons happen at this stage — division splitting is a
       pure partition of the already-final order.
 
+  STEP 4b — Cross-division "general" ranking (NEW)
+      In addition to the per-division seed lists from step 4, the same
+      transitivity-only order from step 2 is ALSO run through the
+      adjacent fix-up pass against the FULL cross-division roster (no
+      division split at all). This produces one flight-wide ranking
+      (e.g. "Boys Singles Flight 2, every division combined") using the
+      exact same head-to-head / common-opponents / dominance / TrueSkill
+      rules as the per-division fix-up. It's published as its own
+      pseudo-division named "overall", on top of (not replacing) the
+      normal per-division output.
+
 DETERMINISM
 -------------------------------
   This engine is fully deterministic: the same input CSV always produces
@@ -135,11 +146,15 @@ OUTPUT LAYER (UPDATED)
   group under historical/{year}/seeds/:
 
     src/rankings_by_division_flight/
-        singles_boys_division_1.csv   ...one per (category, gender, division),
-        doubles_girls_division_3.csv  containing ALL flights for that combo,
-        ...                            with a "flight" column to subdivide.
+        singles_boys_division_1.csv        ...one per (category, gender, division),
+        doubles_girls_division_3.csv       containing ALL flights for that combo,
+        singles_boys_division_overall.csv  ...plus one per (category, gender)
+        doubles_girls_division_overall.csv cross-division "general" ranking,
+        ...                                 all with a "flight" column to subdivide.
         team_boys_division_1.csv      one per (gender, division), team-level
         team_girls_division_4.csv     aggregates built by team_aggregation.py
+                                       (NOT built for the "overall" pseudo-
+                                       division — see write_team_csvs)
 
   Each individual CSV row carries the column set build_site.py looks for:
     rank, name / pair_name, school, division, flight, wins, losses,
@@ -169,12 +184,19 @@ OUTPUT LAYER (UPDATED)
   too. TGRS ("Team/Group Ranking Score") is a single composite number —
   see _compute_tgrs() below for the exact formula.
 
+  For the "overall" pseudo-division (step 4b), "local_*" columns are
+  identical to their non-local counterparts, since there's no division
+  scoping left to distinguish them from — the whole cross-division group
+  IS the local pool at that point.
+
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
 unchanged from the previous version, aside from the determinism fixes
 called out above. Section 9c (comeback stat + opponent-strength record),
-section 12 (output helpers), run() (section 11), and the TrueSkill
-import/call in process_group (section 10) were added/rewritten.
+section 12 (output helpers), run() (section 11), the TrueSkill
+import/call in process_group (section 10), and the new STEP 4b
+cross-division "overall" ranking (also in process_group) were
+added/rewritten.
 """
 
 import csv
@@ -1511,6 +1533,59 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
             "tgrs_scaled": tgrs_scaled,
         })
 
+    # --- STEP 4b: cross-division "general" ranking (NEW) ---
+    # Same transitivity-only order from STEP 2, but the adjacent fix-up
+    # pass now runs against the FULL cross-division roster instead of
+    # being scoped to one division at a time — producing a single
+    # flight-wide ranking on top of (not instead of) the per-division
+    # seed lists above. Published under the pseudo-division "overall".
+    overall_ranked, overall_swap_log = adjacent_fixup(
+        seed_order, h2h, opp_sets, reach, trueskill_ratings
+    )
+    overall_explanations = build_adjacency_explanations(
+        overall_ranked, h2h, opp_sets, reach, trueskill_ratings
+    )
+
+    tgrs_raw_overall: dict[str, float] = {}
+    for p in overall_ranked:
+        rec = records.get(p, {"matches": 0, "wins": 0, "losses": 0})
+        win_pct = rec["wins"] / rec["matches"] if rec["matches"] else 0.0
+        r = trueskill_ratings.get(p)
+        tgrs_raw_overall[p] = _compute_tgrs(
+            reach_size=len(reach.get(p, ())),
+            ts_conservative=r.conservative if r else 0.0,
+            sos=sos_full.get(p, 0.0),
+            quality_wins=quality_wins_full.get(p, 0),
+            win_pct=win_pct,
+        )
+    tgrs_scaled_overall = _scale_tgrs(tgrs_raw_overall)
+
+    results.append({
+        "group": (gender, match_type, "overall", flight),
+        "gender": gender,
+        "match_type": match_type,
+        "division": "overall",
+        "flight": flight,
+        "seeds": overall_ranked,
+        "school_map": school_map,
+        "explanations": overall_explanations,
+        "unified_rank": seed_order,
+        "unified_explanations": None,
+        "swap_log": overall_swap_log,
+        "records": records,
+        "original_results_idx": original_results_idx,
+        "reach": reach,
+        "trueskill_ratings": trueskill_ratings,
+        # "local" == "regular" here — there's no division scoping left to
+        # distinguish them, the whole cross-division group IS local now.
+        "sos": sos_full,
+        "local_sos": sos_full,
+        "quality_wins": quality_wins_full,
+        "local_quality_wins": quality_wins_full,
+        "tgrs_raw": tgrs_raw_overall,
+        "tgrs_scaled": tgrs_scaled_overall,
+    })
+
     return results
 
 
@@ -1682,7 +1757,10 @@ def write_division_csvs(results: list[dict], out_dir: str) -> list[str]:
     Groups per-division results by (category, gender, division) — merging
     all 4 flights into ONE file each, e.g. singles_boys_division_1.csv —
     which is the shape scripts/build_site.py expects (it then filters by
-    the "flight" column internally). Returns the list of file paths written.
+    the "flight" column internally). This also includes the "overall"
+    pseudo-division from STEP 4b (e.g. singles_boys_division_overall.csv),
+    which build_site.py treats as a separate "General Rankings" section
+    rather than a normal division. Returns the list of file paths written.
     """
     os.makedirs(out_dir, exist_ok=True)
 
@@ -1713,11 +1791,19 @@ def write_team_csvs(results: list[dict], out_dir: str) -> list[str]:
     seeded players/pairs for each school within a (gender, division),
     across every match_type and flight. Delegates the actual aggregation
     math to team_aggregation.build_team_rankings().
+
+    The "overall" pseudo-division from STEP 4b is intentionally skipped
+    here — it's a cross-division ranking of individual players/pairs, and
+    a "team" score built by mixing entrants from every division together
+    wouldn't correspond to any real school lineup, so no
+    team_*_division_overall.csv is produced.
     """
     os.makedirs(out_dir, exist_ok=True)
 
     buckets: dict[tuple, list[dict]] = defaultdict(list)
     for r in results:
+        if r["division"] == "overall":
+            continue
         _, gender_l = _category_filename_stem(r["match_type"], r["gender"])
         for row in _result_rows_for_division(r):
             buckets[(gender_l, r["division"])].append(row)
@@ -1784,9 +1870,10 @@ def print_results(results: list[dict]) -> None:
         print()
         print("  ── Per-division seeds (fixed up only within each division/flight) ──")
         for r in group_list:
+            label = "Overall (General Ranking)" if r["division"] == "overall" else f"Division {r['division']}"
             _print_seed_table(
                 r["seeds"], school_map, r["explanations"],
-                f"Division {r['division']}"
+                label
             )
 
 
