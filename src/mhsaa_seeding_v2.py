@@ -1792,18 +1792,18 @@ def write_team_csvs(results: list[dict], out_dir: str) -> list[str]:
     across every match_type and flight. Delegates the actual aggregation
     math to team_aggregation.build_team_rankings().
 
-    The "overall" pseudo-division from STEP 4b is intentionally skipped
-    here — it's a cross-division ranking of individual players/pairs, and
-    a "team" score built by mixing entrants from every division together
-    wouldn't correspond to any real school lineup, so no
-    team_*_division_overall.csv is produced.
+    The "overall" pseudo-division from STEP 4b is now INCLUDED here too,
+    producing team_{gender}_division_overall.csv — a single cross-division
+    team ranking built with the exact same aggregation logic
+    (build_team_rankings), just fed the cross-division "overall" seed rows
+    instead of one division's rows. This mirrors the individual "General
+    Rankings" already published for singles/doubles: it's published
+    alongside the per-division team tables, not instead of them.
     """
     os.makedirs(out_dir, exist_ok=True)
 
     buckets: dict[tuple, list[dict]] = defaultdict(list)
     for r in results:
-        if r["division"] == "overall":
-            continue
         _, gender_l = _category_filename_stem(r["match_type"], r["gender"])
         for row in _result_rows_for_division(r):
             buckets[(gender_l, r["division"])].append(row)
