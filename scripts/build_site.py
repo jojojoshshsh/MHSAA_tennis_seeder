@@ -60,8 +60,13 @@ def _norm_division(div_str):
 # ── Build team HTML ────────────────────────────────────────────────────────────
 team_html = ""
 for entry in team_data:
-    label = f"Top 10 Teams · {entry['gender']} Division {entry['division']}"
-    anchor = f"team_{entry['gender'].lower()}_div{entry['division'].replace(' ','')}"
+    is_overall_team = entry["division"] == "overall"
+    if is_overall_team:
+        label = f"Top 10 Teams · {entry['gender']} — All Divisions (General Ranking)"
+        anchor = f"team_{entry['gender'].lower()}_overall"
+    else:
+        label = f"Top 10 Teams · {entry['gender']} Division {entry['division']}"
+        anchor = f"team_{entry['gender'].lower()}_div{entry['division'].replace(' ','')}"
     df = entry["df"]
     df_full = entry["df_full"]
     div_attr = _norm_division(entry["division"])
@@ -110,17 +115,15 @@ for entry in team_data:
         if has_more else ""
     )
 
+    div_attr_html = "" if is_overall_team else f' data-division="{_html_escape_py(div_attr)}"'
     team_html += f"""
-    <section id="{anchor}" data-division="{_html_escape_py(div_attr)}">
+    <section id="{anchor}"{div_attr_html}>
       <div class="section-header">
         <h2>{_html_escape_py(label)}</h2>
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
         {show_all_btn}
       </div>
-      <div class="table-wrap"><table class="rankings-table team-table"><thead><tr>{"".join(
-          f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">{_html_escape_py(COL_LABELS.get(col, col))}</th>'
-          for col in cols
-      )}</tr></thead><tbody>{tbody_rows}</tbody></table></div>
+      <div class="table-wrap"><table class="rankings-table team-table"><thead><tr>{"".join(...)}</tr></thead><tbody>{tbody_rows}</tbody></table></div>
     </section>
     """
 
@@ -826,7 +829,7 @@ function doSchoolSearch(school) {{
     const flightIdx = cols.indexOf('flight');
 
     for (const row of data.rows) {{
-      if (!String(row[schoolIdx]).toLowerCase().includes(q)) continue;
+      if (String(row[schoolIdx]).trim().toLowerCase() !== q) continue;
       const div    = divIdx    >= 0 ? row[divIdx]    : '?';
       const flight = flightIdx >= 0 ? row[flightIdx] : '?';
       const key = `${{gender}} ${{category}} · Div ${{div}} · Flight ${{flight}}`;
@@ -900,7 +903,7 @@ function getBestPerFlight(school) {{
     const gender   = stem.includes('_boys_') ? 'Boys' : 'Girls';
 
     for (const row of data.rows) {{
-      if (!String(row[schoolIdx]).toLowerCase().includes(q)) continue;
+      if (String(row[schoolIdx]).trim().toLowerCase() !== q) continue;
       const div    = divIdx    >= 0 ? String(row[divIdx])    : '?';
       const flight = flightIdx >= 0 ? String(row[flightIdx]) : '?';
       const rank   = rankIdx   >= 0 ? Number(row[rankIdx])   : 9999;
