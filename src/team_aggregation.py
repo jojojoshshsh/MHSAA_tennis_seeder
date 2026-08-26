@@ -80,7 +80,23 @@ def _finish_points(rank: int) -> float:
     if rank <= 32:
         return 1.0
     return 0.0
-
+  
+def _finish_points_overall(rank: int) -> float:
+    """Same point values as _finish_points, but thresholds scaled 4x —
+    used only for the cross-division 'overall' team rankings."""
+    if rank <= 4:
+        return 12.5
+    if rank <= 8:
+        return 10.0
+    if rank <= 16:
+        return 7.5
+    if rank <= 32:
+        return 5.0
+    if rank <= 64:
+        return 2.5
+    if rank <= 128:
+        return 1.0
+    return 0.0
 
 def _ordinal(n: int) -> str:
     if 11 <= (n % 100) <= 13:
@@ -197,6 +213,8 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
     # Group rows by school, then by slot
     # school -> slot_key -> list of rows
     school_slots: dict[str, dict[tuple, list[dict]]] = defaultdict(lambda: defaultdict(list))
+    is_overall = any((row.get("division") == "overall") for row in player_rows)
+    finish_points_fn = _finish_points_overall if is_overall else _finish_points
     for row in player_rows:
         school = (row.get("school") or "").strip()
         if not school:
@@ -240,7 +258,7 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
             best_rank = _safe_int(best_row.get("rank"), 9999)
 
             # Legacy points
-            pts = _finish_points(best_rank)
+            pts = finish_points_fn(best_rank)
             slot_pts[col] = pts
             slot_ranks[col] = best_rank
             total_points += pts
