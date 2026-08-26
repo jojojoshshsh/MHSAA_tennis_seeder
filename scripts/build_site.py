@@ -71,6 +71,10 @@ for entry in team_data:
         "rank": "Rank",
         "school": "School",
         "total_points": "Total Pts",
+        "combined_score": "Combined",
+        "depth_score": "Depth",
+        "team_sos": "Team SOS",
+        "team_local_sos": "Team Local SOS",
         "slots_counted": "Slots",
         "s1_pts": "S-F1",
         "s2_pts": "S-F2",
@@ -94,7 +98,7 @@ for entry in team_data:
                 cells += f'<td class="reason-cell">{val}</td>'
             elif col == "rank":
                 cells += f'<td class="rank-cell">{val}</td>'
-            elif col == "total_points":
+            elif col in ("total_points", "combined_score"):
                 cells += f'<td class="pts-cell">{val}</td>'
             else:
                 cells += f"<td>{val}</td>"
@@ -121,7 +125,13 @@ for entry in team_data:
     """
 
 # ── Load all individual CSVs ──────────────────────────────────────────────────
+# "overall" is a pseudo-division (see mhsaa_seeding_v2.py STEP 4b): a
+# cross-division, flight-wide ranking published alongside (not instead of)
+# the normal per-division files. Those go into general_data and get their
+# own "General Rankings" section/nav further down, instead of being mixed
+# into the Division 1-4 filterable tables in all_data.
 all_data = []
+general_data = []
 all_rows_for_search = []
 
 for csv_path in sorted(src_dir.glob("*.csv")):
@@ -143,6 +153,7 @@ for csv_path in sorted(src_dir.glob("*.csv")):
 
     if "division" in df.columns and "flight" in df.columns:
         for (division, flight), group in df.groupby(["division", "flight"]):
+            is_overall = str(division) == "overall"
             entry = {
                 "division": str(division),
                 "flight": str(flight),
@@ -151,7 +162,7 @@ for csv_path in sorted(src_dir.glob("*.csv")):
                 "filename": csv_path.name,
                 "df": group.copy(),
             }
-            all_data.append(entry)
+            (general_data if is_overall else all_data).append(entry)
 
             for _, row in group.iterrows():
                 school = str(row.get("school", ""))
@@ -177,11 +188,22 @@ all_data.sort(key=lambda x: (
     CAT_ORDER.get(x["category"], 9),
 ))
 
+general_data.sort(key=lambda x: (
+    x["flight"],
+    GENDER_ORDER.get(x["gender"], 9),
+    CAT_ORDER.get(x["category"], 9),
+))
+
 all_schools = sorted(set(r["school"] for r in all_rows_for_search if r["school"]))
 
 # nav_tree[division][ "Boys Singles" ] -> list of (flight, anchor)
 # Powers the Division > Singles/Doubles > Flight dropdown nav.
 nav_tree = defaultdict(lambda: defaultdict(list))
+
+# general_nav[ "Boys Singles" ] -> list of (flight, anchor)
+# Powers the General Rankings > Singles/Doubles > Flight dropdown nav
+# (no division level, since these are the cross-division rankings).
+general_nav = defaultdict(list)
 
 # Column order for individual ranking tables — reason_below last so it
 # doesn't crowd the important numeric columns on the left.
@@ -206,8 +228,11 @@ INDIVIDUAL_COL_LABELS = {
     "vs_top_opp": "vs Top Opp",
 }
 
-tables_html = ""
-for entry in all_data:
+
+def _render_individual_table(entry, anchor_prefix, label_prefix, include_data_division):
+    """Shared table-building logic for both the per-division tables
+    (tables_html) and the cross-division General Rankings tables
+    (general_tables_html). Returns (anchor, section_html)."""
     division = entry["division"]
     flight = entry["flight"]
     category = entry["category"].title()
@@ -217,8 +242,10 @@ for entry in all_data:
 
     preview_cols = [c for c in _PREVIEW_COL_ORDER if c in df.columns]
 
-    anchor = f"div{division}_flight{flight}_{gender.lower()}_{category.lower()}"
-    label = f"Div {division} · Flight {flight} · {gender} {category}"
+    anchor = f"{anchor_prefix}flight{flight}_{gender.lower()}_{category.lower()}"
+    if include_data_division:
+        anchor = f"div{division}_flight{flight}_{gender.lower()}_{category.lower()}"
+    label = f"{label_prefix}Flight {flight} · {gender} {category}"
 
     thead = "<thead><tr>" + "".join(
         f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">{_html_escape_py(INDIVIDUAL_COL_LABELS.get(col, col))}</th>'
@@ -236,10 +263,13 @@ for entry in all_data:
         for _, row in df.head(32).iterrows()
     ) + "</tbody>"
 
-    div_attr = _norm_division(division)
+    div_attrs = ""
+    if include_data_division:
+        div_attr = _norm_division(division)
+        div_attrs = f' data-division="{_html_escape_py(div_attr)}"'
 
-    tables_html += f"""
-    <section id="{anchor}" data-division="{_html_escape_py(div_attr)}" data-category="{_html_escape_py(entry['category'])}" data-flight="{_html_escape_py(flight)}">
+    section_html = f"""
+    <section id="{anchor}"{div_attrs} data-category="{_html_escape_py(entry['category'])}" data-flight="{_html_escape_py(flight)}">
       <div class="section-header">
         <h2>{_html_escape_py(label)}</h2>
         <a class="dl-btn" href="csv/{filename}">Download CSV</a>
@@ -249,7 +279,34 @@ for entry in all_data:
       </div>
     </section>
     """
-    nav_tree[div_attr][f"{gender} {category}"].append((flight, anchor))
+    return anchor, section_html
+
+
+tables_html = ""
+for entry in all_data:
+    division = entry["division"]
+    gender = entry["gender"].title()
+    category = entry["category"].title()
+    anchor, section_html = _render_individual_table(
+        entry, anchor_prefix="", label_prefix=f"Div {division} · ",
+        include_data_division=True,
+    )
+    tables_html += section_html
+    div_attr = _norm_division(division)
+    nav_tree[div_attr][f"{gender} {category}"].append((entry["flight"], anchor))
+
+# General Rankings (cross-division, per-flight) — same rendering, no
+# division split and not part of the Division 1-4 filter checkboxes.
+general_tables_html = ""
+for entry in general_data:
+    gender = entry["gender"].title()
+    category = entry["category"].title()
+    anchor, section_html = _render_individual_table(
+        entry, anchor_prefix="general_", label_prefix="",
+        include_data_division=False,
+    )
+    general_tables_html += section_html
+    general_nav[f"{gender} {category}"].append((entry["flight"], anchor))
 
 # ── Build full CSV data as JSON for JS search ─────────────────────────────────
 csv_full_data = {}
@@ -290,6 +347,16 @@ for div_key in sorted(nav_tree.keys(), key=lambda d: _DIVISION_SORT.get(d, 99)):
             rankings_dropdown_html += f'<a href="#{anchor}">Flight {_html_escape_py(flight_val)}</a>'
         rankings_dropdown_html += "</details>"
     rankings_dropdown_html += "</details>"
+
+# ── Build the General Rankings (cross-division) > Singles/Doubles > Flight
+#    dropdown nav — same shape as above, minus the Division level. ──────────
+general_dropdown_html = ""
+for cat_label in sorted(general_nav.keys(), key=lambda c: _CATEGORY_NAV_ORDER.get(c, 99)):
+    flights_sorted = sorted(general_nav[cat_label], key=lambda x: x[0])
+    general_dropdown_html += f'<details class="nav-subgroup"><summary>{_html_escape_py(cat_label)}</summary>'
+    for flight_val, anchor in flights_sorted:
+        general_dropdown_html += f'<a href="#{anchor}">Flight {_html_escape_py(flight_val)}</a>'
+    general_dropdown_html += "</details>"
 
 edt = timezone(timedelta(hours=-4))
 updated = datetime.now(edt).strftime("%B %d, %Y at %I:%M %p EDT")
@@ -404,7 +471,7 @@ html = f"""<!DOCTYPE html>
   .sim-flight-group h4 {{ font-size:.85rem;color:#2c5f8a;margin-bottom:.4rem; }}
   .sim-note {{ font-size:.72rem;color:#888;margin-top:.5rem; }}
 
-  /* Dropdown nav (Individual Rankings + Filter) */
+  /* Dropdown nav (Individual Rankings + General Rankings + Filter) */
   .dropdown {{ position: relative; }}
   .dropdown-panel {{
     display: none;
@@ -518,6 +585,12 @@ html = f"""<!DOCTYPE html>
     </div>
   </div>
   <div class="dropdown">
+    <button class="nav-tool dropdown-toggle" type="button" onclick="toggleDropdown('general-dropdown', event)">&#127942; General Rankings &#9662;</button>
+    <div class="dropdown-panel" id="general-dropdown">
+      {general_dropdown_html}
+    </div>
+  </div>
+  <div class="dropdown">
     <button class="nav-tool dropdown-toggle" type="button" onclick="toggleDropdown('filter-panel', event)">&#128269; Filter &#9662;</button>
     <div class="dropdown-panel filter-panel" id="filter-panel">
       <div class="filter-group">
@@ -543,6 +616,7 @@ html = f"""<!DOCTYPE html>
         <button type="button" onclick="selectAllFilters()">Select all</button>
         <button type="button" onclick="clearAllFilters()">Clear all</button>
       </div>
+      <p style="font-size:.68rem;color:#888;margin-top:.4rem;">Filters apply to division-specific tables only — General Rankings (cross-division) are always shown.</p>
     </div>
   </div>
 </nav>
@@ -596,6 +670,7 @@ html = f"""<!DOCTYPE html>
 
 {team_html}
 {tables_html}
+{general_tables_html}
 </main>
 <footer>Individual rankings computed using TrueSkill + Graph Reachability (TGRS). Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
 
@@ -644,6 +719,10 @@ function toggleShowAllTeams(btn, anchor) {{
   btn.textContent = isHidden ? 'Show Top 10' : 'Show All Teams';
 }}
 
+// NOTE: only sections carrying a data-division attribute participate in
+// the Division/Category/Flight filter — the cross-division General
+// Rankings sections deliberately don't set data-division, so they're
+// always visible regardless of the filter state.
 function applyFilters() {{
   const divisions  = Array.from(document.querySelectorAll('.filter-division:checked')).map(cb => cb.value);
   const categories = Array.from(document.querySelectorAll('.filter-category:checked')).map(cb => cb.value);
@@ -1266,4 +1345,5 @@ function sortTable(th) {{
 </html>"""
 
 (out_dir / "index.html").write_text(html, encoding="utf-8")
-print(f"Built docs/index.html with {len(all_data)} sections (season: {SEASON_YEAR})")
+print(f"Built docs/index.html with {len(all_data)} division section(s), "
+      f"{len(general_data)} general-ranking section(s) (season: {SEASON_YEAR})")
