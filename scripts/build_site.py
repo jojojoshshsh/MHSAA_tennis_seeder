@@ -123,7 +123,10 @@ for entry in team_data:
         <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
         {show_all_btn}
       </div>
-      <div class="table-wrap"><table class="rankings-table team-table"><thead><tr>{"".join(...)}</tr></thead><tbody>{tbody_rows}</tbody></table></div>
+      <div class="table-wrap"><table class="rankings-table team-table"><thead><tr>{"".join(
+          f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">{_html_escape_py(COL_LABELS.get(col, col))}</th>'
+          for col in cols
+      )}</tr></thead><tbody>{tbody_rows}</tbody></table></div>
     </section>
     """
 
@@ -1217,6 +1220,44 @@ function predictMatchDetails(a, b, winnerIsA, trials) {{
   return {{ score: score, prob3rd: threeSetters / trials }};
 }}
 
+function getSchoolFlights(school) {{
+  const q = school.trim().toLowerCase();
+  const result = {{}}; // baseKey -> {{ divisions: {{divValue: entry}}, overall: entry|null }}
+
+  for (const [stem, data] of Object.entries(CSV_DATA)) {{
+    if (stem.startsWith('team_')) continue;
+    const cols = data.cols;
+    const schoolIdx = cols.indexOf('school');
+    const rankIdx   = cols.indexOf('rank');
+    const divIdx    = cols.indexOf('division');
+    const flightIdx = cols.indexOf('flight');
+    if (schoolIdx === -1) continue;
+
+    const category = stem.startsWith('singles') ? 'Singles' : 'Doubles';
+    const gender   = stem.includes('_boys_') ? 'Boys' : 'Girls';
+
+    for (const row of data.rows) {{
+      if (String(row[schoolIdx]).trim().toLowerCase() !== q) continue;
+      const div    = divIdx    >= 0 ? String(row[divIdx])    : '?';
+      const flight = flightIdx >= 0 ? String(row[flightIdx]) : '?';
+      const rank   = rankIdx   >= 0 ? Number(row[rankIdx])   : 9999;
+      const baseKey = `${{gender}} ${{category}} · Flight ${{flight}}`;
+      if (!result[baseKey]) result[baseKey] = {{ divisions: {{}}, overall: null }};
+      const entry = {{ rank, cols, row }};
+      if (div === 'overall') {{
+        if (!result[baseKey].overall || rank < result[baseKey].overall.rank) {{
+          result[baseKey].overall = entry;
+        }}
+      }} else {{
+        if (!result[baseKey].divisions[div] || rank < result[baseKey].divisions[div].rank) {{
+          result[baseKey].divisions[div] = entry;
+        }}
+      }}
+    }}
+  }}
+  return result;
+}}
+
 // ---- UI wiring ---------------------------------------------------------
 let simSelectedA = '';
 let simSelectedB = '';
@@ -1251,20 +1292,43 @@ function runSimulate() {{
   if (!a || !b) {{ alert('Enter two school names to simulate.'); return; }}
   if (a.toLowerCase() === b.toLowerCase()) {{ alert('Pick two different schools.'); return; }}
 
-  const dataA = getBestPerFlight(a);
-  const dataB = getBestPerFlight(b);
-  const keys = Object.keys(dataA).filter(k => dataB[k]).sort();
+  const flightsA = getSchoolFlights(a);
+  const flightsB = getSchoolFlights(b);
+  const baseKeys = Object.keys(flightsA).filter(k => flightsB[k]).sort();
 
   const container = document.getElementById('simulate-results');
-  if (keys.length === 0) {{
+  if (baseKeys.length === 0) {{
     container.innerHTML = '<p style="color:#888">No flights found where both schools have a ranked player/pair &mdash; check spelling (boys/girls and singles/doubles are matched separately).</p>';
     return;
   }}
 
   let winsA = 0, winsB = 0, groupsHtml = '';
-  for (const key of keys) {{
-    const pa = simBuildPlayer(dataA[key], a);
-    const pb = simBuildPlayer(dataB[key], b);
+  for (const baseKey of baseKeys) {{
+    const fa = flightsA[baseKey];
+    const fb = flightsB[baseKey];
+
+    // Same division for both schools in this flight -> compare using
+    // that division's own ranking. Different (or missing) divisions ->
+    // fall back to each school's cross-division General Ranking entry,
+    // so ranks are being compared on the same scale.
+    let entryA = null, entryB = null, sourceLabel = '';
+    const sharedDivisions = Object.keys(fa.divisions).filter(d => fb.divisions[d]);
+    if (sharedDivisions.length > 0) {{
+      const div = sharedDivisions.sort()[0];
+      entryA = fa.divisions[div];
+      entryB = fb.divisions[div];
+      sourceLabel = `Div ${{div}}`;
+    }} else if (fa.overall && fb.overall) {{
+      entryA = fa.overall;
+      entryB = fb.overall;
+      sourceLabel = 'General Ranking (cross-division)';
+    }}
+
+    if (!entryA || !entryB) continue;
+
+    const key = `${{baseKey}} · ${{sourceLabel}}`;
+    const pa = simBuildPlayer(entryA, a);
+    const pb = simBuildPlayer(entryB, b);
     const p = matchWinProb(pa, pb);
     const winnerIsA = p >= 0.5;
     const details = predictMatchDetails(pa, pb, winnerIsA);
@@ -1287,11 +1351,18 @@ function runSimulate() {{
       '</tr></tbody></table></div>';
   }}
 
+  if (winsA === 0 && winsB === 0) {{
+    container.innerHTML = '<p style="color:#888">No comparable flights found &mdash; neither school has an overlapping division or a General Ranking entry for the same flight.</p>';
+    return;
+  }}
+
   const summary = '<div class="sim-summary">Projected result: ' + escapeHtml(a) + ' ' + winsA +
     ' &ndash; ' + winsB + ' ' + escapeHtml(b) + '</div>' +
-    '<p class="sim-note">Based on ' + keys.length + ' flight' + (keys.length === 1 ? '' : 's') +
-    ' where both schools have a ranked player/pair (each school\\'s best-ranked entry per flight is used). ' +
-    'Win probabilities blend TrueSkill with a seed-history prior; scorelines are simulated and deterministic per matchup.</p>';
+    '<p class="sim-note">Based on ' + (winsA + winsB) + ' flight' + ((winsA + winsB) === 1 ? '' : 's') +
+    ' where both schools have a ranked player/pair. Same-division flights are compared using that ' +
+    'division\\'s own ranking; flights where the schools are in different divisions use each school\\'s ' +
+    'cross-division General Ranking entry instead. Win probabilities blend TrueSkill with a seed-history prior; ' +
+    'scorelines are simulated and deterministic per matchup.</p>';
 
   container.innerHTML = summary + groupsHtml;
 }}
