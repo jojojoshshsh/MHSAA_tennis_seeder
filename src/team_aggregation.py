@@ -41,6 +41,25 @@ Scoring blends TWO independent systems, each on a 0-100 scale, weighted
 Both total_points and depth_score are reported independently alongside
 combined_score, and teams are ranked by combined_score.
 
+TEAM STRENGTH OF SCHEDULE (team_sos / team_local_sos)
+------------------------------------------------------
+  Each per-player row already carries that player's own "sos" (strength
+  of schedule, computed cross-division) and "local_sos" (computed within
+  just that player's division/flight group) — see mhsaa_seeding_v2.py's
+  precompute_sos(). For a team's 8 lineup slots (the same slots used for
+  total_points/depth_score above), we take the SAME best-ranked
+  player/pair per slot and average that player's sos (and, separately,
+  local_sos) across every slot the school actually fielded an entrant
+  in. Empty slots are simply excluded from the average (unlike
+  depth_score, there's no "penalize for not fielding a flight" concept
+  here — SOS only describes the schedule of the matches actually played).
+
+    team_sos       = average(sos of the best entrant)       across filled slots
+    team_local_sos = average(local_sos of the best entrant)  across filled slots
+
+  If a school has no filled slots at all (shouldn't normally happen,
+  since it wouldn't appear in school_slots), both default to 0.0.
+
   - reason_below column explains why each team ranks below the one above it
 """
 from collections import defaultdict
@@ -130,15 +149,17 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
     Parameters
     ----------
     player_rows : list of dicts, one per seeded player/pair, with at
-        least the keys: school, rank, flight, and either name or pair_name.
-        (This is exactly the row shape mhsaa_seeding_v2._result_rows_for_division()
-        produces.) The "rank" field is assumed to already be the player/pair's
-        rank WITHIN its flight (1 = best in that flight).
+        least the keys: school, rank, flight, sos, local_sos, and either
+        name or pair_name. (This is exactly the row shape
+        mhsaa_seeding_v2._result_rows_for_division() produces.) The
+        "rank" field is assumed to already be the player/pair's rank
+        WITHIN its flight (1 = best in that flight).
 
     Returns
     -------
     list of dicts, one per school, sorted by combined_score descending, with
     columns: rank, school, combined_score, total_points, depth_score,
+             team_sos, team_local_sos,
              slots_counted,
              s1_pts, s2_pts, s3_pts, s4_pts,
              d1_pts, d2_pts, d3_pts, d4_pts,
@@ -165,6 +186,12 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
         - flight_score = (N - rank + 1) / N * 100
       depth_score = average(flight_score across all 8 flights).
 
+    TEAM SOS (team_sos / team_local_sos):
+      For each of the 8 slots the school actually fielded an entrant in,
+      take that best-ranked entrant's sos (resp. local_sos) and average
+      across those filled slots only (unfilled slots are excluded, not
+      penalized).
+
     combined_score = LEGACY_WEIGHT * total_points + DEPTH_WEIGHT * depth_score
     """
     # Group rows by school, then by slot
@@ -189,6 +216,10 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
         slot_ranks: dict[str, int] = {}  # for reason_below
         flight_scores: list[float] = []  # for depth_score
 
+        sos_sum = 0.0
+        local_sos_sum = 0.0
+        sos_filled = 0
+
         for slot in SLOTS:
             col = SLOT_COL[slot]
             rows_in_slot = slot_map.get(slot, [])
@@ -196,6 +227,7 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
             if not rows_in_slot:
                 # No entrant in this flight -> legacy points are 0, and
                 # depth-score treats this as rank N+1 (worse than last).
+                # Team SOS simply skips this slot (nothing was played).
                 slot_pts[col] = 0.0
                 slot_ranks[col] = 0
                 no_entrant_rank = N + 1
@@ -219,14 +251,24 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
             flight_score = (N - best_rank + 1) / N * 100 if N > 0 else 0.0
             flight_scores.append(flight_score)
 
+            # Team SOS for this flight (best entrant's own sos/local_sos)
+            sos_sum += _safe_float(best_row.get("sos"))
+            local_sos_sum += _safe_float(best_row.get("local_sos"))
+            sos_filled += 1
+
         depth_score = sum(flight_scores) / len(flight_scores) if flight_scores else 0.0
         combined_score = LEGACY_WEIGHT * total_points + DEPTH_WEIGHT * depth_score
+
+        team_sos = round(sos_sum / sos_filled, 2) if sos_filled else 0.0
+        team_local_sos = round(local_sos_sum / sos_filled, 2) if sos_filled else 0.0
 
         team_rows.append({
             "school": school,
             "total_points": round(total_points, 1),
             "depth_score": round(depth_score, 1),
             "combined_score": round(combined_score, 1),
+            "team_sos": team_sos,
+            "team_local_sos": team_local_sos,
             "slots_counted": slots_counted,
             **slot_pts,
             "_slot_ranks": slot_ranks,   # internal, stripped before writing
@@ -264,6 +306,8 @@ def build_team_rankings(player_rows: list[dict]) -> list[dict]:
             "combined_score": r["combined_score"],
             "total_points": r["total_points"],
             "depth_score": r["depth_score"],
+            "team_sos": r["team_sos"],
+            "team_local_sos": r["team_local_sos"],
             "slots_counted": r["slots_counted"],
             "s1_pts": r["s1_pts"],
             "s2_pts": r["s2_pts"],
