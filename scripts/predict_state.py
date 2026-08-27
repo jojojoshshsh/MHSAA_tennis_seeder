@@ -240,14 +240,45 @@ SCORELINE_TRIALS = 400  # Monte Carlo trials per bracket match, for the printed 
 # double-bagel match, rather than ~90%/~85%, while leaving close-to-
 # moderate matchups (which were never the problem) close to untouched.
 #
-# UPDATE: lowered further from 0.5 to 0.35. Even with the 0.5 compression
-# above, real bracket matchups were still printing as blowouts far more
-# often than real MHSAA results show, and going to a 3rd set far less
-# often than the ~35-45% real-world rate noted in the CALIBRATION NOTE.
-# At 0.35, a near-certain (99%+) TrueSkill/seed-prior favorite is only
-# simulated as roughly a 65/35 proposition per set -- enough to reliably
-# win, but not lopsided enough to erase realistic 3rd-set/tiebreak odds.
-WIN_PROB_SCORELINE_SCALE = 0.35
+# UPDATE: raised from 0.35 back to 1.0 (no compression). The prior
+# compression was solving a real problem (moderate favorites were
+# printing as near-guaranteed blowouts) but it overcorrected: it also
+# flattened GENUINE blowouts (98-99%+ win probability) down to the same
+# modest performance gap as a 65% favorite, so a true mismatch never
+# printed a real 6-0/6-1 scoreline either. The actual ask is for the
+# scoreline to track the win probability proportionally end-to-end: a
+# 51% coin-flip match should simulate close (7-6, 7-6-type breakers),
+# and a 99% mismatch should simulate a real blowout (6-0, 6-1-type
+# sets) -- which is what happens naturally once nothing compresses the
+# probability before _implied_mu_gap() converts it into a performance
+# gap. With SEED_BLEND_WEIGHT lowered to 0.15 (see above), routine seed
+# gaps no longer get pushed to false-blowout probabilities in the first
+# place, so removing this compression no longer reintroduces the
+# original over-confidence problem -- it just lets whatever probability
+# match_win_prob() actually reports come through honestly into the
+# scoreline. Lower this back toward 0.5-0.7 if blowouts still feel too
+# frequent for genuinely close win probabilities; 0.0 would collapse
+# every matchup's scoreline to a coin flip regardless of win probability.
+WIN_PROB_SCORELINE_SCALE = 1.0
+
+# Per-game logistic sensitivity: how many performance-gap points it takes
+# to meaningfully swing a single game's win probability. Originally a
+# hardcoded /6.0 inside _simulate_set() (and a hardcoded /4.0 for the
+# 6-6 tiebreak decision -- kept at the same 2:3 ratio here). At /6.0,
+# games became near-certain for the favorite far too quickly as perf_diff
+# grew, so *any* comfortable favorite (even an 80% match win probability)
+# was already printing 6-0/6-1 blowouts, leaving no gradation between
+# "clearly better" and "totally dominant". Raising this to 12.0 spreads
+# that same range of performance gaps out over more games, so the
+# printed scoreline actually grades with win probability end-to-end:
+#   ~65% match win prob  -> close sets, e.g. 6-4, 6-4
+#   ~80% match win prob  -> comfortable sets, e.g. 6-3, 6-2
+#   ~90% match win prob  -> clear sets, e.g. 6-1, 6-1
+#   ~99% match win prob  -> real blowout, e.g. 6-0, 6-0
+# Lower this to make scorelines more decisive for a given win probability;
+# raise it to keep matches closer even for lopsided favorites.
+GAME_LOGIT_SCALE = 12.0
+TIEBREAK_LOGIT_SCALE = 8.0  # keeps the original /6.0-vs-/4.0 (2:3) ratio at the new scale
 
 # Weight (in logit space) applied to the dominance-proxy differential
 # before it's folded into the win probability that feeds the scoreline
@@ -398,8 +429,8 @@ def match_win_prob(a, b) -> float:
 # close TrueSkill calls toward the higher seed, but can no longer amplify
 # a moderate rating gap into a near-certainty on its own.
 
-SEED_PRIOR_ACCURACY = 0.960   # 19-year average "higher seed wins" rate, see note above
-SEED_BLEND_WEIGHT = 0.15      # 0.0 = pure TrueSkill (old behavior); 1.0 = pure seed prior
+SEED_PRIOR_ACCURACY = 0.950   # 19-year average "higher seed wins" rate, see note above
+SEED_BLEND_WEIGHT = 0.25      # 0.0 = pure TrueSkill (old behavior); 1.0 = pure seed prior
 _EPS = 1e-9
 _STD_NORMAL = NormalDist()    # standard normal CDF/quantile, used by _implied_mu_gap() below
 
@@ -721,18 +752,19 @@ def _perf_diff_for_match(a: dict, b: dict) -> float:
 
 def _simulate_set(perf_diff: float, game_noise: float, rng: random.Random) -> tuple[int, int]:
     """
-    One simulated set, identical logic to predict_matchup.py's
-    _simulate_set(). perf_diff > 0 favors player A (expected to already
+    One simulated set. perf_diff > 0 favors player A (expected to already
     be derived from a rescaled probability -- see
     _perf_diff_for_match()/_compress_win_prob()). Games are drawn one at
     a time from a logistic function of the per-game performance gap
-    (plus fixed Gaussian noise) until someone reaches 6 with a 2-game
-    lead, or a 7-6/7-5 breaker outcome.
+    (plus fixed Gaussian noise, divided down by GAME_LOGIT_SCALE -- see
+    that constant's docstring for why this is no longer a hardcoded /6.0)
+    until someone reaches 6 with a 2-game lead, or a 7-6/7-5 breaker
+    outcome (decided by the same logistic shape at TIEBREAK_LOGIT_SCALE).
     """
     games_a = games_b = 0
     while True:
         noise = rng.gauss(0.0, game_noise)
-        p_a_game = 1.0 / (1.0 + math.exp(-(perf_diff + noise) / 6.0))
+        p_a_game = 1.0 / (1.0 + math.exp(-(perf_diff + noise) / GAME_LOGIT_SCALE))
         if rng.random() < p_a_game:
             games_a += 1
         else:
@@ -745,7 +777,7 @@ def _simulate_set(perf_diff: float, game_noise: float, rng: random.Random) -> tu
         if games_a == 7 or games_b == 7:
             return games_a, games_b
         if games_a == 6 and games_b == 6:
-            if rng.random() < 1.0 / (1.0 + math.exp(-perf_diff / 4.0)):
+            if rng.random() < 1.0 / (1.0 + math.exp(-perf_diff / TIEBREAK_LOGIT_SCALE)):
                 return 7, 6
             return 6, 7
 
