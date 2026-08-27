@@ -996,17 +996,19 @@ function runCompare() {{
 // Ports predict_state.py's win-probability + scoreline engine to JS so it
 // can run against CSV_DATA already embedded on this page. Kept in lock-step
 // with predict_state.py's constants (SEED_PRIOR_ACCURACY, SEED_BLEND_WEIGHT,
-// WIN_PROB_SCORELINE_SCALE, DOMINANCE_LOGIT_WEIGHT) so this tool and the
-// state-tournament predictions never disagree about how a matchup should be
-// read. If those constants change in predict_state.py, mirror the change
-// here too.
+// WIN_PROB_SCORELINE_SCALE, DOMINANCE_LOGIT_WEIGHT, GAME_LOGIT_SCALE,
+// TIEBREAK_LOGIT_SCALE) so this tool and the state-tournament predictions
+// never disagree about how a matchup should be read. If those constants
+// change in predict_state.py, mirror the change here too.
 const SIM_BETA = (25/3) / 5;
-const SIM_SEED_PRIOR_ACCURACY = 0.960;
-const SIM_SEED_BLEND_WEIGHT = 0.15;
-const SIM_WIN_PROB_SCALE = 0.35;
+const SIM_SEED_PRIOR_ACCURACY = 0.950;
+const SIM_SEED_BLEND_WEIGHT = 0.25;
+const SIM_WIN_PROB_SCALE = 1.0;
 const SIM_DOMINANCE_WEIGHT = 1.4;
 const SIM_TRIALS = 150;
 const SIM_GAME_NOISE = 8.0;
+const SIM_GAME_LOGIT_SCALE = 12.0;    // mirrors predict_state.py's GAME_LOGIT_SCALE
+const SIM_TIEBREAK_LOGIT_SCALE = 8.0; // mirrors predict_state.py's TIEBREAK_LOGIT_SCALE
 const SIM_EPS = 1e-9;
 
 function simLogit(p) {{
@@ -1139,13 +1141,13 @@ function simSimulateSet(perfDiff, rng) {{
   let ga = 0, gb = 0;
   while (true) {{
     const noise = simGaussian(rng, 0, SIM_GAME_NOISE);
-    const pAGame = 1 / (1 + Math.exp(-(perfDiff + noise) / 6));
+    const pAGame = 1 / (1 + Math.exp(-(perfDiff + noise) / SIM_GAME_LOGIT_SCALE));
     if (rng() < pAGame) ga++; else gb++;
     if (ga >= 6 && ga - gb >= 2) return [ga, gb];
     if (gb >= 6 && gb - ga >= 2) return [ga, gb];
     if (ga === 7 || gb === 7) return [ga, gb];
     if (ga === 6 && gb === 6) {{
-      return (rng() < 1/(1+Math.exp(-perfDiff/4))) ? [7,6] : [6,7];
+      return (rng() < 1/(1+Math.exp(-perfDiff/SIM_TIEBREAK_LOGIT_SCALE))) ? [7,6] : [6,7];
     }}
   }}
 }}
