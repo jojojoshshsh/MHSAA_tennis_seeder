@@ -1002,8 +1002,8 @@ function runCompare() {{
 // here too.
 const SIM_BETA = (25/3) / 5;
 const SIM_SEED_PRIOR_ACCURACY = 0.960;
-const SIM_SEED_BLEND_WEIGHT = 0.35;
-const SIM_WIN_PROB_SCALE = 0.5;
+const SIM_SEED_BLEND_WEIGHT = 0.15;
+const SIM_WIN_PROB_SCALE = 0.35;
 const SIM_DOMINANCE_WEIGHT = 1.4;
 const SIM_TRIALS = 150;
 const SIM_GAME_NOISE = 8.0;
