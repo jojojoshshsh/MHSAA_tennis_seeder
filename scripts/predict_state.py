@@ -239,7 +239,15 @@ SCORELINE_TRIALS = 400  # Monte Carlo trials per bracket match, for the printed 
 # ~25% chance of a single 6-0 set and a ~6% chance of a full
 # double-bagel match, rather than ~90%/~85%, while leaving close-to-
 # moderate matchups (which were never the problem) close to untouched.
-WIN_PROB_SCORELINE_SCALE = 0.5
+#
+# UPDATE: lowered further from 0.5 to 0.35. Even with the 0.5 compression
+# above, real bracket matchups were still printing as blowouts far more
+# often than real MHSAA results show, and going to a 3rd set far less
+# often than the ~35-45% real-world rate noted in the CALIBRATION NOTE.
+# At 0.35, a near-certain (99%+) TrueSkill/seed-prior favorite is only
+# simulated as roughly a 65/35 proposition per set -- enough to reliably
+# win, but not lopsided enough to erase realistic 3rd-set/tiebreak odds.
+WIN_PROB_SCORELINE_SCALE = 0.35
 
 # Weight (in logit space) applied to the dominance-proxy differential
 # before it's folded into the win probability that feeds the scoreline
@@ -379,9 +387,19 @@ def match_win_prob(a, b) -> float:
 # a lookup keyed on abs(seed_a - seed_b) for a more precise prior. Until
 # then this flat rate + moderate blend weight is the most defensible
 # reading of what's actually been reported.
+#
+# UPDATE: lowered SEED_BLEND_WEIGHT from 0.35 to 0.15. At 0.35, blending
+# in a prior as strong as 96% (logit ~= 3.18) was pushing match_win_prob()
+# -- which feeds BOTH the bracket odds tables in section 3 AND, via
+# _perf_diff_for_match(), the scoreline simulator -- too far toward
+# certainty even for ordinary seed gaps (e.g. a clean top-vs-mid-seed
+# matchup was reading more like an 80-90% favorite than the ~65-75% a
+# TrueSkill-only read would suggest). At 0.15 the seed prior still nudges
+# close TrueSkill calls toward the higher seed, but can no longer amplify
+# a moderate rating gap into a near-certainty on its own.
 
 SEED_PRIOR_ACCURACY = 0.960   # 19-year average "higher seed wins" rate, see note above
-SEED_BLEND_WEIGHT = 0.35      # 0.0 = pure TrueSkill (old behavior); 1.0 = pure seed prior
+SEED_BLEND_WEIGHT = 0.15      # 0.0 = pure TrueSkill (old behavior); 1.0 = pure seed prior
 _EPS = 1e-9
 _STD_NORMAL = NormalDist()    # standard normal CDF/quantile, used by _implied_mu_gap() below
 
