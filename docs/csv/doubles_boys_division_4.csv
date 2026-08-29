@@ -1,142 +1,83 @@
 rank,pair_name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,local_ts_mu,ts_sigma,reachability,local_reachability,sos,local_sos,quality_wins,won_after_set1_loss,vs_weaker_opp,vs_mid_opp,vs_top_opp,last_match_date,reason_below
-1,Brogan Kelly/Chase Schirmacher,Jackson Lumen Christi,4,1,12,0,278.59,100.0,23.78,45.69,45.69,7.3,70,70,24.21,23.72,5,,5-0 (100%),1-0 (100%),5-0 (100%),2026-08-22,
-2,Caleb Kooistra/Logan Will,Grand Rapids NorthPointe Christian,4,1,10,0,266.89,96.2,18.89,42.9,42.9,8.01,78,78,23.71,31.78,3,,4-0 (100%),2-0 (100%),3-0 (100%),2026-08-27,Worse score margin vs common opponents
-3,Ethan Blough/Gavin Cohoon,Ludington,4,1,8,1,223.46,82.0,13.32,34.16,34.16,6.95,72,72,19.51,10.46,2,,5-0 (100%),1-0 (100%),1-1 (50%),2026-08-26,Worse score margin vs common opponents
-4,Ian Gaulke/Noah Kuebler,Allegan,4,1,15,2,255.61,92.5,21.15,41.64,41.64,6.83,65,65,24.52,24.57,5,1/3 (33%),6-0 (100%),2-1 (67%),4-1 (80%),2026-08-28,Fewer wins vs common opponents
-5,Isaac Geffre/Simon Geffre,Paw Paw,4,1,9,2,188.6,70.6,13.78,33.97,33.97,6.73,52,52,25.21,27.69,2,0/2 (0%),5-0 (100%),3-0 (100%),1-2 (33%),2026-08-26,Lost head-to-head vs player above
-6,Charlie Laethem/Davis Ford,Grosse Pointe Woods University Liggett,4,1,8,2,197.15,73.4,18.29,38.58,38.58,6.76,46,46,21.23,22.2,2,1/3 (33%),6-0 (100%),1-0 (100%),1-1 (50%),2026-08-27,Lost head-to-head vs player above
-7,Drew Williams/Jack Barber,Clio,4,1,7,1,108.59,44.5,15.45,36.63,36.63,7.06,10,10,19.52,15.57,1,1/2 (50%),3-0 (100%),2-0 (100%),1-1 (50%),2026-08-27,Lower TrueSkill rating
-8,Blake Bowerman/Brandon Shampo,Sandusky,4,1,7,0,106.92,44.0,15.48,35.14,35.14,6.56,10,10,18.88,17.2,0,1/1 (100%),2-0 (100%),2-0 (100%),1-0 (100%),2026-08-27,Lower TrueSkill rating
-9,Bryce Hood/Hudson Aalfs,Niles Brandywine,4,1,3,1,95.29,40.2,13.8,32.39,32.39,6.2,6,6,25.44,25.27,1,0/1 (0%),2-0 (100%),1-0 (100%),0-1 (0%),2026-08-27,Lower TrueSkill rating
-10,Gabe Young/Paiton Old,Croswell-Lexington,4,1,2,2,51.66,26.0,7.93,30.03,30.03,7.37,1,1,19.97,19.97,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-25,Lower TrueSkill rating
-11,Joe Pittel/Luco Wisniewski,Pontiac Notre Dame Prep,4,1,2,2,94.21,39.8,11.19,27.94,27.94,5.58,12,12,28.4,30.2,0,1/2 (50%),1-0 (100%),1-0 (100%),0-2 (0%),2026-08-25,Lower TrueSkill rating
-12,Paul Huynh/Ryan Cotter,Grand Rapids Catholic Central,4,1,3,3,106.23,43.8,10.59,27.58,27.58,5.66,20,20,26.42,15.17,0,0/3 (0%),2-0 (100%),1-0 (100%),0-3 (0%),2026-08-22,Lower TrueSkill rating
-13,Jeremy Alter/Trace Dennis,Imlay City,4,1,4,2,87.54,37.7,10.89,26.55,26.55,5.22,10,10,23.02,17.29,1,1/3 (33%),2-0 (100%),1-1 (50%),1-1 (50%),2026-08-27,Lower TrueSkill rating
-14,Levi Vander Moren/Ryan Eicholtz,Kalamazoo Christian,4,1,4,3,82.18,35.9,9.0,25.92,25.92,5.64,12,12,23.29,19.98,1,0/3 (0%),3-0 (100%),0-2 (0%),1-1 (50%),2026-08-27,Lower TrueSkill rating
-15,Eli Coffman/Joey Nouna,Kalamazoo Hackett Catholic Prep,4,1,6,2,84.31,36.6,11.08,29.6,29.6,6.17,9,9,21.67,26.87,0,0/2 (0%),5-0 (100%),,0-2 (0%),2026-08-27,Lost head-to-head vs player above
-16,Michael Dinevski/Tye Chlebek,Grosse Ile,4,1,4,2,62.42,29.5,7.11,27.18,27.18,6.69,8,8,21.62,28.57,0,0/2 (0%),3-0 (100%),,0-1 (0%),2026-08-25,Lower TrueSkill rating
-17,Grayden Cowhy/Landon Martel,Yale,4,1,2,2,47.79,24.7,6.41,25.99,25.99,6.53,3,3,19.4,12.29,0,0/2 (0%),2-0 (100%),0-1 (0%),,2026-08-25,Lower TrueSkill rating
-18,Gabe Nicholson/Nick Christopher,Grand Rapids West Catholic,4,1,1,2,53.88,26.7,5.48,25.62,25.62,6.71,5,5,32.85,32.85,0,0/2 (0%),,1-0 (100%),0-2 (0%),2026-08-17,Lower TrueSkill rating
-19,Elliot MacTavish/Keegan Bridges,Maple City Glen Lake,4,1,3,5,22.72,16.5,-1.15,19.87,19.87,7.01,6,6,32.86,35.29,0,1/5 (20%),1-0 (100%),,0-5 (0%),2026-08-28,Worse score margin vs common opponents
-20,Joshua Andersen/Peyton Pangemanan,Berrien Springs,4,1,5,8,30.38,19.0,1.41,18.55,18.55,5.72,5,5,26.61,28.75,0,1/6 (17%),2-2 (50%),0-1 (0%),0-5 (0%),2026-08-28,Lost head-to-head vs player above
-21,Joel LaDuke/Tristan Durkin,Traverse City St Francis,4,1,2,10,-21.38,2.1,-13.36,10.46,10.46,7.94,15,15,30.86,37.27,0,0/10 (0%),,1-2 (33%),0-8 (0%),2026-08-26,Worse score margin vs common opponents
-22,Jason Thomas/Max Wildern,Charlotte,4,1,2,2,55.08,27.1,7.92,25.63,25.63,5.9,2,2,22.87,21.39,0,0/2 (0%),2-0 (100%),,0-1 (0%),2026-08-27,Transitively beaten by player above
-23,Emery Price/Sean McManus,North Muskegon,4,1,3,5,47.73,24.7,5.28,22.95,22.95,5.89,4,4,26.61,29.53,0,0/5 (0%),2-0 (100%),1-2 (33%),0-3 (0%),2026-08-26,Lower TrueSkill rating
-24,Ben Gilin/Declan Mahaffy,Goodrich,4,1,1,3,50.85,25.7,6.11,22.92,22.92,5.61,3,3,28.59,45.69,0,0/3 (0%),1-1 (50%),,0-2 (0%),2026-08-27,Lower TrueSkill rating
-25,Greysen Olszowy/James Vanderweele,Williamston,4,1,1,2,22.39,16.4,1.14,19.88,19.88,6.25,2,2,25.29,27.58,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
-26,Cooper Thayer/Sam Nobis,Portland,4,1,2,6,21.2,16.0,0.63,18.77,18.77,6.05,2,2,28.03,27.53,0,0/5 (0%),2-0 (100%),0-1 (0%),0-5 (0%),2026-08-26,Lower TrueSkill rating
-27,Braylen Ehle/Travis Milner,Ovid-Elsie,4,1,3,1,24.9,17.2,3.06,23.3,23.3,6.75,1,1,15.04,10.51,0,0/1 (0%),1-1 (50%),,,2026-08-25,Worse score margin vs common opponents
-28,Caleb Clausing/David Ritzema,Muskegon Western Michigan Christian,4,1,2,4,8.16,11.8,-2.09,16.9,16.9,6.33,3,3,25.18,26.31,0,0/4 (0%),1-0 (100%),1-2 (33%),0-2 (0%),2026-08-28,Lower TrueSkill rating
-29,Collin Decoster/Micheal Stacer,Almont,4,1,1,7,-18.09,3.2,-6.44,12.29,12.29,6.24,1,1,24.22,28.65,0,1/7 (14%),1-1 (50%),0-3 (0%),0-3 (0%),2026-08-26,Lower TrueSkill rating
-30,Eitan Katz/Ethan Bocknek,West Bloomfield FJA,4,1,2,1,0.07,9.1,,,,,0,0,0.0,0.0,0,0/1 (0%),,1-0 (100%),0-1 (0%),2026-08-24,Tied — no deciding criterion found
-31,Cameron Sturtz/Grant Groya,Saginaw Nouvel Catholic Central,4,1,1,2,-4.27,7.7,-3.86,17.12,17.12,6.99,0,0,29.97,0.0,0,1/2 (50%),,0-1 (0%),0-1 (0%),2026-08-20,Lower TrueSkill rating
-32,Collin Stacy/Keegan Hinskey,Battle Creek Pennfield,4,1,0,4,-18.89,2.9,-6.79,14.09,14.09,6.96,0,0,30.1,30.1,0,0/4 (0%),0-1 (0%),,0-2 (0%),2026-08-26,Lower TrueSkill rating
-33,Alex Frank/Ben Palinski,Lansing Catholic,4,1,1,4,-13.84,4.6,-5.61,13.81,13.81,6.47,0,0,28.38,0.0,0,0/4 (0%),,,0-3 (0%),2026-08-15,Lower TrueSkill rating
-34,Alex Goulette/Owen Duetsch,Marine City,4,1,0,3,-13.51,4.7,-5.44,13.75,13.75,6.4,0,0,27.36,0.0,0,0/3 (0%),,0-1 (0%),0-2 (0%),2026-08-14,Lower TrueSkill rating
-35,Elijah Roberge/Jones McDowell,Whitehall,4,1,1,4,-19.68,2.7,-7.28,12.53,12.53,6.6,0,0,33.41,30.44,0,0/4 (0%),0-1 (0%),,0-3 (0%),2026-08-24,Lower TrueSkill rating
-36,Garrett Senger/Reese Tumbleson,Buchanan,4,1,0,3,-22.36,1.8,-6.91,11.87,11.87,6.26,0,0,24.35,32.39,0,0/3 (0%),0-1 (0%),0-1 (0%),0-1 (0%),2026-08-19,Lower TrueSkill rating
-37,Conner Grohar/Simon Schroer,Ann Arbor Father Gabriel Richard,4,1,0,4,-24.77,1.0,-7.46,11.79,11.79,6.42,0,0,25.07,27.76,0,0/4 (0%),0-1 (0%),,0-3 (0%),2026-08-27,Lower TrueSkill rating
-38,Bryson Burrow/Noah Anderson,Eaton Rapids,4,1,0,5,-27.9,0.0,-8.02,10.51,10.51,6.18,0,0,24.45,23.32,0,0/5 (0%),0-2 (0%),0-2 (0%),0-1 (0%),2026-08-26,Lower TrueSkill rating
-39,Dallas Klein/Diego Romero,Comstock Park,4,1,1,4,-26.54,0.4,-7.93,9.75,9.75,5.89,0,0,26.23,0.0,0,0/3 (0%),0-1 (0%),0-2 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
-1,Bryce Cundiff/Luke Selby,Maple City Glen Lake,4,2,6,2,297.65,100.0,23.56,39.03,39.03,5.16,78,78,32.58,30.82,5,0/2 (0%),,,5-2 (71%),2026-08-28,
-2,Carson Wooodhams/Oliver Burnett,Allegan,4,2,16,2,171.85,66.0,16.01,33.81,33.81,5.93,37,37,23.45,23.49,4,0/2 (0%),6-0 (100%),4-0 (100%),3-2 (60%),2026-08-28,Lost head-to-head vs player above
-3,Ian Moya/Lucas Ferguson,Grosse Pointe Woods University Liggett,4,2,12,3,143.3,58.3,13.39,29.78,29.78,5.46,30,30,23.5,19.53,3,1/4 (25%),3-0 (100%),5-0 (100%),3-2 (60%),2026-08-27,Worse score margin vs common opponents
-4,Adiv Patel/Finley Wise,Pontiac Notre Dame Prep,4,2,3,1,117.5,51.3,17.0,35.55,35.55,6.18,8,8,26.89,27.7,2,0/1 (0%),,3-0 (100%),0-1 (0%),2026-08-25,Worse score margin vs common opponents
-5,Maden Brady/Theo McEldowney,Jackson Lumen Christi,4,2,4,2,151.55,60.5,13.82,29.15,29.15,5.11,30,30,32.73,32.37,4,1/2 (50%),,,4-2 (67%),2026-08-22,Lower TrueSkill rating
-6,Arend Clark/Sawyer Volkers,Grand Rapids NorthPointe Christian,4,2,7,3,93.31,44.7,11.21,27.79,27.79,5.53,12,12,26.36,22.74,0,0/2 (0%),3-0 (100%),2-0 (100%),0-3 (0%),2026-08-27,Fewer wins vs common opponents
-7,Anderson Farnquist/Ethan Groner,Paw Paw,4,2,4,4,60.39,35.8,6.22,23.24,23.24,5.67,8,8,26.46,22.77,0,0/4 (0%),2-0 (100%),2-0 (100%),0-4 (0%),2026-08-20,Worse score margin vs common opponents
-8,Hudson Borema/Sam Reisterer,Ludington,4,2,8,2,127.36,53.9,15.03,33.07,33.07,6.01,21,21,20.27,12.26,0,1/2 (50%),6-0 (100%),2-0 (100%),0-2 (0%),2026-08-26,Worse score margin vs common opponents
-9,Brady Old/Carter Young,Croswell-Lexington,4,2,3,1,51.98,33.6,7.99,30.07,30.07,7.36,1,1,19.93,19.93,0,0/1 (0%),1-0 (100%),1-1 (50%),1-0 (100%),2026-08-25,Lower TrueSkill rating
-10,David Ng’ang’a/Zachary Nyamweya,Berrien Springs,4,2,8,5,80.87,41.4,11.47,29.52,29.52,6.01,6,6,22.91,25.12,0,1/4 (25%),4-1 (80%),,0-4 (0%),2026-08-28,Lower TrueSkill rating
-11,Desmond Krapohl/Hayden Hahn,Clio,4,2,4,4,67.98,37.9,9.77,27.88,27.88,6.04,4,4,22.18,14.58,0,2/6 (33%),3-0 (100%),1-1 (50%),0-3 (0%),2026-08-27,Lower TrueSkill rating
-12,Michael Pieniazek/Will Pike,Goodrich,4,2,2,3,74.6,39.7,9.69,25.71,25.71,5.34,7,7,24.18,29.15,0,1/4 (25%),1-0 (100%),1-0 (100%),0-3 (0%),2026-08-27,Lower TrueSkill rating
-13,Brady Brechting/Jimmy Hulswit,Grand Rapids Catholic Central,4,2,3,3,53.15,33.9,7.35,25.24,25.24,5.96,3,3,20.69,11.95,0,0/2 (0%),3-0 (100%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
-14,Conor McClung/Logan Brown,Ovid-Elsie,4,2,1,3,34.23,28.8,2.99,23.24,23.24,6.75,3,3,23.52,25.52,1,1/3 (33%),,1-1 (50%),,2026-08-25,Lower TrueSkill rating
-15,Archer Barcroft/Noah Ridler,Eaton Rapids,4,2,1,4,52.45,33.7,7.37,25.52,25.52,6.05,2,2,23.16,21.96,0,1/4 (25%),1-0 (100%),0-3 (0%),0-1 (0%),2026-08-26,Lost head-to-head vs player above
-16,Emerson Verhelle/Grayden Cowhy,Yale,4,2,2,3,38.8,30.0,4.33,23.57,23.57,6.41,2,2,26.19,21.7,0,0/3 (0%),,1-1 (50%),1-2 (33%),2026-08-24,Lower TrueSkill rating
-17,Chris Kennedy/Danny Chenier,Kalamazoo Hackett Catholic Prep,4,2,1,2,32.24,28.2,3.97,22.74,22.74,6.26,1,1,20.74,27.79,0,0/1 (0%),1-1 (50%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
-18,Addison Baumeister/Grace Riehl,Sandusky,4,2,3,4,32.01,28.2,3.67,21.7,21.7,6.01,1,1,23.28,19.58,0,0/4 (0%),1-0 (100%),1-1 (50%),1-2 (33%),2026-08-27,Lower TrueSkill rating
-19,Gage Larson/Jacob Heinicke,Portland,4,2,3,5,35.75,29.2,3.82,21.6,21.6,5.93,2,2,25.21,26.97,0,0/5 (0%),2-0 (100%),1-2 (33%),0-3 (0%),2026-08-26,Lower TrueSkill rating
-20,Gus Bernreuter/Luke Latchana,Grand Rapids West Catholic,4,2,1,4,24.17,26.0,0.53,17.86,17.86,5.78,4,4,27.01,27.8,0,0/4 (0%),,1-2 (33%),0-2 (0%),2026-08-26,Lower TrueSkill rating
-21,Chase Yeager/Max Brown,North Muskegon,4,2,4,5,36.41,29.3,3.57,21.09,21.09,5.84,3,3,25.01,21.85,0,1/6 (17%),1-1 (50%),1-2 (33%),0-2 (0%),2026-08-26,Lost head-to-head vs player above
-22,August Forray/jordan Bryant,Niles Brandywine,4,2,1,2,22.46,25.6,1.42,23.23,23.23,7.27,1,1,26.65,22.86,0,1/3 (33%),1-0 (100%),,0-2 (0%),2026-08-27,Worse score margin vs common opponents
-23,Calleigh Webster/Clara Ross,Marine City,4,2,2,2,11.82,22.7,0.48,20.31,20.31,6.61,1,1,14.74,0.0,0,0/2 (0%),1-1 (50%),,0-1 (0%),2026-08-24,Lower TrueSkill rating
-24,Kyle Motson/Owen Vliestra,Kalamazoo Christian,4,2,3,4,25.33,26.4,1.97,20.12,20.12,6.05,1,1,26.87,29.52,0,0/4 (0%),1-0 (100%),,0-4 (0%),2026-08-27,Lower TrueSkill rating
-25,Liam Jackson/Robert Williams,Charlotte,4,2,1,2,23.08,25.7,1.8,19.67,19.67,5.96,1,1,24.11,14.77,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-27,Lower TrueSkill rating
-26,Harrison Hoover/Lincoln Lewis,Lansing Catholic,4,2,1,4,19.88,24.9,0.84,19.61,19.61,6.25,1,1,27.28,12.48,0,1/5 (20%),1-0 (100%),0-1 (0%),0-2 (0%),2026-08-15,Lower TrueSkill rating
-27,Ayden Ferrett/Eli Bishop,Almont,4,2,1,3,12.17,22.8,-0.34,17.97,17.97,6.1,1,1,23.65,28.8,0,0/3 (0%),1-0 (100%),0-2 (0%),0-1 (0%),2026-08-26,Lower TrueSkill rating
-28,Eli Katz/Jacob Aronov,West Bloomfield FJA,4,2,1,2,0.03,19.5,,,,,0,0,0.0,0.0,0,0/2 (0%),,1-0 (100%),0-2 (0%),2026-08-24,Tied — no deciding criterion found
-29,Clark DeClean/Isaac Lindquist,Imlay City,4,2,0,3,2.28,20.1,-2.16,19.93,19.93,7.36,0,0,26.15,0.0,0,0/3 (0%),,0-1 (0%),,2026-08-17,Lower TrueSkill rating
-30,Hayden Rush/Mason Venable,Williamston,4,2,1,2,-1.22,19.2,-2.65,17.23,17.23,6.63,0,0,23.95,25.24,0,0/2 (0%),,0-2 (0%),,2026-08-22,Lower TrueSkill rating
-31,Andrew Acosta/Ashton Nostrant,Comstock Park,4,2,1,3,-3.3,18.6,-2.93,17.73,17.73,6.89,0,0,22.66,0.0,0,0/3 (0%),,0-1 (0%),,2026-08-24,Worse score margin vs common opponents
-32,Conner Holder/Levi Hoffman,Battle Creek Pennfield,4,2,0,4,-6.09,17.9,-4.38,17.16,17.16,7.18,0,0,31.66,31.66,0,0/4 (0%),,,0-2 (0%),2026-08-26,Lower TrueSkill rating
-33,Daniel Grill/Indiana Jones,Muskegon Western Michigan Christian,4,2,2,5,-25.91,12.5,-7.91,12.5,12.5,6.8,0,0,27.24,24.43,0,0/5 (0%),,0-4 (0%),0-1 (0%),2026-08-28,Lower TrueSkill rating
-34,Jonathan Roberge/Scout Freiheit,Whitehall,4,2,0,4,-23.1,13.3,-6.98,12.48,12.48,6.48,0,0,23.56,23.56,0,0/3 (0%),0-1 (0%),0-2 (0%),0-1 (0%),2026-08-15,Lower TrueSkill rating
-35,Nolan Huth/William Sherwood,Buchanan,4,2,0,3,-25.07,12.7,-7.19,11.91,11.91,6.37,0,0,21.78,23.23,0,0/2 (0%),0-2 (0%),,0-1 (0%),2026-08-19,Lower TrueSkill rating
-36,Abraham Randles/Zach Wilson,Grosse Ile,4,2,0,3,-27.07,12.2,-8.02,10.8,10.8,6.27,0,0,26.02,29.65,0,0/2 (0%),0-1 (0%),,0-2 (0%),2026-08-25,Lower TrueSkill rating
-37,Joey Dunphey/Jojo Zayaz,Traverse City St Francis,4,2,1,11,-72.11,0.0,-17.37,6.66,6.66,8.01,0,0,29.51,30.7,0,0/9 (0%),0-2 (0%),0-2 (0%),0-6 (0%),2026-08-26,Lower TrueSkill rating
-1,Larsen Kibler/Sage Sanchez,Berrien Springs,4,3,6,2,229.24,90.5,19.35,36.15,36.15,5.6,57,57,27.79,28.18,3,0/2 (0%),,1-0 (100%),3-1 (75%),2026-08-28,
-2,Harrison Botke/Vincent Tran,Jackson Lumen Christi,4,3,12,0,256.26,100.0,22.62,46.27,46.27,7.88,61,61,24.14,24.22,6,,4-0 (100%),2-0 (100%),6-0 (100%),2026-08-22,Worse score margin vs common opponents
-3,Logan Spangler/Noah Koppenhofer,Grand Rapids NorthPointe Christian,4,3,10,0,222.82,88.3,19.73,42.34,42.34,7.54,54,54,23.09,28.47,3,,3-0 (100%),2-0 (100%),3-0 (100%),2026-08-27,Lower TrueSkill rating
-4,Charlie Morris/John DeLaet,Allegan,4,3,11,1,209.66,83.6,19.08,37.07,37.07,6.0,49,49,26.33,26.33,2,0/1 (0%),2-0 (100%),2-0 (100%),2-1 (67%),2026-08-28,Worse score margin vs common opponents
-5,Aidan Macdougall/Brady Back,Clio,4,3,7,1,105.44,47.1,14.91,33.31,33.31,6.14,10,10,21.65,16.92,0,1/2 (50%),3-0 (100%),3-0 (100%),0-1 (0%),2026-08-27,Lower TrueSkill rating
-6,Ben Emerson/Makail Houston,Charlotte,4,3,2,1,73.29,35.8,11.98,32.93,32.93,6.99,2,2,18.7,21.32,0,0/1 (0%),2-0 (100%),,,2026-08-26,Lower TrueSkill rating
-7,Connor Esman/Jude Webster,Paw Paw,4,3,8,3,156.93,65.1,11.74,28.47,28.47,5.58,42,42,25.28,27.43,1,1/4 (25%),4-0 (100%),3-0 (100%),1-3 (25%),2026-08-26,Lower TrueSkill rating
-8,Brodie McKeller/Garrett Bridger,Maple City Glen Lake,4,3,2,6,143.81,60.5,11.01,28.09,28.09,5.69,35,35,34.47,35.85,1,1/7 (14%),,,2-5 (29%),2026-08-28,Worse score margin vs common opponents
-9,Gus Haan/Sam Ekkens,Kalamazoo Christian,4,3,4,2,145.62,61.2,11.09,27.99,27.99,5.63,37,37,26.18,27.23,2,0/2 (0%),2-0 (100%),,2-2 (50%),2026-08-27,Worse score margin vs common opponents
-10,Chris Kennedy/Danny Chenier,Kalamazoo Hackett Catholic Prep,4,3,4,1,90.68,41.9,14.16,32.66,32.66,6.17,5,5,19.56,20.34,0,0/1 (0%),3-0 (100%),1-0 (100%),0-1 (0%),2026-08-27,Lost head-to-head vs player above
-11,Brady Stratton/Brayden Mcclain,Three Rivers,4,3,2,1,57.8,30.3,8.09,27.57,27.57,6.49,3,3,22.58,0.0,0,0/1 (0%),2-0 (100%),,0-1 (0%),2026-08-26,Lower TrueSkill rating
-12,Ayden Ferrett/Ty Bradley,Almont,4,3,3,1,59.91,31.1,8.27,26.75,26.75,6.16,4,4,20.98,19.32,0,1/2 (50%),1-0 (100%),1-1 (50%),,2026-08-25,Lower TrueSkill rating
-13,Jack Ingle/Matteo Marciano,Grosse Pointe Woods University Liggett,4,3,11,4,75.04,36.4,9.26,25.97,25.97,5.57,9,9,21.37,20.24,0,1/4 (25%),7-0 (100%),1-0 (100%),0-3 (0%),2026-08-27,Lower TrueSkill rating
-14,Joseph Franzel/Phoenix Surbrook,Sandusky,4,3,3,4,50.14,27.6,7.07,24.91,24.91,5.94,2,2,21.45,18.78,0,1/5 (20%),2-1 (67%),0-1 (0%),0-2 (0%),2026-08-27,Lower TrueSkill rating
-15,Gus Buell/Nickolaus Goodwin,Traverse City St Francis,4,3,4,8,103.15,46.3,7.04,23.08,23.08,5.35,27,27,27.86,32.12,0,3/11 (27%),,2-3 (40%),1-5 (17%),2026-08-26,Lower TrueSkill rating
-16,Owen Henke/Patrick Hart,Ludington,4,3,5,5,89.57,41.5,9.63,23.91,23.91,4.76,15,15,22.7,23.02,0,1/4 (25%),4-0 (100%),1-1 (50%),0-4 (0%),2026-08-26,Lost head-to-head vs player above
-17,David Shorter/Holder Fox,Pontiac Notre Dame Prep,4,3,2,2,23.88,18.4,0.99,21.86,21.86,6.96,2,2,29.81,18.92,0,1/3 (33%),1-0 (100%),,0-2 (0%),2026-08-25,Lower TrueSkill rating
-18,Chris Kern/Zander Wheat,Buchanan,4,3,1,2,27.22,19.6,2.36,21.53,21.53,6.39,1,1,26.76,23.5,0,0/2 (0%),1-0 (100%),,0-2 (0%),2026-08-27,Lower TrueSkill rating
-19,Anthony Maslanka/Luke VandenGuchte,Grand Rapids West Catholic,4,3,1,3,22.87,18.1,0.6,17.9,17.9,5.77,3,3,27.74,27.74,0,0/3 (0%),,1-0 (100%),0-3 (0%),2026-08-26,Lower TrueSkill rating
-20,Liam Nicholas/Tanner Osmun,Whitehall,4,3,1,3,21.53,17.6,0.81,19.62,19.62,6.27,2,2,26.91,24.45,0,0/3 (0%),1-0 (100%),,0-3 (0%),2026-08-24,Worse score margin vs common opponents
-21,Caden Sytek/Noah Rosema,North Muskegon,4,3,3,6,34.01,22.0,3.46,21.51,21.51,6.02,2,2,25.36,23.58,0,0/6 (0%),2-1 (67%),0-1 (0%),0-4 (0%),2026-08-26,Worse score margin vs common opponents
-22,Hudson Meinert/Rowan Kozminski,Grand Rapids Catholic Central,4,3,3,3,34.33,22.1,4.18,21.22,21.22,5.68,1,1,22.8,18.29,0,0/3 (0%),1-0 (100%),2-1 (67%),0-2 (0%),2026-08-22,Lower TrueSkill rating
-23,Max Pelletier/Patrick Jones,Williamston,4,3,1,3,20.55,17.3,0.88,19.11,19.11,6.08,1,1,28.26,29.89,0,0/3 (0%),1-0 (100%),,0-3 (0%),2026-08-22,Worse score margin vs common opponents
-24,Bentley Robertson/Liam Jacobi,Portland,4,3,1,7,14.79,15.2,0.1,18.92,18.92,6.27,1,1,24.58,21.95,0,0/7 (0%),1-2 (33%),0-1 (0%),0-3 (0%),2026-08-26,Lower TrueSkill rating
-25,Carter Quitter/Parker Shopbell,Croswell-Lexington,4,3,1,3,0.03,10.0,,,,,0,0,0.0,0.0,0,0/3 (0%),0-1 (0%),0-1 (0%),0-1 (0%),2026-08-25,Tied — no deciding criterion found
-26,Bradley Michael/Isaiah Mingus,Battle Creek Pennfield,4,3,1,3,8.54,13.0,-1.78,18.97,18.97,6.92,0,0,34.86,34.86,0,0/3 (0%),,,0-2 (0%),2026-08-26,Lower TrueSkill rating
-27,Cameron Seitz/Henry Larvick,Lansing Catholic,4,3,1,2,-2.95,9.0,-3.87,17.11,17.11,6.99,0,0,32.69,0.0,0,0/1 (0%),,,0-2 (0%),2026-08-15,Lower TrueSkill rating
-28,Coltyn Stornant/Marcus Phillips,Ovid-Elsie,4,3,0,4,-5.33,8.2,-3.87,17.09,17.09,6.99,0,0,28.09,0.0,0,0/2 (0%),,0-1 (0%),0-1 (0%),2026-08-25,Lower TrueSkill rating
-29,Cam Marazita/Connor Millin,Niles Brandywine,4,3,0,3,-15.45,4.6,-5.12,14.34,14.34,6.49,0,0,20.26,21.53,0,0/3 (0%),,0-2 (0%),,2026-08-27,Lower TrueSkill rating
-30,Elliot Paik/Oliver Francis,Grosse Ile,4,3,1,2,-10.97,6.2,-4.53,13.96,13.96,6.16,0,0,23.28,25.97,0,0/2 (0%),,0-1 (0%),0-1 (0%),2026-08-25,Lower TrueSkill rating
-31,Jude Rayford/Mason Sims,Goodrich,4,3,0,3,-15.25,4.7,-6.15,13.75,13.75,6.63,0,0,30.98,46.27,0,0/3 (0%),0-1 (0%),,0-2 (0%),2026-08-17,Lower TrueSkill rating
-32,Max Guerin/Pierce Murrey,Imlay City,4,3,0,4,-22.23,2.2,-7.5,13.74,13.74,7.08,0,0,30.5,26.75,0,0/4 (0%),,0-2 (0%),0-2 (0%),2026-08-27,Lower TrueSkill rating
-33,Aidyn Brinkman/Dylan Cinder,Comstock Park,4,3,1,4,-16.16,4.4,-5.58,13.51,13.51,6.36,0,0,23.44,20.17,0,0/4 (0%),0-1 (0%),0-2 (0%),,2026-08-24,Lower TrueSkill rating
-34,Jason Zunich/Joseph Brewis,Ann Arbor Father Gabriel Richard,4,3,0,4,-22.65,2.1,-7.24,12.87,12.87,6.7,0,0,27.08,30.33,0,0/4 (0%),0-1 (0%),,0-3 (0%),2026-08-27,Lower TrueSkill rating
-35,Brody Jacobson/Jared Rhein,Yale,4,3,2,5,-19.59,3.2,-6.68,11.87,11.87,6.18,0,0,27.54,24.91,0,0/5 (0%),,1-2 (33%),0-3 (0%),2026-08-24,Lower TrueSkill rating
-36,Alfredo Fajardo/Mason Tisdel,Muskegon Western Michigan Christian,4,3,2,5,-28.6,0.0,-8.16,10.88,10.88,6.35,0,0,24.35,24.63,0,0/5 (0%),0-1 (0%),0-3 (0%),0-1 (0%),2026-08-28,Lower TrueSkill rating
-1,Gurmilan Singh/Shayan Challapalli,Jackson Lumen Christi,4,4,10,1,285.32,100.0,20.3,40.97,40.97,6.89,83,83,23.43,18.33,4,1/2 (50%),5-0 (100%),1-0 (100%),3-1 (75%),2026-08-22,
-2,Ollie Pierpont/Stennson Shatto,Grand Rapids NorthPointe Christian,4,4,6,1,164.25,62.7,18.54,38.93,38.93,6.8,27,27,25.92,0.0,3,1/1 (100%),1-0 (100%),1-0 (100%),3-0 (100%),2026-08-27,Lower TrueSkill rating
-3,Daniel Choi/Luke Kwon,Berrien Springs,4,4,7,0,164.91,62.9,20.3,38.74,38.74,6.14,23,23,25.58,25.62,3,,1-0 (100%),1-0 (100%),2-0 (100%),2026-08-28,Lower TrueSkill rating
-4,Blake Cronkright/Gavin Larose,Clio,4,4,6,1,91.32,40.2,14.53,34.5,34.5,6.65,4,4,21.12,0.0,0,2/3 (67%),1-1 (50%),2-0 (100%),1-0 (100%),2026-08-27,Lower TrueSkill rating
-5,Billy Mansfield/Graeme Zelond,Grosse Pointe Woods University Liggett,4,4,6,4,110.87,46.2,11.58,28.89,28.89,5.77,20,20,22.87,22.1,1,0/4 (0%),2-0 (100%),3-3 (50%),0-1 (0%),2026-08-27,Lower TrueSkill rating
-6,Brady Czopek/Everett Scott,Grosse Ile,4,4,1,4,61.06,30.8,3.14,22.1,22.1,6.32,14,14,31.68,31.68,1,1/5 (20%),,,1-1 (50%),2026-08-25,Lost head-to-head vs player above
-7,Noah Willett/Sully Morgan,Allegan,4,4,10,5,114.6,47.4,15.15,34.46,34.46,6.44,13,13,22.54,21.8,1,1/4 (25%),5-0 (100%),2-1 (67%),1-2 (33%),2026-08-28,Lost head-to-head vs player above
-8,Moses Schuchman/Noah Tepper,West Bloomfield FJA,4,4,6,0,60.9,30.8,9.57,31.42,31.42,7.28,2,2,17.91,0.0,0,,3-0 (100%),,2-0 (100%),2026-08-27,Lower TrueSkill rating
-9,Lia Sandhoefer/Reilly Nugent,Sandusky,4,4,4,2,73.36,34.6,11.11,31.34,31.34,6.74,2,2,27.47,19.65,0,0/2 (0%),3-0 (100%),,0-2 (0%),2026-08-27,Lower TrueSkill rating
-10,Cole Jubar/Jaxon Payne,Ludington,4,4,5,5,105.16,44.4,14.8,30.98,30.98,5.39,9,9,23.21,10.31,1,0/4 (0%),3-0 (100%),,1-3 (25%),2026-08-26,Lower TrueSkill rating
-11,Devin Vliestra/Micah Koerner,Kalamazoo Christian,4,4,3,1,83.19,37.7,12.09,30.74,30.74,6.22,5,5,25.33,26.22,0,1/2 (50%),1-0 (100%),2-0 (100%),0-1 (0%),2026-08-27,Lower TrueSkill rating
-12,Andrew Marler/Noah Seals,Paw Paw,4,4,4,0,57.25,29.7,6.99,28.93,28.93,7.31,4,4,25.44,0.0,1,,,1-0 (100%),,2026-08-26,Lower TrueSkill rating
-13,Caleb Ophoff/Joey Dicosola,Grand Rapids West Catholic,4,4,1,2,39.16,24.1,3.02,22.11,22.11,6.36,5,5,28.1,28.1,0,0/1 (0%),,1-0 (100%),0-1 (0%),2026-08-17,Lower TrueSkill rating
-14,Emmet Staley/Mason Harris,North Muskegon,4,4,3,6,35.67,23.0,3.11,21.74,21.74,6.21,4,4,24.19,22.9,0,0/6 (0%),2-0 (100%),1-1 (50%),0-4 (0%),2026-08-26,Lost head-to-head vs player above
-15,Alex Skoczylas/David Underwood,Ann Arbor Father Gabriel Richard,4,4,1,2,29.25,21.0,2.64,21.33,21.33,6.23,2,2,24.0,24.67,0,0/2 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-17,Lower TrueSkill rating
-16,James Brunner/Wyatt Korte,Grand Rapids Catholic Central,4,4,4,2,35.21,22.9,3.61,20.85,20.85,5.75,2,2,23.15,10.31,1,0/2 (0%),2-0 (100%),,1-2 (33%),2026-08-22,Lower TrueSkill rating
-17,Christian Keilen/Sam Alvarado,Lansing Catholic,4,4,4,3,22.78,19.0,1.89,20.33,20.33,6.15,1,1,22.54,0.0,0,0/3 (0%),1-0 (100%),0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
-18,Mark Mardelli/Michael Mlinarcik,Pontiac Notre Dame Prep,4,4,1,3,23.86,19.4,1.63,19.18,19.18,5.85,1,1,27.41,25.17,0,0/3 (0%),1-0 (100%),,0-3 (0%),2026-08-25,Lower TrueSkill rating
-19,Emmett Atkin/Khizar Sarwar,Kalamazoo Hackett Catholic Prep,4,4,1,3,17.43,17.4,0.92,18.59,18.59,5.89,1,1,21.6,21.25,0,0/3 (0%),1-0 (100%),0-2 (0%),0-1 (0%),2026-08-26,Lower TrueSkill rating
-20,Elijah Warner-Hall/Tyrone Thornton,Croswell-Lexington,4,4,1,3,0.03,12.0,,,,,0,0,0.0,0.0,0,0/3 (0%),0-1 (0%),,0-2 (0%),2026-08-25,Tied — no deciding criterion found
-21,Aiden Ridley/Connor McClelland,Yale,4,4,2,3,5.47,13.7,-2.64,18.56,18.56,7.06,0,0,37.22,31.34,0,0/3 (0%),,,1-3 (25%),2026-08-24,Lower TrueSkill rating
-22,Colin Moury/Remy Jorgensen,Williamston,4,4,1,2,-0.33,11.9,-2.88,17.09,17.09,6.66,0,0,28.1,0.0,0,0/2 (0%),,0-1 (0%),0-1 (0%),2026-08-22,Lower TrueSkill rating
-23,Darby White/Lucius Hart,Ovid-Elsie,4,4,1,3,-7.7,9.6,-3.9,17.03,17.03,6.98,0,0,23.57,0.0,0,0/2 (0%),0-1 (0%),0-1 (0%),,2026-08-25,Lower TrueSkill rating
-24,Chase Watson/Grayson Graham,Portland,4,4,0,3,-6.01,10.2,-3.99,15.87,15.87,6.62,0,0,27.86,26.82,0,0/3 (0%),0-1 (0%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
-25,Colson Smith/Jacob Helton,Goodrich,4,4,0,3,-11.76,8.4,-5.65,13.25,13.25,6.3,0,0,32.96,40.97,0,0/3 (0%),,0-1 (0%),0-2 (0%),2026-08-17,Lower TrueSkill rating
-26,Aiden Doher/Oz Schut,Maple City Glen Lake,4,4,2,6,-17.48,6.6,-7.1,15.29,15.29,7.46,0,0,35.98,37.72,0,0/6 (0%),,,0-5 (0%),2026-08-28,Lower TrueSkill rating
-27,Jansen DuBois/Leo VandenHeuvel,Muskegon Western Michigan Christian,4,4,2,5,-26.59,3.8,-7.93,12.15,12.15,6.69,0,0,26.05,24.75,0,0/5 (0%),1-0 (100%),0-4 (0%),0-1 (0%),2026-08-28,Lower TrueSkill rating
-28,Ezra Kirtley/Will Hathaway,Battle Creek Pennfield,4,4,0,3,-14.09,7.7,-5.88,11.67,11.67,5.85,0,0,30.6,30.6,0,0/3 (0%),0-1 (0%),,0-2 (0%),2026-08-26,Lower TrueSkill rating
-29,aiden simon/noah finch,Traverse City St Francis,4,4,0,12,-38.93,0.0,-10.89,10.31,10.31,7.07,0,0,31.03,31.82,0,0/12 (0%),0-1 (0%),0-1 (0%),0-6 (0%),2026-08-26,Worse score margin vs common opponents
+1,Brogan Kelly/Chase Schirmacher,Jackson Lumen Christi,4,1,12,0,265.69,100.0,23.21,45.02,45.02,7.27,65,65,24.03,23.46,5,,5-0 (100%),1-0 (100%),5-0 (100%),2026-08-22,
+2,Caleb Kooistra/Logan Will,Grand Rapids NorthPointe Christian,4,1,10,0,261.77,98.7,18.67,42.78,42.78,8.04,76,76,23.66,32.74,3,,4-0 (100%),2-0 (100%),3-0 (100%),2026-08-27,Worse score margin vs common opponents
+3,Ethan Blough/Gavin Cohoon,Ludington,4,1,8,1,220.09,84.5,13.46,35.27,35.27,7.27,69,69,20.36,18.51,3,,5-0 (100%),2-0 (100%),1-1 (50%),2026-08-26,Worse score margin vs common opponents
+4,Ian Gaulke/Noah Kuebler,Allegan,4,1,15,2,242.29,92.0,20.09,40.64,40.64,6.85,61,61,24.46,24.53,5,1/3 (33%),6-0 (100%),0-1 (0%),5-1 (83%),2026-08-28,Fewer wins vs common opponents
+5,Drew Williams/Jack Barber,Clio,4,1,7,1,108.5,46.5,15.45,36.63,36.63,7.06,10,10,19.36,15.57,1,1/2 (50%),4-0 (100%),2-0 (100%),1-1 (50%),2026-08-27,Lower TrueSkill rating
+6,Isaac Geffre/Simon Geffre,Paw Paw,4,1,9,2,177.26,69.9,13.17,33.51,33.51,6.78,48,48,24.63,27.3,2,0/2 (0%),5-0 (100%),1-0 (100%),2-2 (50%),2026-08-26,Lower TrueSkill rating
+7,Charlie Laethem/Davis Ford,Grosse Pointe Woods University Liggett,4,1,8,2,163.09,65.1,12.56,30.88,30.88,6.11,43,43,22.46,21.68,2,1/3 (33%),6-0 (100%),1-0 (100%),1-2 (33%),2026-08-27,Lost head-to-head vs player above
+8,Paul Huynh/Ryan Cotter,Grand Rapids Catholic Central,4,1,3,3,106.14,45.7,10.58,27.57,27.57,5.66,20,20,26.36,15.2,0,0/3 (0%),2-0 (100%),1-0 (100%),0-3 (0%),2026-08-22,Lower TrueSkill rating
+9,Jeremy Alter/Trace Dennis,Imlay City,4,1,4,2,86.46,39.0,10.66,26.32,26.32,5.22,10,10,23.22,18.17,1,1/3 (33%),2-0 (100%),1-1 (50%),1-1 (50%),2026-08-27,Lower TrueSkill rating
+10,Blake Bowerman/Brandon Shampo,Sandusky,4,1,7,0,104.22,45.0,15.71,35.85,35.85,6.71,8,8,19.15,18.29,0,1/1 (100%),4-0 (100%),2-0 (100%),1-0 (100%),2026-08-27,Worse score margin vs common opponents
+11,Levi Vander Moren/Ryan Eicholtz,Kalamazoo Christian,4,1,4,3,78.97,36.4,8.31,25.5,25.5,5.73,12,12,23.68,20.41,1,0/3 (0%),3-0 (100%),0-1 (0%),1-2 (33%),2026-08-27,Lower TrueSkill rating
+12,Eli Coffman/Joey Nouna,Kalamazoo Hackett Catholic Prep,4,1,6,2,96.06,42.2,13.46,31.97,31.97,6.17,9,9,21.41,25.28,0,0/2 (0%),6-0 (100%),0-1 (0%),0-1 (0%),2026-08-27,Lost head-to-head vs player above
+13,Michael Dinevski/Tye Chlebek,Grosse Ile,4,1,4,2,58.78,29.5,6.63,26.15,26.15,6.51,7,7,23.17,24.18,0,0/2 (0%),3-0 (100%),,0-2 (0%),2026-08-25,Lower TrueSkill rating
+14,Elliot MacTavish/Keegan Bridges,Maple City Glen Lake,4,1,3,5,20.97,16.7,-1.1,19.76,19.76,6.95,5,5,32.89,34.38,0,1/5 (20%),1-0 (100%),,0-5 (0%),2026-08-28,Worse score margin vs common opponents
+15,Joshua Andersen/Peyton Pangemanan,Berrien Springs,4,1,5,8,19.26,16.1,-0.3,17.49,17.49,5.93,4,4,25.44,27.2,0,1/6 (17%),2-2 (50%),0-2 (0%),0-4 (0%),2026-08-28,Lost head-to-head vs player above
+16,Joel LaDuke/Tristan Durkin,Traverse City St Francis,4,1,2,10,-21.62,2.1,-13.45,10.54,10.54,8.0,15,15,31.23,37.12,0,0/10 (0%),,1-1 (50%),0-9 (0%),2026-08-26,Worse score margin vs common opponents
+17,Emery Price/Sean McManus,North Muskegon,4,1,3,5,72.6,34.2,10.19,28.04,28.04,5.95,4,4,27.19,30.59,0,0/5 (0%),2-0 (100%),1-0 (100%),0-3 (0%),2026-08-26,Worse score margin vs common opponents
+18,Cooper Thayer/Sam Nobis,Portland,4,1,2,6,20.52,16.5,0.62,18.72,18.72,6.03,2,2,26.83,25.98,0,0/5 (0%),2-0 (100%),0-1 (0%),0-5 (0%),2026-08-26,Lower TrueSkill rating
+19,Caleb Clausing/David Ritzema,Muskegon Western Michigan Christian,4,1,2,4,13.98,14.3,-1.04,17.61,17.61,6.21,3,3,26.26,29.16,0,0/4 (0%),1-0 (100%),1-1 (50%),0-3 (0%),2026-08-28,Lower TrueSkill rating
+20,Collin Decoster/Micheal Stacer,Almont,4,1,1,7,-6.06,7.4,-4.18,14.06,14.06,6.08,1,1,25.61,29.86,0,1/7 (14%),1-0 (100%),0-1 (0%),0-4 (0%),2026-08-26,Lower TrueSkill rating
+21,Landon Martel/Lucas Fox,Yale,4,1,0,5,0.57,9.7,-2.76,18.51,18.51,7.09,0,0,28.78,35.85,0,0/5 (0%),,0-2 (0%),0-3 (0%),2026-08-24,Lower TrueSkill rating
+22,Alex Frank/Ben Palinski,Lansing Catholic,4,1,1,4,-13.97,4.8,-5.61,13.81,13.81,6.47,0,0,28.14,0.0,0,0/4 (0%),,,0-3 (0%),2026-08-15,Lower TrueSkill rating
+23,Elijah Roberge/Jones McDowell,Whitehall,4,1,1,4,-20.8,2.4,-7.28,12.53,12.53,6.6,0,0,31.17,27.7,0,0/4 (0%),0-1 (0%),,0-3 (0%),2026-08-24,Lower TrueSkill rating
+24,Bryson Burrow/Noah Anderson,Eaton Rapids,4,1,0,5,-27.93,0.0,-8.03,10.49,10.49,6.17,0,0,24.44,23.31,0,0/5 (0%),0-2 (0%),0-2 (0%),0-1 (0%),2026-08-26,Lower TrueSkill rating
+25,Dallas Klein/Diego Romero,Comstock Park,4,1,1,4,-26.72,0.4,-7.96,9.67,9.67,5.88,0,0,26.13,0.0,0,0/3 (0%),0-1 (0%),0-2 (0%),0-1 (0%),2026-08-24,Lower TrueSkill rating
+1,Maden Brady/Theo McEldowney,Jackson Lumen Christi,4,2,4,2,141.97,59.6,13.39,28.54,28.54,5.05,27,27,29.88,31.97,4,1/2 (50%),,,4-2 (67%),2026-08-22,
+2,Bryce Cundiff/Luke Selby,Maple City Glen Lake,4,2,6,2,290.61,100.0,22.7,38.23,38.23,5.18,77,77,31.11,30.18,5,0/2 (0%),,0-1 (0%),5-1 (83%),2026-08-28,Lost head-to-head vs player above
+3,Carson Wooodhams/Oliver Burnett,Allegan,4,2,16,2,151.65,62.2,14.72,32.84,32.84,6.04,31,31,22.88,22.22,3,0/2 (0%),6-0 (100%),4-0 (100%),3-2 (60%),2026-08-28,Lost head-to-head vs player above
+4,Hudson Borema/Sam Reisterer,Ludington,4,2,8,2,117.95,53.1,14.49,32.33,32.33,5.95,18,18,18.83,11.59,0,1/2 (50%),6-0 (100%),2-0 (100%),0-2 (0%),2026-08-26,Worse score margin vs common opponents
+5,Ian Moya/Lucas Ferguson,Grosse Pointe Woods University Liggett,4,2,12,3,125.64,55.1,12.04,28.35,28.35,5.43,26,26,23.7,20.48,1,1/4 (25%),3-0 (100%),5-0 (100%),2-3 (40%),2026-08-27,Lower TrueSkill rating
+6,Arend Clark/Sawyer Volkers,Grand Rapids NorthPointe Christian,4,2,7,3,69.48,39.9,7.14,23.91,23.91,5.59,10,10,27.4,0.0,0,0/2 (0%),2-0 (100%),1-0 (100%),0-3 (0%),2026-08-27,Lower TrueSkill rating
+7,Anderson Farnquist/Ethan Groner,Paw Paw,4,2,4,4,51.66,35.0,4.79,21.7,21.7,5.64,7,7,27.32,24.01,0,0/4 (0%),2-0 (100%),1-0 (100%),0-4 (0%),2026-08-20,Worse score margin vs common opponents
+8,David Ng’ang’a/Zachary Nyamweya,Berrien Springs,4,2,8,5,75.42,41.5,10.93,29.15,29.15,6.08,5,5,21.44,24.17,0,1/4 (25%),3-1 (75%),1-1 (50%),0-3 (0%),2026-08-28,Worse score margin vs common opponents
+9,Desmond Krapohl/Hayden Hahn,Clio,4,2,4,4,67.66,39.4,9.77,27.88,27.88,6.04,4,4,21.53,14.58,0,2/6 (33%),2-0 (100%),2-2 (50%),0-2 (0%),2026-08-27,Lower TrueSkill rating
+10,Michael Pieniazek/Will Pike,Goodrich,4,2,2,3,74.34,41.2,9.69,25.71,25.71,5.34,7,7,23.65,28.54,0,1/4 (25%),1-0 (100%),1-0 (100%),0-3 (0%),2026-08-27,Lower TrueSkill rating
+11,Brady Brechting/Jimmy Hulswit,Grand Rapids Catholic Central,4,2,3,3,52.41,35.2,7.18,25.12,25.12,5.98,3,3,20.93,11.51,0,0/2 (0%),3-0 (100%),,0-2 (0%),2026-08-22,Lower TrueSkill rating
+12,Archer Barcroft/Noah Ridler,Eaton Rapids,4,2,1,4,52.45,35.2,7.37,25.52,25.52,6.05,2,2,23.16,21.96,0,1/4 (25%),0-1 (0%),1-2 (33%),0-1 (0%),2026-08-26,Lost head-to-head vs player above
+13,Emerson Verhelle/Grayden Cowhy,Yale,4,2,2,3,38.8,31.5,4.33,23.57,23.57,6.41,2,2,26.19,21.7,0,0/3 (0%),,1-1 (50%),1-2 (33%),2026-08-24,Lower TrueSkill rating
+14,Addison Baumeister/Grace Riehl,Sandusky,4,2,3,4,32.01,29.7,3.67,21.7,21.7,6.01,1,1,23.28,19.58,0,0/4 (0%),1-0 (100%),1-1 (50%),1-2 (33%),2026-08-27,Lost head-to-head vs player above
+15,Gus Bernreuter/Luke Latchana,Grand Rapids West Catholic,4,2,1,4,21.16,26.7,-0.0,17.33,17.33,5.78,4,4,26.31,27.04,0,0/4 (0%),,1-2 (33%),0-2 (0%),2026-08-26,Lower TrueSkill rating
+16,Chase Yeager/Max Brown,North Muskegon,4,2,4,5,35.35,30.6,3.42,21.28,21.28,5.95,3,3,24.4,20.87,0,1/6 (17%),1-1 (50%),1-1 (50%),0-3 (0%),2026-08-26,Lost head-to-head vs player above
+17,Gage Larson/Jacob Heinicke,Portland,4,2,3,5,23.99,27.5,1.78,20.26,20.26,6.16,1,1,26.08,29.19,0,0/5 (0%),1-0 (100%),0-2 (0%),1-3 (25%),2026-08-26,Lower TrueSkill rating
+18,Kyle Motson/Owen Vliestra,Kalamazoo Christian,4,2,3,4,25.4,27.9,1.85,19.96,19.96,6.04,1,1,28.21,29.15,0,0/4 (0%),1-0 (100%),,0-4 (0%),2026-08-27,Lower TrueSkill rating
+19,Harrison Hoover/Lincoln Lewis,Lansing Catholic,4,2,1,4,-6.78,19.1,-4.49,16.17,16.17,6.88,0,0,31.25,0.0,0,1/5 (20%),,0-1 (0%),0-2 (0%),2026-08-15,Lower TrueSkill rating
+20,Daniel Grill/Indiana Jones,Muskegon Western Michigan Christian,4,2,2,5,-27.9,13.4,-8.25,11.62,11.62,6.63,0,0,26.65,24.51,0,0/5 (0%),,0-4 (0%),0-1 (0%),2026-08-28,Lower TrueSkill rating
+21,Joey Dunphey/Jojo Zayaz,Traverse City St Francis,4,2,1,11,-77.18,0.0,-18.24,5.84,5.84,8.03,0,0,27.97,30.1,0,0/9 (0%),0-2 (0%),0-2 (0%),0-6 (0%),2026-08-26,Lower TrueSkill rating
+1,Larsen Kibler/Sage Sanchez,Berrien Springs,4,3,6,2,228.37,88.7,18.93,35.71,35.71,5.59,58,58,26.26,27.75,3,0/2 (0%),,1-0 (100%),3-1 (75%),2026-08-28,
+2,Harrison Botke/Vincent Tran,Jackson Lumen Christi,4,3,12,0,260.9,100.0,22.7,45.84,45.84,7.71,63,63,24.59,26.28,6,,3-0 (100%),2-0 (100%),6-0 (100%),2026-08-22,Worse score margin vs common opponents
+3,Logan Spangler/Noah Koppenhofer,Grand Rapids NorthPointe Christian,4,3,10,0,218.06,85.1,18.86,41.69,41.69,7.61,54,54,22.29,27.38,3,,3-0 (100%),2-0 (100%),3-0 (100%),2026-08-27,Lower TrueSkill rating
+4,Charlie Morris/John DeLaet,Allegan,4,3,11,1,210.6,82.5,18.77,36.35,36.35,5.86,50,50,27.35,27.35,2,0/1 (0%),1-0 (100%),2-0 (100%),2-1 (67%),2026-08-28,Worse score margin vs common opponents
+5,Aidan Macdougall/Brady Back,Clio,4,3,7,1,104.53,45.7,14.81,33.26,33.26,6.15,10,10,20.83,16.51,0,1/2 (50%),3-0 (100%),2-0 (100%),1-1 (50%),2026-08-27,Lower TrueSkill rating
+6,Connor Esman/Jude Webster,Paw Paw,4,3,8,3,152.73,62.4,10.46,27.38,27.38,5.64,43,43,25.66,28.73,1,1/4 (25%),3-0 (100%),3-0 (100%),1-3 (25%),2026-08-26,Lower TrueSkill rating
+7,Brodie McKeller/Garrett Bridger,Maple City Glen Lake,4,3,2,6,142.28,58.8,11.27,28.05,28.05,5.59,34,34,32.79,35.15,1,1/7 (14%),,,2-5 (29%),2026-08-28,Worse score margin vs common opponents
+8,Gus Haan/Sam Ekkens,Kalamazoo Christian,4,3,4,2,144.92,59.7,10.98,27.81,27.81,5.61,37,37,25.9,27.06,2,0/2 (0%),2-0 (100%),,2-2 (50%),2026-08-27,Worse score margin vs common opponents
+9,Chris Kennedy/Danny Chenier,Kalamazoo Hackett Catholic Prep,4,3,4,1,90.36,40.8,14.11,32.61,32.61,6.17,5,5,19.5,20.23,0,0/1 (0%),3-0 (100%),1-0 (100%),0-1 (0%),2026-08-27,Lost head-to-head vs player above
+10,Jack Ingle/Matteo Marciano,Grosse Pointe Woods University Liggett,4,3,11,4,80.91,37.5,9.26,26.09,26.09,5.61,11,11,22.06,20.54,1,1/4 (25%),7-0 (100%),2-0 (100%),0-3 (0%),2026-08-27,Lower TrueSkill rating
+11,Joseph Franzel/Phoenix Surbrook,Sandusky,4,3,3,4,45.35,25.1,6.25,23.82,23.82,5.86,2,2,20.14,18.03,0,1/5 (20%),2-1 (67%),0-2 (0%),0-1 (0%),2026-08-27,Lower TrueSkill rating
+12,Gus Buell/Nickolaus Goodwin,Traverse City St Francis,4,3,4,8,89.64,40.5,4.75,21.39,21.39,5.55,26,26,27.73,31.56,0,3/11 (27%),,2-3 (40%),1-5 (17%),2026-08-26,Lower TrueSkill rating
+13,Owen Henke/Patrick Hart,Ludington,4,3,5,5,77.27,36.2,8.34,22.72,22.72,4.79,12,12,23.02,24.72,0,1/4 (25%),3-0 (100%),1-1 (50%),0-4 (0%),2026-08-26,Lost head-to-head vs player above
+14,Caden Sytek/Noah Rosema,North Muskegon,4,3,3,6,40.09,23.3,4.57,22.71,22.71,6.05,2,2,26.41,25.31,0,0/6 (0%),2-0 (100%),0-1 (0%),0-4 (0%),2026-08-26,Worse score margin vs common opponents
+15,Hudson Meinert/Rowan Kozminski,Grand Rapids Catholic Central,4,3,3,3,34.49,21.3,4.25,21.32,21.32,5.69,1,1,22.36,17.43,0,0/3 (0%),1-0 (100%),2-1 (67%),0-2 (0%),2026-08-22,Lower TrueSkill rating
+16,Bentley Robertson/Liam Jacobi,Portland,4,3,1,7,14.72,14.5,0.1,18.92,18.92,6.27,1,1,24.44,21.75,0,0/7 (0%),1-2 (33%),0-1 (0%),0-3 (0%),2026-08-26,Lower TrueSkill rating
+17,Aidyn Brinkman/Dylan Cinder,Comstock Park,4,3,1,4,-16.13,3.8,-5.58,13.47,13.47,6.35,0,0,23.55,20.33,0,0/4 (0%),0-1 (0%),0-2 (0%),,2026-08-24,Lower TrueSkill rating
+18,Alfredo Fajardo/Mason Tisdel,Muskegon Western Michigan Christian,4,3,2,5,-25.74,0.4,-7.68,12.2,12.2,6.63,0,0,25.28,25.34,0,0/5 (0%),0-1 (0%),0-3 (0%),0-1 (0%),2026-08-28,Lower TrueSkill rating
+19,Brody Jacobson/Jared Rhein,Yale,4,3,2,5,-26.95,0.0,-8.04,10.26,10.26,6.1,0,0,26.43,23.82,0,0/5 (0%),,1-3 (25%),0-2 (0%),2026-08-24,Lower TrueSkill rating
+1,Gurmilan Singh/Shayan Challapalli,Jackson Lumen Christi,4,4,10,1,270.94,100.0,18.98,39.31,39.31,6.78,80,80,22.92,18.73,3,1/2 (50%),4-0 (100%),1-0 (100%),3-1 (75%),2026-08-22,
+2,Ollie Pierpont/Stennson Shatto,Grand Rapids NorthPointe Christian,4,4,6,1,164.35,65.8,18.54,38.93,38.93,6.8,27,27,26.13,0.0,3,1/1 (100%),2-0 (100%),,3-0 (100%),2026-08-27,Lower TrueSkill rating
+3,Daniel Choi/Luke Kwon,Berrien Springs,4,4,7,0,145.09,59.6,17.61,36.88,36.88,6.42,20,20,24.88,24.73,3,,1-0 (100%),2-0 (100%),1-0 (100%),2026-08-28,Lower TrueSkill rating
+4,Blake Cronkright/Gavin Larose,Clio,4,4,6,1,90.91,42.2,14.53,34.5,34.5,6.65,4,4,20.3,0.0,0,2/3 (67%),1-1 (50%),2-0 (100%),1-0 (100%),2026-08-27,Lower TrueSkill rating
+5,Moses Schuchman/Noah Tepper,West Bloomfield FJA,4,4,6,0,81.18,39.1,13.1,34.04,34.04,6.98,3,3,19.17,0.0,0,,4-0 (100%),1-0 (100%),1-0 (100%),2026-08-27,Lower TrueSkill rating
+6,Billy Mansfield/Graeme Zelond,Grosse Pointe Woods University Liggett,4,4,6,4,104.03,46.4,10.63,27.18,27.18,5.51,19,19,22.63,22.1,1,0/4 (0%),3-2 (60%),1-1 (50%),1-1 (50%),2026-08-27,Lower TrueSkill rating
+7,Brady Czopek/Everett Scott,Grosse Ile,4,4,1,4,56.02,31.0,3.14,22.1,22.1,6.32,12,12,29.59,29.59,1,1/5 (20%),,,1-1 (50%),2026-08-25,Lost head-to-head vs player above
+8,Noah Willett/Sully Morgan,Allegan,4,4,10,5,102.77,46.0,13.57,32.01,32.01,6.14,11,11,22.66,22.12,1,1/4 (25%),4-0 (100%),1-1 (50%),1-2 (33%),2026-08-28,Lost head-to-head vs player above
+9,Lia Sandhoefer/Reilly Nugent,Sandusky,4,4,4,2,70.97,35.8,10.84,30.75,30.75,6.63,2,2,25.37,19.26,0,0/2 (0%),3-0 (100%),,0-2 (0%),2026-08-27,Lower TrueSkill rating
+10,Cole Jubar/Jaxon Payne,Ludington,4,4,5,5,110.42,48.5,15.01,30.64,30.64,5.21,11,11,23.66,17.72,1,0/4 (0%),3-0 (100%),0-1 (0%),1-3 (25%),2026-08-26,Lower TrueSkill rating
+11,Emmet Staley/Mason Harris,North Muskegon,4,4,3,6,39.44,25.7,3.89,22.62,22.62,6.25,4,4,23.95,22.12,0,0/6 (0%),2-0 (100%),1-0 (100%),0-4 (0%),2026-08-26,Lower TrueSkill rating
+12,James Brunner/Wyatt Korte,Grand Rapids Catholic Central,4,4,4,2,34.97,24.3,3.61,20.85,20.85,5.75,2,2,22.68,9.3,1,0/2 (0%),2-0 (100%),,1-2 (33%),2026-08-22,Lower TrueSkill rating
+13,Aiden Ridley/Connor McClelland,Yale,4,4,2,3,3.38,14.1,-2.75,18.01,18.01,6.92,0,0,34.16,30.75,0,0/3 (0%),,,1-3 (25%),2026-08-24,Lower TrueSkill rating
+14,Christian Keilen/Sam Alvarado,Lansing Catholic,4,4,4,3,-8.92,10.2,-4.13,16.06,16.06,6.73,0,0,23.3,0.0,0,0/3 (0%),,0-2 (0%),,2026-08-22,Lower TrueSkill rating
+15,Aiden Doher/Oz Schut,Maple City Glen Lake,4,4,2,6,-17.04,7.6,-6.91,14.9,14.9,7.27,0,0,35.0,35.66,0,0/6 (0%),,,0-5 (0%),2026-08-28,Lower TrueSkill rating
+16,Jansen DuBois/Leo VandenHeuvel,Muskegon Western Michigan Christian,4,4,2,5,-25.76,4.8,-7.8,12.24,12.24,6.68,0,0,26.4,25.26,0,0/5 (0%),1-0 (100%),0-4 (0%),0-1 (0%),2026-08-28,Lower TrueSkill rating
+17,aiden simon/noah finch,Traverse City St Francis,4,4,0,12,-40.61,0.0,-11.14,9.3,9.3,6.81,0,0,30.16,30.7,0,0/12 (0%),0-1 (0%),0-1 (0%),0-6 (0%),2026-08-26,Lower TrueSkill rating
