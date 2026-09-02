@@ -24,7 +24,7 @@ TARGET_GENDER  = "Boys"      # or "Girls" or None for both
 MAX_SCHOOLS    = None        # optional crawl limit
 
 # Minimum matches to appear in rankings
-MIN_MATCHES = 3
+MIN_MATCHES = 4
 
 # Division lookups (not needed for core logic; used in ranking output)
 TARGET_DIVISION = None
