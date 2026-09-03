@@ -1304,7 +1304,7 @@ function runSimulate() {{
     return;
   }}
 
-  let winsA = 0, winsB = 0, groupsHtml = '';
+  let winsA = 0, winsB = 0, expWinsA = 0, expWinsB = 0, groupsHtml = '';
   for (const baseKey of baseKeys) {{
     const fa = flightsA[baseKey];
     const fb = flightsB[baseKey];
@@ -1335,6 +1335,8 @@ function runSimulate() {{
     const winnerIsA = p >= 0.5;
     const details = predictMatchDetails(pa, pb, winnerIsA);
     if (winnerIsA) winsA++; else winsB++;
+    expWinsA += p;
+    expWinsB += (1 - p);
 
     const winnerName = winnerIsA ? pa.name : pb.name;
     const pFav = Math.max(p, 1 - p);
@@ -1359,12 +1361,13 @@ function runSimulate() {{
   }}
 
   const summary = '<div class="sim-summary">Projected result: ' + escapeHtml(a) + ' ' + winsA +
-    ' &ndash; ' + winsB + ' ' + escapeHtml(b) + '</div>' +
+    ' (' + expWinsA.toFixed(2) + ') &ndash; ' + winsB + ' (' + expWinsB.toFixed(2) + ') ' + escapeHtml(b) + '</div>' +
     '<p class="sim-note">Based on ' + (winsA + winsB) + ' flight' + ((winsA + winsB) === 1 ? '' : 's') +
     ' where both schools have a ranked player/pair. Same-division flights are compared using that ' +
     'division\\'s own ranking; flights where the schools are in different divisions use each school\\'s ' +
     'cross-division General Ranking entry instead. Win probabilities blend TrueSkill with a seed-history prior; ' +
-    'scorelines are simulated and deterministic per matchup.</p>';
+    'scorelines are simulated and deterministic per matchup. Numbers in parentheses are the expected (decimal) ' +
+    'flight total, summing each flight\\'s win probability instead of just the predicted winner.</p>';
 
   container.innerHTML = summary + groupsHtml;
 }}
