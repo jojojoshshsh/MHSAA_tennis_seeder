@@ -32,8 +32,10 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       using, in this strict order:
           1. head-to-head (direct result between the two)
           2. common opponents — decided first by WIN COUNT among shared
-             opponents, and only if that's tied, by cumulative signed
-             score margin against those shared opponents
+             opponents, then by TOTAL SETS PLAYED against those shared
+             opponents (fewer sets = more efficient/dominant win, so it
+             ranks higher), and only if that's ALSO tied, by cumulative
+             signed score margin against those shared opponents
           3. dominance — multi-hop reachability in the same DAG used in
              step 2 (does one of them transitively beat the other?)
           4. TrueSkill conservative rating (last resort before random)
@@ -941,18 +943,26 @@ def common_opponent_comparison(
     h2h: dict,
 ) -> tuple[str | None, str | None]:
     """
-    Common-opponents comparison, decided FIRST by win count among shared
-    opponents, and only if that's tied, by cumulative signed score margin
-    against those shared opponents.
+    Common-opponents comparison, decided in this order:
+      1. win count among shared opponents
+      2. total sets played against those shared opponents — fewer sets
+         means a more efficient/dominant path through the same common
+         opponents (e.g. beating a shared opponent in straight sets
+         beats winning a 3-setter against them), so the player with the
+         SMALLER total set count wins this tiebreak
+      3. cumulative signed score margin against those shared opponents
+         (only reached if both wins and total sets are tied)
 
-    Returns (winner, sub_reason) where sub_reason is "wins" or "margin"
-    for diagnostics, or (None, None) if no shared-opponent data exists.
+    Returns (winner, sub_reason) where sub_reason is "wins", "sets", or
+    "margin" for diagnostics, or (None, None) if no shared-opponent data
+    exists.
     """
     common = (opp_sets.get(a, set()) & opp_sets.get(b, set())) - {a, b}
     if not common:
         return None, None
 
     a_wins = b_wins = 0
+    a_sets = b_sets = 0
     a_margin = b_margin = 0.0
     counted = False
     for c in sorted(common):
@@ -965,6 +975,10 @@ def common_opponent_comparison(
             a_wins += 1
         if bc["winner"] == b:
             b_wins += 1
+
+        a_sets += len(_parse_set_tokens(ac["score"]))
+        b_sets += len(_parse_set_tokens(bc["score"]))
+
         raw_ac = parse_score_margin(ac["score"])
         raw_bc = parse_score_margin(bc["score"])
         a_margin += raw_ac if ac["winner"] == a else -raw_ac
@@ -975,6 +989,9 @@ def common_opponent_comparison(
 
     if a_wins != b_wins:
         return ("a" if a_wins > b_wins else "b"), "wins"
+
+    if a_sets != b_sets:
+        return ("a" if a_sets < b_sets else "b"), "sets"
 
     if abs(a_margin - b_margin) > 1e-9:
         return ("a" if a_margin > b_margin else "b"), "margin"
@@ -1009,7 +1026,7 @@ def compare_adjacent(
     """
     The four-rule fix-up comparator, run strictly in this order:
       1. head-to-head
-      2. common opponents (win count, then margin)
+      2. common opponents (win count, then total sets played, then margin)
       3. dominance (multi-hop transitive beats)
       4. TrueSkill conservative rating (last resort)
     """
@@ -1631,6 +1648,7 @@ def _safe_filename(text: str) -> str:
 _REASON_LABELS: dict[str, str] = {
     "head-to-head":              "Lost head-to-head vs player above",
     "common-opponents-wins":     "Fewer wins vs common opponents",
+    "common-opponents-sets":     "More sets needed vs common opponents",
     "common-opponents-margin":   "Worse score margin vs common opponents",
     "dominance":                 "Transitively beaten by player above",
     "trueskill":                 "Lower TrueSkill rating",
