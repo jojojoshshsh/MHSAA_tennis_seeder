@@ -32,12 +32,10 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       using, in this strict order:
           1. head-to-head (direct result between the two)
           2. common opponents — decided first by WIN COUNT among shared
-             opponents, then by cumulative SIGNED SET DIFFERENTIAL
-             (sets won minus sets lost, net across every shared
-             opponent — an oversized match-tiebreak "set" of 14+ total
-             games is normalized to an ordinary 7-6 first), and only if
-             that's ALSO tied, by cumulative signed game margin against
-             those shared opponents (also games-normalized the same way)
+             opponents, and only if that's tied, by cumulative signed
+             game margin against those shared opponents (an oversized
+             match-tiebreak "set" of 14+ total games is normalized to an
+             ordinary 7-6 first, so it doesn't skew the margin)
           3. dominance — multi-hop reachability in the same DAG used in
              step 2 (does one of them transitively beat the other?)
           4. TrueSkill conservative rating (last resort before random)
@@ -378,30 +376,13 @@ def _normalize_set_token(w: int, l: int) -> tuple[int, int]:
     return (w, l)
 
 
-def _player_set_diff(match: dict, player: str) -> int:
-    """
-    Signed set differential (sets won minus sets lost) for `player` in
-    this single match, using games-normalized set tokens (see
-    _normalize_set_token) so an oversized match-tiebreak "set" counts as
-    one ordinary set rather than a lopsided game margin. E.g. winning a
-    match in straight sets is +2, losing a 3-setter is -1, etc. `match`
-    must be a match `player` actually appears in (as winner or loser).
-    """
-    tokens = [_normalize_set_token(w, l) for w, l in _parse_set_tokens(match["score"])]
-    winner_set_wins = sum(1 for w, l in tokens if w > l)
-    winner_set_losses = sum(1 for w, l in tokens if w < l)
-    if match["winner"] == player:
-        return winner_set_wins - winner_set_losses
-    return winner_set_losses - winner_set_wins
-
-
 def _player_game_margin_normalized(match: dict, player: str) -> float:
     """
     Signed cumulative game margin for `player` in this single match,
-    built from the same games-normalized set tokens as _player_set_diff
-    (see _normalize_set_token) rather than the raw score string, so an
-    oversized match-tiebreak "set" contributes an ordinary set's worth
-    of margin instead of dominating the total.
+    built from games-normalized set tokens (see _normalize_set_token)
+    rather than the raw score string, so an oversized match-tiebreak
+    "set" contributes an ordinary set's worth of margin instead of
+    dominating the total.
     """
     tokens = [_normalize_set_token(w, l) for w, l in _parse_set_tokens(match["score"])]
     winner_games = sum(w for w, l in tokens)
@@ -1003,34 +984,21 @@ def common_opponent_comparison(
     """
     Common-opponents comparison, decided in this order:
       1. win count among shared opponents
-      2. cumulative SIGNED SET DIFFERENTIAL against those shared
-         opponents — for each shared opponent, sets won minus sets lost
-         (e.g. a straight-sets win is +2, a 3-set loss is -1), games-
-         normalized per _normalize_set_token so an oversized match-
-         tiebreak "set" (total games >= 14) counts as an ordinary 7-6
-         set rather than a lopsided game swing. Summed across every
-         shared opponent; the player with the LARGER (more positive)
-         total wins this tiebreak. This correctly nets out cases like
-         "both went 1-1 against the same two opponents, but in more/
-         fewer sets" — e.g. beating opponent C in straight sets and
-         losing to opponent D in straight sets is a net 0, the same as
-         beating C in three sets and losing to D in three sets, so a
-         case like that properly falls through to the margin check
-         below instead of being wrongly decided by a raw set count.
-      3. cumulative signed GAME MARGIN against those shared opponents,
-         also computed from the same games-normalized set tokens (only
-         reached if both wins and set differential are tied)
+      2. cumulative signed GAME MARGIN against those shared opponents,
+         computed from games-normalized set tokens (see
+         _normalize_set_token) so an oversized match-tiebreak "set"
+         (total games >= 14) is treated as an ordinary 7-6 set rather
+         than a lopsided game swing, instead of using the raw score
+         string directly (only reached if win count is tied)
 
-    Returns (winner, sub_reason) where sub_reason is "wins", "sets", or
-    "margin" for diagnostics, or (None, None) if no shared-opponent data
-    exists.
+    Returns (winner, sub_reason) where sub_reason is "wins" or "margin"
+    for diagnostics, or (None, None) if no shared-opponent data exists.
     """
     common = (opp_sets.get(a, set()) & opp_sets.get(b, set())) - {a, b}
     if not common:
         return None, None
 
     a_wins = b_wins = 0
-    a_set_diff = b_set_diff = 0
     a_margin = b_margin = 0.0
     counted = False
     for c in sorted(common):
@@ -1044,9 +1012,6 @@ def common_opponent_comparison(
         if bc["winner"] == b:
             b_wins += 1
 
-        a_set_diff += _player_set_diff(ac, a)
-        b_set_diff += _player_set_diff(bc, b)
-
         a_margin += _player_game_margin_normalized(ac, a)
         b_margin += _player_game_margin_normalized(bc, b)
 
@@ -1055,9 +1020,6 @@ def common_opponent_comparison(
 
     if a_wins != b_wins:
         return ("a" if a_wins > b_wins else "b"), "wins"
-
-    if a_set_diff != b_set_diff:
-        return ("a" if a_set_diff > b_set_diff else "b"), "sets"
 
     if abs(a_margin - b_margin) > 1e-9:
         return ("a" if a_margin > b_margin else "b"), "margin"
@@ -1092,7 +1054,7 @@ def compare_adjacent(
     """
     The four-rule fix-up comparator, run strictly in this order:
       1. head-to-head
-      2. common opponents (win count, then signed set differential, then margin)
+      2. common opponents (win count, then margin — see common_opponent_comparison)
       3. dominance (multi-hop transitive beats)
       4. TrueSkill conservative rating (last resort)
     """
@@ -1714,7 +1676,6 @@ def _safe_filename(text: str) -> str:
 _REASON_LABELS: dict[str, str] = {
     "head-to-head":              "Lost head-to-head vs player above",
     "common-opponents-wins":     "Fewer wins vs common opponents",
-    "common-opponents-sets":     "Worse set differential vs common opponents",
     "common-opponents-margin":   "Worse score margin vs common opponents",
     "dominance":                 "Transitively beaten by player above",
     "trueskill":                 "Lower TrueSkill rating",
