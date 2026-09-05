@@ -36,11 +36,7 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
              score margin against those shared opponents
           3. dominance — multi-hop reachability in the same DAG used in
              step 2 (does one of them transitively beat the other?)
-          4. TGRS ("Group Ranking Score") — a single composite number
-             folding TrueSkill conservative rating, transitive reach,
-             strength of schedule, quality wins, and win% together
-             (see _compute_tgrs()) — used here as the last-resort
-             direct comparison before ties get punted as "tied".
+          4. TrueSkill conservative rating (last resort before random)
       If the lower-ranked player should outrank the one above them by
       any of these four checks, swap them. Re-run full top-to-bottom
       passes until one entire pass produces zero swaps (fully stable).
@@ -57,28 +53,10 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       adjacent fix-up pass against the FULL cross-division roster (no
       division split at all). This produces one flight-wide ranking
       (e.g. "Boys Singles Flight 2, every division combined") using the
-      exact same head-to-head / common-opponents / dominance / TGRS
+      exact same head-to-head / common-opponents / dominance / TrueSkill
       rules as the per-division fix-up. It's published as its own
       pseudo-division named "overall", on top of (not replacing) the
       normal per-division output.
-
-TGRS-AS-TIEBREAK NOTE (this variant)
--------------------------------
-  The rule-4 "last resort before punting to tied" step inside the
-  adjacent fix-up pass (STEP 3 / STEP 4b) — the one that ultimately
-  produces the human-readable `reason_below` explanation column —
-  compares each pair's composite TGRS score instead of comparing raw
-  TrueSkill rating directly. TGRS already folds TrueSkill conservative
-  rating in as one of five weighted components (alongside transitive
-  reach, strength of schedule, quality wins, and win%), so this makes
-  the final direct-comparison tiebreak a fuller "who's had the better
-  overall body of work" check rather than TrueSkill alone. TGRS is
-  computed ONCE per group, from the same global (cross-division) inputs
-  used everywhere else in the pipeline (reach, sos, quality_wins,
-  records), so it's identical whether it's consumed here as a
-  tiebreaker or later as the published TGRS/TGRS_scaled output columns.
-  Everything else — cycle removal, transitive closure, seed order,
-  head-to-head, common opponents, dominance — is unchanged.
 
 DETERMINISM
 -------------------------------
@@ -214,11 +192,11 @@ OUTPUT LAYER (UPDATED)
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
 unchanged from the previous version, aside from the determinism fixes
-called out above and the TGRS-as-tiebreak change called out above.
-Section 9c (comeback stat + opponent-strength record), section 12
-(output helpers), run() (section 11), the TrueSkill import/call in
-process_group (section 10), and the new STEP 4b cross-division
-"overall" ranking (also in process_group) were added/rewritten.
+called out above. Section 9c (comeback stat + opponent-strength record),
+section 12 (output helpers), run() (section 11), the TrueSkill
+import/call in process_group (section 10), and the new STEP 4b
+cross-division "overall" ranking (also in process_group) were
+added/rewritten.
 """
 
 import csv
@@ -940,13 +918,6 @@ def transitivity_seed_order(
     chance to be fixed by h2h / common opponents / dominance in the
     per-division fix-up pass; the name tiebreak just guarantees the sort
     itself is fully deterministic, run after run, for identical input.
-
-    NOTE: this initial-ordering tiebreak still uses raw TrueSkill mu
-    (not TGRS) — TGRS isn't available yet at this point in the pipeline
-    (it depends on `reach`, which this very function is being used to
-    order). The TGRS-as-tiebreak change only applies to the later
-    adjacent fix-up pass's rule 4 (see compare_adjacent below), which is
-    what actually produces the published `reason_below` explanation.
     """
     return sorted(
         players,
@@ -1033,24 +1004,14 @@ def compare_adjacent(
     h2h: dict,
     opp_sets: dict[str, set[str]],
     reach: dict[str, set[str]],
-    tgrs: dict[str, float],
+    trueskill_ratings: dict,
 ) -> tuple[str | None, str]:
     """
     The four-rule fix-up comparator, run strictly in this order:
       1. head-to-head
       2. common opponents (win count, then margin)
       3. dominance (multi-hop transitive beats)
-      4. TGRS — composite Group Ranking Score (last resort)
-
-    Rule 4 used to compare raw TrueSkill conservative rating directly.
-    It now compares each player's TGRS value instead — TGRS already
-    blends TrueSkill conservative rating in as one weighted component
-    alongside transitive reach, strength of schedule, quality wins, and
-    win% (see _compute_tgrs()), so this is a fuller "who's had the
-    better overall body of work" comparison rather than TrueSkill in
-    isolation. `tgrs` is expected to be a dict[player] -> float computed
-    once per group (see process_group), from the same global inputs
-    used for the published TGRS/TGRS_scaled output columns.
+      4. TrueSkill conservative rating (last resort)
     """
     r = head_to_head_result(a, b, h2h)
     if r is not None:
@@ -1064,13 +1025,13 @@ def compare_adjacent(
     if r is not None:
         return r, "dominance"
 
-    # ── Rule 4: TGRS composite score (last resort) ──
-    ta = tgrs.get(a)
-    tb = tgrs.get(b)
-    if ta is not None and tb is not None:
-        diff = ta - tb
+    # ── Rule 4: TrueSkill conservative rating (last resort) ──
+    ra = trueskill_ratings.get(a)
+    rb = trueskill_ratings.get(b)
+    if ra is not None and rb is not None:
+        diff = ra.mu - rb.mu
         if abs(diff) > 1e-9:
-            return ("a" if diff > 0 else "b"), "tgrs"
+            return ("a" if diff > 0 else "b"), "trueskill"
 
     return None, "tied"
 
@@ -1080,15 +1041,12 @@ def adjacent_fixup(
     h2h: dict,
     opp_sets: dict[str, set[str]],
     reach: dict[str, set[str]],
-    tgrs: dict[str, float],
+    trueskill_ratings: dict,
 ) -> tuple[list[str], list[dict]]:
     """
     Repeated top-to-bottom adjacent-swap passes until a full pass makes
     zero swaps. Returns the final stable order plus a log of every swap
     made (for diagnostics).
-
-    `tgrs` is the composite Group Ranking Score dict used as rule 4's
-    last-resort direct comparison inside compare_adjacent (see there).
     """
     cur = list(order)
     swap_log: list[dict] = []
@@ -1100,7 +1058,7 @@ def adjacent_fixup(
         while i < len(cur) - 1:
             a, b = cur[i], cur[i + 1]
             winner, rule = compare_adjacent(
-                a, b, h2h, opp_sets, reach, tgrs
+                a, b, h2h, opp_sets, reach, trueskill_ratings
             )
             if winner == "b":
                 cur[i], cur[i + 1] = b, a
@@ -1120,16 +1078,15 @@ def build_adjacency_explanations(
     h2h: dict,
     opp_sets: dict[str, set[str]],
     reach: dict[str, set[str]],
-    tgrs: dict[str, float],
+    trueskill_ratings: dict,
 ) -> list[dict]:
     """Re-derive the deciding rule for each adjacent pair in the FINAL
-    stable order, for the seed_above/seed_below explain table. Uses the
-    same TGRS-based rule 4 as adjacent_fixup (see compare_adjacent)."""
+    stable order, for the seed_above/seed_below explain table."""
     out = []
     for k in range(len(order) - 1):
         a, b = order[k], order[k + 1]
         winner, rule = compare_adjacent(
-            a, b, h2h, opp_sets, reach, tgrs
+            a, b, h2h, opp_sets, reach, trueskill_ratings
         )
         out.append({
             "seed_above": a,
@@ -1204,12 +1161,10 @@ def _compute_tgrs(
 ) -> float:
     """
     TGRS ("Group Ranking Score") — a single composite number for sorting/
-    display purposes, AND (in this variant) for the rule-4 last-resort
-    direct comparison inside compare_adjacent / adjacent_fixup, replacing
-    a bare TrueSkill comparison there. It is still NOT used anywhere in
-    rules 1-3 of the ranking core (head-to-head, common opponents,
-    dominance) — those always take priority; TGRS only ever breaks a tie
-    those three couldn't resolve.
+    display purposes only. It is NOT used anywhere in the ranking core;
+    the actual seed order always comes from the transitivity + adjacent
+    fix-up pipeline above. TGRS exists purely so the website has one
+    "at a glance" number to show and sort by.
 
     Formula (weights are intentionally simple/explainable, tune freely):
         TGRS = (2.0 * reach_size)
@@ -1225,40 +1180,6 @@ def _compute_tgrs(
         + 1.5 * quality_wins
         + 0.1 * win_pct
     )
-
-
-def compute_tgrs_for_players(
-    players: list[str],
-    records: dict[str, dict],
-    reach: dict[str, set[str]],
-    trueskill_ratings: dict,
-    sos: dict[str, float],
-    quality_wins: dict[str, int],
-) -> dict[str, float]:
-    """
-    Computes each player's raw TGRS from the same global (cross-division)
-    inputs used everywhere else in the pipeline: transitive reach, the
-    group-wide sos/quality_wins precomputes, TrueSkill conservative
-    rating, and the player's full win%. Since none of these inputs
-    depend on which division a player ends up in, this only needs to be
-    computed ONCE per (gender, match_type, flight) group and can then be
-    reused both as the rule-4 tiebreak input for every fix-up pass
-    (per-division and "overall") and as the source for the published
-    TGRS/TGRS_scaled output columns.
-    """
-    out: dict[str, float] = {}
-    for p in players:
-        rec = records.get(p, {"matches": 0, "wins": 0, "losses": 0})
-        win_pct = rec["wins"] / rec["matches"] if rec["matches"] else 0.0
-        r = trueskill_ratings.get(p)
-        out[p] = _compute_tgrs(
-            reach_size=len(reach.get(p, ())),
-            ts_conservative=r.conservative if r else 0.0,
-            sos=sos.get(p, 0.0),
-            quality_wins=quality_wins.get(p, 0),
-            win_pct=win_pct,
-        )
-    return out
 
 
 def _scale_tgrs(raw_scores: dict[str, float]) -> dict[str, float]:
@@ -1548,16 +1469,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         players, reach, recency, margins, trueskill_ratings
     )
 
-    # --- TGRS, computed ONCE for the whole group now that `reach` exists.
-    #     This is what rule 4 of compare_adjacent uses as its last-resort
-    #     direct comparison in every fix-up pass below (per-division and
-    #     "overall" alike), replacing a bare TrueSkill comparison. It's
-    #     also the same dict the published TGRS/TGRS_scaled columns come
-    #     from, so the tiebreak and the output are always consistent. ---
-    group_tgrs = compute_tgrs_for_players(
-        players, records, reach, trueskill_ratings, sos_full, quality_wins_full
-    )
-
     # --- STEP 3: split into divisions ---
     div_players: dict[str, list[str]] = defaultdict(list)
     for player in seed_order:
@@ -1568,12 +1479,12 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     for division in sorted(div_players):
         division_roster = div_players[division]
 
-        # --- STEP 4: adjacent fix-up within division (TGRS-based rule 4) ---
+        # --- STEP 4: adjacent fix-up within division ---
         div_ranked, swap_log = adjacent_fixup(
-            division_roster, h2h, opp_sets, reach, group_tgrs
+            division_roster, h2h, opp_sets, reach, trueskill_ratings
         )
         div_explanations = build_adjacency_explanations(
-            div_ranked, h2h, opp_sets, reach, group_tgrs
+            div_ranked, h2h, opp_sets, reach, trueskill_ratings
         )
 
         div_ranking_matches = [
@@ -1584,10 +1495,18 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         local_sos = precompute_sos(div_ranked, div_ranking_idx, trueskill_ratings)
         local_quality_wins = precompute_quality_wins(div_ranked, div_ranking_idx, trueskill_ratings)
 
-        # TGRS for this division's output rows is just the relevant slice
-        # of the group-wide TGRS dict already computed above — same
-        # formula, same global inputs, so no need to recompute it.
-        tgrs_raw = {p: group_tgrs[p] for p in div_ranked}
+        tgrs_raw: dict[str, float] = {}
+        for p in div_ranked:
+            rec = records.get(p, {"matches": 0, "wins": 0, "losses": 0})
+            win_pct = rec["wins"] / rec["matches"] if rec["matches"] else 0.0
+            r = trueskill_ratings.get(p)
+            tgrs_raw[p] = _compute_tgrs(
+                reach_size=len(reach.get(p, ())),
+                ts_conservative=r.conservative if r else 0.0,
+                sos=sos_full.get(p, 0.0),
+                quality_wins=quality_wins_full.get(p, 0),
+                win_pct=win_pct,
+            )
         tgrs_scaled = _scale_tgrs(tgrs_raw)
 
         results.append({
@@ -1620,16 +1539,25 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     # being scoped to one division at a time — producing a single
     # flight-wide ranking on top of (not instead of) the per-division
     # seed lists above. Published under the pseudo-division "overall".
-    # Rule 4 here uses the same TGRS-based comparison as the per-division
-    # passes above.
     overall_ranked, overall_swap_log = adjacent_fixup(
-        seed_order, h2h, opp_sets, reach, group_tgrs
+        seed_order, h2h, opp_sets, reach, trueskill_ratings
     )
     overall_explanations = build_adjacency_explanations(
-        overall_ranked, h2h, opp_sets, reach, group_tgrs
+        overall_ranked, h2h, opp_sets, reach, trueskill_ratings
     )
 
-    tgrs_raw_overall = {p: group_tgrs[p] for p in overall_ranked}
+    tgrs_raw_overall: dict[str, float] = {}
+    for p in overall_ranked:
+        rec = records.get(p, {"matches": 0, "wins": 0, "losses": 0})
+        win_pct = rec["wins"] / rec["matches"] if rec["matches"] else 0.0
+        r = trueskill_ratings.get(p)
+        tgrs_raw_overall[p] = _compute_tgrs(
+            reach_size=len(reach.get(p, ())),
+            ts_conservative=r.conservative if r else 0.0,
+            sos=sos_full.get(p, 0.0),
+            quality_wins=quality_wins_full.get(p, 0),
+            win_pct=win_pct,
+        )
     tgrs_scaled_overall = _scale_tgrs(tgrs_raw_overall)
 
     results.append({
@@ -1705,7 +1633,7 @@ _REASON_LABELS: dict[str, str] = {
     "common-opponents-wins":     "Fewer wins vs common opponents",
     "common-opponents-margin":   "Worse score margin vs common opponents",
     "dominance":                 "Transitively beaten by player above",
-    "tgrs":                      "Lower TGRS (composite rating) score",
+    "trueskill":                 "Lower TrueSkill rating",
     "tied":                      "Tied — no deciding criterion found",
 }
 
@@ -1757,8 +1685,8 @@ def _result_rows_for_division(r: dict) -> list[dict]:
 
     # NEW: MIN_MATCHES is now applied only here, at output time — every
     # player/pair was fully part of ranking (cycles, transitive closure,
-    # h2h, dominance, TGRS) regardless of match count. This just decides
-    # who actually appears in the published seed list.
+    # h2h, dominance, TrueSkill) regardless of match count. This just
+    # decides who actually appears in the published seed list.
     MIN_MATCHES = getattr(_config, "MIN_MATCHES", 5)
     seeds = [
         p for p in r["seeds"]
