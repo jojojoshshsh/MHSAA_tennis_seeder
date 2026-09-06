@@ -33,9 +33,10 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
           1. head-to-head (direct result between the two)
           2. common opponents — decided first by WIN COUNT among shared
              opponents, and only if that's tied, by cumulative signed
-             game margin against those shared opponents (an oversized
-             match-tiebreak "set" of 14+ total games is normalized to an
-             ordinary 7-6 first, so it doesn't skew the margin)
+             game margin against those shared opponents (a match/super
+             tiebreak "set" — total games 14+, or either side reaching
+             10 on its own, e.g. 10-8 or a blowout 10-3 — is normalized
+             to an ordinary 7-6 first, so it doesn't skew the margin)
           3. dominance — multi-hop reachability in the same DAG used in
              step 2 (does one of them transitively beat the other?)
           4. TrueSkill conservative rating (last resort before random)
@@ -356,22 +357,26 @@ def _parse_set_tokens(score_str: str) -> list[tuple[int, int]]:
 def _normalize_set_token(w: int, l: int) -> tuple[int, int]:
     """
     Normalize one (winner_games, loser_games) set token before it's used
-    in any set-level comparison (signed set differential or the
-    game-margin fallback in common_opponent_comparison). Some "sets" are
-    actually a match/super tiebreak recorded as raw points (e.g. "10-8"
-    for a 10-point breaker played in place of a third set) rather than a
-    normal game-based set. Left unnormalized, a token like that would
-    count as a +/-2 (or more) game swing instead of the +/-1 an ordinary
-    7-6 set represents — overweighting a single tiebreak far beyond what
-    a real set decided by two games would carry.
+    in the game-margin fallback in common_opponent_comparison. Some
+    "sets" are actually a match/super tiebreak recorded as raw points
+    (e.g. "10-8" for a 10-point breaker played in place of a third set)
+    rather than a normal game-based set. Left unnormalized, a token like
+    that would count as a lopsided game swing far beyond what an
+    ordinary set carries — and a blowout breaker like "10-3" would be
+    even more overweighted despite still just being one match-tiebreak
+    "set", not seven real games' worth of margin.
 
-    If the token's two numbers sum to 14 or more, it's treated as a 7-6
-    set in the correct direction (the side with more raw points keeps
-    the "7", the other side gets the "6") rather than using the raw
-    numbers. Ordinary sets (sum < 14, e.g. 6-2, 6-4, 7-5) pass through
-    unchanged.
+    A token is treated as a tiebreak/breaker (and normalized to 7-6 in
+    the correct direction — the side with more raw points keeps the
+    "7", the other side gets the "6") if EITHER of the following holds:
+      - the two numbers sum to 14 or more (e.g. 10-8, 9-6), or
+      - either side's number is exactly 10 on its own (e.g. 10-3, 10-1),
+        since a real game-based set never reaches 10 games for one side
+        without going long past what "sum >= 14" alone would catch on
+        a lopsided score.
+    Ordinary sets (e.g. 6-2, 6-4, 7-5) pass through unchanged.
     """
-    if w + l >= 14:
+    if w + l >= 14 or w == 10 or l == 10:
         return (7, 6) if w > l else (6, 7)
     return (w, l)
 
@@ -986,10 +991,11 @@ def common_opponent_comparison(
       1. win count among shared opponents
       2. cumulative signed GAME MARGIN against those shared opponents,
          computed from games-normalized set tokens (see
-         _normalize_set_token) so an oversized match-tiebreak "set"
-         (total games >= 14) is treated as an ordinary 7-6 set rather
-         than a lopsided game swing, instead of using the raw score
-         string directly (only reached if win count is tied)
+         _normalize_set_token) so a match/super tiebreak "set" (total
+         games 14+, or either side hitting 10 on its own, e.g. a blowout
+         10-3) is treated as an ordinary 7-6 set rather than a lopsided
+         game swing, instead of using the raw score string directly
+         (only reached if win count is tied)
 
     Returns (winner, sub_reason) where sub_reason is "wins" or "margin"
     for diagnostics, or (None, None) if no shared-opponent data exists.
