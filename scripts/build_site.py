@@ -471,6 +471,18 @@ html = f"""<!DOCTYPE html>
   .compare-stat span:first-child {{ color: #555; }}
   .compare-stat span:last-child {{ font-weight: 600; color: #1a3a5c; }}
   .compare-winner {{ color: #0a7c42 !important; }}
+  .compare-teams-list {{ display: flex; flex-wrap: wrap; gap: .4rem; margin: .75rem 0; }}
+  .team-chip {{
+    display: flex; align-items: center; gap: .35rem;
+    background: #eef4fb; border: 1px solid #c0d4e8; border-radius: 16px;
+    padding: .25rem .5rem .25rem .8rem; font-size: .8rem; color: #1a3a5c;
+  }}
+  .team-chip button {{
+    background: none; border: none; color: #888; cursor: pointer;
+    font-size: 1rem; line-height: 1; padding: 0 .15rem;
+  }}
+  .team-chip button:hover {{ color: #c0392b; }}
+  .compare-flight-rank {{ font-weight: 700; color: #1a3a5c; }}
   .no-entry {{ color: #aaa; font-style: italic; font-size: .82rem; }}
   .sim-summary {{ background:#eef4fb;border:1px solid #c0d4e8;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.95rem;font-weight:600;color:#1a3a5c; }}
   .sim-flight-group {{ margin-bottom:1.25rem; }}
@@ -639,17 +651,20 @@ html = f"""<!DOCTYPE html>
 
 <section class="tool-panel" id="panel-compare">
   <div class="section-header"><h2>Team Compare</h2></div>
+  <p style="font-size:.82rem;color:#555;margin-bottom:.75rem;">
+    Add up to 16 teams, then Compare to see, for every division/flight where
+    at least one of them has a ranked player/pair, how they rank against
+    each other in that flight.
+  </p>
   <div class="compare-inputs">
-    <div class="search-box">
-      <input type="text" id="cmp-input-a" placeholder="Team A..." autocomplete="off">
-      <div class="autocomplete-list" id="cmp-auto-a"></div>
+    <div class="search-box" style="flex:2;">
+      <input type="text" id="cmp-input" placeholder="Type a school name..." autocomplete="off">
+      <div class="autocomplete-list" id="cmp-auto"></div>
     </div>
-    <div class="search-box">
-      <input type="text" id="cmp-input-b" placeholder="Team B..." autocomplete="off">
-      <div class="autocomplete-list" id="cmp-auto-b"></div>
-    </div>
-    <button onclick="runCompare()" style="padding:.6rem 1.2rem;background:#1a3a5c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Compare</button>
+    <button type="button" onclick="addCompareTeam(document.getElementById('cmp-input').value)" style="padding:.6rem 1.2rem;background:#f8fafc;color:#1a3a5c;border:1px solid #c0d4e8;border-radius:8px;cursor:pointer;font-size:.9rem;">Add Team</button>
+    <button type="button" onclick="runCompare()" style="padding:.6rem 1.2rem;background:#1a3a5c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Compare</button>
   </div>
+  <div class="compare-teams-list" id="compare-teams-list"></div>
   <div id="compare-results"></div>
 </section>
 
@@ -880,14 +895,41 @@ const INDIVIDUAL_COL_LABELS_JS = {{
   vs_top_opp: 'vs Top Opp',
 }};
 
-let selectedA = '';
-let selectedB = '';
+let compareTeams = [];
+const MAX_COMPARE_TEAMS = 16;
 
-makeAutocomplete('cmp-input-a', 'cmp-auto-a', s => {{ selectedA = s; }});
-makeAutocomplete('cmp-input-b', 'cmp-auto-b', s => {{ selectedB = s; }});
+makeAutocomplete('cmp-input', 'cmp-auto', school => {{
+  addCompareTeam(school);
+}});
 
-document.getElementById('cmp-input-a').addEventListener('input', function() {{ selectedA = this.value; }});
-document.getElementById('cmp-input-b').addEventListener('input', function() {{ selectedB = this.value; }});
+function addCompareTeam(school) {{
+  school = (school || '').trim();
+  if (!school) return;
+  if (compareTeams.some(t => t.toLowerCase() === school.toLowerCase())) {{
+    document.getElementById('cmp-input').value = '';
+    return;
+  }}
+  if (compareTeams.length >= MAX_COMPARE_TEAMS) {{
+    alert(`You can compare up to ${{MAX_COMPARE_TEAMS}} teams at a time.`);
+    return;
+  }}
+  compareTeams.push(school);
+  document.getElementById('cmp-input').value = '';
+  document.getElementById('cmp-auto').innerHTML = '';
+  renderCompareTeams();
+}}
+
+function removeCompareTeam(school) {{
+  compareTeams = compareTeams.filter(t => t !== school);
+  renderCompareTeams();
+}}
+
+function renderCompareTeams() {{
+  const list = document.getElementById('compare-teams-list');
+  list.innerHTML = compareTeams.map((t, i) =>
+    `<span class="team-chip">${{escapeHtml(t)}} <button type="button" onclick="removeCompareTeam(compareTeams[${{i}}])">&times;</button></span>`
+  ).join('');
+}}
 
 function getBestPerFlight(school) {{
   const q = school.trim().toLowerCase();
@@ -925,70 +967,53 @@ function statVal(cols, row, col) {{
 }}
 
 function runCompare() {{
-  const a = (selectedA || document.getElementById('cmp-input-a').value).trim();
-  const b = (selectedB || document.getElementById('cmp-input-b').value).trim();
-  if (!a || !b) {{ alert('Enter two school names to compare.'); return; }}
+  if (compareTeams.length === 0) {{ alert('Add at least one team to compare.'); return; }}
 
-  const dataA   = getBestPerFlight(a);
-  const dataB   = getBestPerFlight(b);
-  const allKeys = [...new Set([...Object.keys(dataA), ...Object.keys(dataB)])].sort();
-
-  // reason_below is context-specific to each table and not meaningful
-  // in a side-by-side compare view, so exclude it here. won_after_set1_loss
-  // and the vs_*_opp records are formatted strings (not plain numbers), so
-  // they're also excluded from this numeric-style compare view.
-  const SHOW_COLS = [
-    'rank', 'name', 'pair_name',
-    'wins', 'losses',
-    'TGRS', 'TGRS_scaled', 'ts_rating', 'ts_mu',
-    'reachability',
-    'sos', 'local_sos', 'quality_wins',
-    'last_match_date'
-  ];
-
-  const LOWER_IS_BETTER = new Set(['rank', 'ts_sigma']);
+  // key ("Boys Singles · Div 1 · Flight 2") -> array of {{team, rank, cols, row}}
+  const byFlight = {{}};
+  for (const team of compareTeams) {{
+    const data = getBestPerFlight(team);
+    for (const [key, entry] of Object.entries(data)) {{
+      if (!byFlight[key]) byFlight[key] = [];
+      byFlight[key].push({{ team, rank: entry.rank, cols: entry.cols, row: entry.row }});
+    }}
+  }}
 
   const container = document.getElementById('compare-results');
-  if (allKeys.length === 0) {{
-    container.innerHTML = '<p style="color:#888">No data found for either school.</p>';
+  const keys = Object.keys(byFlight).sort();
+  if (keys.length === 0) {{
+    container.innerHTML = '<p style="color:#888">No ranked players/pairs found for the selected teams.</p>';
     return;
   }}
 
-  let html = '<div class="compare-grid">';
-  for (const key of allKeys) {{
-    const ea = dataA[key];
-    const eb = dataB[key];
-    html += `<div class="compare-flight"><h3>${{escapeHtml(key)}}</h3><div class="compare-cols">`;
-
-    for (const [label, entry, other] of [[a, ea, eb], [b, eb, ea]]) {{
-      html += `<div class="compare-col"><h4>${{escapeHtml(label)}}</h4>`;
-
-      if (!entry) {{
-        html += '<div class="no-entry">Not ranked in this slot</div>';
-      }} else {{
-        for (const col of SHOW_COLS) {{
-          const v  = statVal(entry.cols, entry.row, col);
-          const vo = other ? statVal(other.cols, other.row, col) : null;
-          if (v === null || v === '') continue;
-
-          const vn  = parseFloat(v);
-          const von = parseFloat(vo);
-          const better = !isNaN(vn) && !isNaN(von) && (
-            LOWER_IS_BETTER.has(col) ? vn < von : vn > von
-          );
-
-          html +=
-            '<div class="compare-stat">' +
-              `<span>${{escapeHtml(col)}}</span>` +
-              `<span class="${{better ? 'compare-winner' : ''}}">${{escapeHtml(v)}}</span>` +
-            '</div>';
-        }}
-      }}
-      html += '</div>';
+  let html = '';
+  for (const key of keys) {{
+    const entries = byFlight[key].slice().sort((a, b) => a.rank - b.rank);
+    html += `<div class="compare-flight"><h3>${{escapeHtml(key)}}</h3>`;
+    html += '<div class="table-wrap"><table class="rankings-table"><thead><tr>' +
+      '<th>Rank</th><th>School</th><th>Name</th><th>Record</th><th>TGRS</th><th>SOS</th><th>Last Match</th>' +
+      '</tr></thead><tbody>';
+    for (const e of entries) {{
+      const name    = statVal(e.cols, e.row, 'pair_name') || statVal(e.cols, e.row, 'name') || '';
+      const wins    = statVal(e.cols, e.row, 'wins');
+      const losses  = statVal(e.cols, e.row, 'losses');
+      const record  = (wins !== null && losses !== null && wins !== '' && losses !== '') ? `${{wins}}-${{losses}}` : '';
+      const tgrsRaw = statVal(e.cols, e.row, 'TGRS_scaled');
+      const tgrs    = (tgrsRaw !== null && tgrsRaw !== '') ? tgrsRaw : (statVal(e.cols, e.row, 'TGRS') ?? '');
+      const sos     = statVal(e.cols, e.row, 'sos') ?? '';
+      const lastM   = statVal(e.cols, e.row, 'last_match_date') ?? '';
+      html += '<tr>' +
+        `<td class="compare-flight-rank">${{escapeHtml(e.rank)}}</td>` +
+        `<td>${{escapeHtml(e.team)}}</td>` +
+        `<td>${{escapeHtml(name)}}</td>` +
+        `<td>${{escapeHtml(record)}}</td>` +
+        `<td>${{escapeHtml(tgrs)}}</td>` +
+        `<td>${{escapeHtml(sos)}}</td>` +
+        `<td>${{escapeHtml(lastM)}}</td>` +
+        '</tr>';
     }}
-    html += '</div></div>';
+    html += '</tbody></table></div></div>';
   }}
-  html += '</div>';
   container.innerHTML = html;
 }}
 
