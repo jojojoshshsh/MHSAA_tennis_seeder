@@ -209,7 +209,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from collections import defaultdict, deque
 from pathlib import Path
 
@@ -867,59 +867,24 @@ def _find_any_cycle(
     return None
 
 
-_CYCLE_TIE_WINDOW = timedelta(days=1)
-
-
 def _oldest_match_on_cycle(cycle: list[str], active: list[dict]) -> dict | None:
-    """
-    Picks the match on the cycle to remove. Primarily this is the OLDEST
-    match on the cycle (by date), same as before. But if one or more other
-    matches on the cycle are tied with the oldest, or fall within
-    _CYCLE_TIE_WINDOW (1 day) of it, we don't just take whichever happened
-    to be oldest by a few hours/a day — among that "oldest cluster" we
-    remove the LEAST CONVINCING win, i.e. the one with the smallest win
-    margin (parse_score_margin). This is still "remove the oldest
-    contradicting result" in spirit, but breaks near-ties on age using
-    how decisive the result actually was rather than an arbitrary date
-    ordering.
-    """
     k = len(cycle)
     edges: set[tuple[str, str]] = {
         (cycle[i], cycle[(i + 1) % k]) for i in range(k)
     }
-    candidates: list[dict] = [
-        m for m in active if (m["winner"], m["loser"]) in edges
-    ]
-    if not candidates:
-        return None
-
-    oldest_date = min(m["date"] for m in candidates)
-    cluster = [
-        m for m in candidates
-        if (m["date"] - oldest_date) <= _CYCLE_TIE_WINDOW
-    ]
-
-    if len(cluster) == 1:
-        return cluster[0]
-
-    # Within the oldest cluster, remove the least convincing (smallest
-    # margin) win. Ties on margin fall back to strict oldest-first so the
-    # result stays deterministic.
-    return min(
-        cluster,
-        key=lambda m: (parse_score_margin(m["score"]), m["date"]),
-    )
+    oldest: dict | None = None
+    for m in active:
+        if (m["winner"], m["loser"]) in edges:
+            if oldest is None or m["date"] < oldest["date"]:
+                oldest = m
+    return oldest
 
 
 def resolve_all_cycles(matches: list[dict], players: list[str]) -> list[dict]:
     """
-    Repeatedly find ANY cycle and drop a match on it — the oldest match,
-    unless other matches on the cycle are tied with (or within 1 day of)
-    that oldest date, in which case the least convincing win (smallest
-    score margin) among that oldest cluster is dropped instead — until
-    the beats graph is fully acyclic. This is the foundation step the
-    rest of the algorithm depends on — everything downstream assumes a
-    DAG.
+    Repeatedly find ANY cycle and drop the oldest match on it, until the
+    beats graph is fully acyclic. This is the foundation step the rest of
+    the algorithm depends on — everything downstream assumes a DAG.
 
     `matches` is expected to already be the ranking-eligible subset
     (ranking-excluded matches filtered out by the caller).
