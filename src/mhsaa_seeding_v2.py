@@ -867,24 +867,41 @@ def _find_any_cycle(
     return None
 
 
-def _oldest_match_on_cycle(cycle: list[str], active: list[dict]) -> dict | None:
+def _match_to_remove_on_cycle(cycle: list[str], active: list[dict]) -> dict | None:
+    """
+    Picks which match on the cycle to drop. Primary key is still the
+    oldest date (matches the original "remove the oldest contradicting
+    result" behavior). If two or more matches on the cycle land on the
+    exact same date, the tie is broken by margin of win — the match
+    that was the LEAST convincing win (smallest game-differential
+    margin, from parse_score_margin) is the one removed, since a
+    razor-thin win is the weakest evidence to be contradicting the
+    rest of the graph.
+    """
     k = len(cycle)
     edges: set[tuple[str, str]] = {
         (cycle[i], cycle[(i + 1) % k]) for i in range(k)
     }
-    oldest: dict | None = None
-    for m in active:
-        if (m["winner"], m["loser"]) in edges:
-            if oldest is None or m["date"] < oldest["date"]:
-                oldest = m
-    return oldest
+    candidates = [m for m in active if (m["winner"], m["loser"]) in edges]
+    if not candidates:
+        return None
+
+    oldest_date = min(m["date"] for m in candidates)
+    on_oldest_date = [m for m in candidates if m["date"] == oldest_date]
+    if len(on_oldest_date) == 1:
+        return on_oldest_date[0]
+
+    # Exact date tie: remove the least convincing win (smallest margin).
+    return min(on_oldest_date, key=lambda m: parse_score_margin(m["score"]))
 
 
 def resolve_all_cycles(matches: list[dict], players: list[str]) -> list[dict]:
     """
-    Repeatedly find ANY cycle and drop the oldest match on it, until the
-    beats graph is fully acyclic. This is the foundation step the rest of
-    the algorithm depends on — everything downstream assumes a DAG.
+    Repeatedly find ANY cycle and drop the oldest match on it (ties on
+    the exact same date broken by smallest win margin — see
+    _match_to_remove_on_cycle), until the beats graph is fully acyclic.
+    This is the foundation step the rest of the algorithm depends on —
+    everything downstream assumes a DAG.
 
     `matches` is expected to already be the ranking-eligible subset
     (ranking-excluded matches filtered out by the caller).
@@ -895,10 +912,10 @@ def resolve_all_cycles(matches: list[dict], players: list[str]) -> list[dict]:
         cycle = _find_any_cycle(beats, players)
         if cycle is None:
             break
-        oldest = _oldest_match_on_cycle(cycle, active)
-        if oldest is None:
+        to_remove = _match_to_remove_on_cycle(cycle, active)
+        if to_remove is None:
             break
-        active = [m for m in active if m is not oldest]
+        active = [m for m in active if m is not to_remove]
     return active
 
 
