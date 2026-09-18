@@ -81,7 +81,7 @@ def _finish_points(rank: int) -> float:
         return 1.0
     return 0.0
   
-def _finish_points_overall(rank: int) -> float:
+def _finish_points_overall_scaled(rank: int) -> float:
     """Same point values as _finish_points, but thresholds scaled 4x —
     used only for the cross-division 'overall' team rankings."""
     if rank <= 4:
@@ -97,6 +97,13 @@ def _finish_points_overall(rank: int) -> float:
     if rank <= 128:
         return 1.0
     return 0.0
+
+
+def _finish_points_overall(rank: int) -> float:
+    """Points used for the cross-division 'overall' team rankings: a
+    50/50 blend of the regular (non-scaled) finish-points table and the
+    4x-scaled table above."""
+    return 0.5 * _finish_points(rank) + 0.5 * _finish_points_overall_scaled(rank)
 
 def _ordinal(n: int) -> str:
     if 11 <= (n % 100) <= 13:
