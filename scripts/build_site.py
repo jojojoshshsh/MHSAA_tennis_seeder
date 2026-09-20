@@ -115,7 +115,7 @@ for entry in team_data:
         if has_more else ""
     )
 
-    div_attr_html = "" if is_overall_team else f' data-division="{_html_escape_py(div_attr)}"'
+    div_attr_html = ' class="general-section"' if is_overall_team else f' data-division="{_html_escape_py(div_attr)}"'
     team_html += f"""
     <section id="{anchor}"{div_attr_html}>
       <div class="section-header">
@@ -190,14 +190,14 @@ CAT_ORDER = {"singles": 0, "doubles": 1}
 all_data.sort(key=lambda x: (
     DIVISION_ORDER.get(x["division"], 9),
     x["flight"],
-    GENDER_ORDER.get(x["gender"], 9),
     CAT_ORDER.get(x["category"], 9),
+    GENDER_ORDER.get(x["gender"], 9),
 ))
 
 general_data.sort(key=lambda x: (
     x["flight"],
-    GENDER_ORDER.get(x["gender"], 9),
     CAT_ORDER.get(x["category"], 9),
+    GENDER_ORDER.get(x["gender"], 9),
 ))
 
 all_schools = sorted(set(r["school"] for r in all_rows_for_search if r["school"]))
@@ -273,6 +273,8 @@ def _render_individual_table(entry, anchor_prefix, label_prefix, include_data_di
     if include_data_division:
         div_attr = _norm_division(division)
         div_attrs = f' data-division="{_html_escape_py(div_attr)}"'
+    else:
+        div_attrs = ' class="general-section"'
 
     section_html = f"""
     <section id="{anchor}"{div_attrs} data-category="{_html_escape_py(entry['category'])}" data-flight="{_html_escape_py(flight)}">
@@ -630,11 +632,15 @@ html = f"""<!DOCTYPE html>
         <label><input type="checkbox" class="filter-cb filter-flight" value="3" checked onchange="applyFilters()"> Flight 3</label>
         <label><input type="checkbox" class="filter-cb filter-flight" value="4" checked onchange="applyFilters()"> Flight 4</label>
       </div>
+      <div class="filter-group">
+        <div class="filter-group-title">Rankings Scope</div>
+        <label><input type="checkbox" class="filter-cb" id="filter-overall" checked onchange="applyFilters()"> Show Overall/General Rankings</label>
+      </div>
       <div class="filter-actions">
         <button type="button" onclick="selectAllFilters()">Select all</button>
         <button type="button" onclick="clearAllFilters()">Clear all</button>
       </div>
-      <p style="font-size:.68rem;color:#888;margin-top:.4rem;">Filters apply to division-specific tables only — General Rankings (cross-division) are always shown.</p>
+      <p style="font-size:.68rem;color:#888;margin-top:.4rem;">Division/Category/Flight filters apply to division-specific tables only. Use the Overall/General Rankings toggle above to show or hide the cross-division rankings separately.</p>
     </div>
   </div>
 </nav>
@@ -741,19 +747,25 @@ function toggleShowAllTeams(btn, anchor) {{
 }}
 
 // NOTE: only sections carrying a data-division attribute participate in
-// the Division/Category/Flight filter — the cross-division General
-// Rankings sections deliberately don't set data-division, so they're
-// always visible regardless of the filter state.
+// the Division/Category/Flight filter. The cross-division General
+// Rankings sections (team and individual) carry class="general-section"
+// instead, and are shown/hidden independently via the "Show
+// Overall/General Rankings" toggle.
 function applyFilters() {{
   const divisions  = Array.from(document.querySelectorAll('.filter-division:checked')).map(cb => cb.value);
   const categories = Array.from(document.querySelectorAll('.filter-category:checked')).map(cb => cb.value);
-  const flights    = Array.from(document.querySelectorAll('.filter-flight:checked')).map(cb => cb.value);
+  const flights     = Array.from(document.querySelectorAll('.filter-flight:checked')).map(cb => cb.value);
+  const showOverall = document.getElementById('filter-overall').checked;
 
   document.querySelectorAll('main > section[data-division]').forEach(sec => {{
     let show = divisions.includes(sec.dataset.division);
     if (show && sec.dataset.category) show = categories.includes(sec.dataset.category);
     if (show && sec.dataset.flight)   show = flights.includes(sec.dataset.flight);
     sec.style.display = show ? '' : 'none';
+  }});
+
+  document.querySelectorAll('main > section.general-section').forEach(sec => {{
+    sec.style.display = showOverall ? '' : 'none';
   }});
 }}
 
