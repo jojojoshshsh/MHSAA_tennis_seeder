@@ -1477,7 +1477,15 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         qualified = [p for p in candidates if _match_count(p) >= MIN_MATCHES]
         pool = qualified if qualified else candidates
 
-        best = max(pool, key=_last_date)
+        # Rank by recency first; if two-plus candidates are tied on the
+        # exact same last-match date (e.g. a walkover and a real match
+        # both landing on the same day, since dates have no time-of-day
+        # granularity), break the tie by whoever has played more matches
+        # overall. This only kicks in on an EXACT date tie — it never
+        # overrides a genuine recency difference.
+        best_date = max(_last_date(p) for p in pool)
+        tied = [p for p in pool if _last_date(p) == best_date]
+        best = max(tied, key=_match_count) if len(tied) > 1 else tied[0]
         dropped = [p for p in candidates if p != best]
         drop_players.update(dropped)
         print(
