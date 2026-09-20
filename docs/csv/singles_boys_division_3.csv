@@ -3,7 +3,7 @@ rank,name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,lo
 2,Jacob Yang,Bloomfield Hills Cranbrook Kingswood,3,1,13,1,597.87,94.3,24.7,43.8,43.8,6.37,222,222,33.56,37.42,9,1/2 (50%),2-0 (100%),3-0 (100%),7-1 (88%),2026-09-18,Lost head-to-head vs player above
 3,Anish Komirisetty,Haslett,3,1,17,0,638.63,100.0,34.52,55.87,55.87,7.11,217,217,30.83,30.76,11,1/1 (100%),5-0 (100%),4-0 (100%),8-0 (100%),2026-09-18,Worse score margin vs common opponents
 4,Edmundo Berain Saucedo,Hudsonville Unity Christian,3,1,12,3,602.46,95.0,29.75,47.44,47.44,5.89,216,216,28.24,29.07,5,1/4 (25%),5-0 (100%),2-1 (67%),4-1 (80%),2026-09-16,Worse score margin vs common opponents
-5,Eli Howes,St. Johns,3,1,15,1,562.16,89.4,23.13,44.21,44.21,7.02,214,214,24.79,33.38,4,0/1 (0%),10-0 (100%),4-0 (100%),1-1 (50%),2026-09-18,Worse score margin vs common opponents
+5,Eli Howes,St. Johns,3,1,15,1,562.16,89.4,23.13,44.21,44.21,7.02,214,214,24.8,33.38,4,0/1 (0%),10-0 (100%),4-0 (100%),1-1 (50%),2026-09-18,Worse score margin vs common opponents
 6,Lucas Parrott,Parma Western,3,1,10,0,459.36,75.0,15.15,39.86,39.86,8.24,182,182,24.01,20.53,5,1/1 (100%),4-0 (100%),2-0 (100%),3-0 (100%),2026-09-14,Lower TrueSkill rating
 7,Eeshaan Ale,St. Joseph,3,1,15,7,543.68,86.8,18.92,35.54,35.54,5.54,213,213,31.05,34.15,5,1/8 (12%),7-1 (88%),4-0 (100%),3-5 (38%),2026-09-18,Worse score margin vs common opponents
 8,Floyd Webb,Holland,3,1,11,3,544.82,86.9,20.44,36.98,36.98,5.51,212,212,28.09,31.23,3,0/3 (0%),5-0 (100%),2-0 (100%),2-3 (40%),2026-09-16,Lost head-to-head vs player above
@@ -20,7 +20,7 @@ rank,name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,lo
 19,Joe Maas,Grand Rapids South Christian,3,1,12,3,263.05,47.7,14.86,32.66,32.66,5.93,85,85,25.31,29.68,4,0/3 (0%),7-0 (100%),4-1 (80%),1-2 (33%),2026-09-16,Lower TrueSkill rating
 20,Alex Dull,Spring Lake,3,1,8,8,207.13,39.9,7.29,24.2,24.2,5.64,77,77,27.31,30.85,2,0/8 (0%),5-1 (83%),2-1 (67%),0-6 (0%),2026-09-17,Lost head-to-head vs player above
 21,Andrew Artuso,Dewitt,3,1,8,6,295.51,52.2,12.55,27.56,27.56,5.0,106,106,29.4,29.16,4,2/8 (25%),3-1 (75%),3-0 (100%),1-4 (20%),2026-09-15,Worse score margin vs common opponents
-22,Nicholas Schulz,Fenton,3,1,9,6,147.3,31.6,14.47,33.31,33.31,6.28,32,32,21.81,15.47,0,0/6 (0%),8-2 (80%),0-2 (0%),0-2 (0%),2026-09-19,Worse score margin vs common opponents
+22,Nicholas Schulz,Fenton,3,1,9,6,147.12,31.6,14.43,33.29,33.29,6.29,32,32,21.81,15.47,0,0/6 (0%),8-2 (80%),0-2 (0%),0-2 (0%),2026-09-19,Worse score margin vs common opponents
 23,Quentin Lefebvre,Ortonville Brandon,3,1,5,1,156.58,32.9,11.72,32.91,32.91,7.06,44,44,19.81,12.53,0,1/2 (50%),5-0 (100%),,0-1 (0%),2026-09-12,Worse score margin vs common opponents
 24,Carter Oswald,Sturgis,3,1,6,7,197.91,38.6,12.23,28.13,28.13,5.3,60,60,27.39,25.49,2,2/9 (22%),2-1 (67%),1-2 (33%),2-3 (40%),2026-09-16,Lower TrueSkill rating
 25,Adam Redden,Edwardsburg,3,1,7,2,208.67,40.1,16.01,32.25,32.25,5.41,59,59,18.09,14.39,1,2/3 (67%),4-0 (100%),1-2 (33%),,2026-09-14,Lost head-to-head vs player above
@@ -43,7 +43,7 @@ rank,name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,lo
 42,Lucas Wright,Trenton,3,1,4,7,56.86,19.0,5.27,22.34,22.34,5.69,9,9,24.92,13.05,0,1/7 (14%),3-1 (75%),1-3 (25%),0-3 (0%),2026-09-15,Lower TrueSkill rating
 43,Tommy Cox,Fowlerville,3,1,5,8,69.54,20.8,2.53,21.27,21.27,6.25,21,21,29.7,28.51,0,0/8 (0%),4-2 (67%),1-2 (33%),0-4 (0%),2026-09-16,Lower TrueSkill rating
 44,Ryan Marciniak,Bay City Central,3,1,5,6,76.34,21.7,6.7,22.12,22.12,5.14,15,15,25.58,29.68,0,2/8 (25%),5-0 (100%),0-2 (0%),0-4 (0%),2026-09-17,Worse score margin vs common opponents
-45,Kevin Defrenn,Owosso,3,1,4,6,57.61,19.1,3.84,21.86,21.86,6.0,12,12,28.74,24.44,0,1/7 (14%),2-2 (50%),1-1 (50%),0-3 (0%),2026-09-18,Lower TrueSkill rating
+45,Kevin Defrenn,Owosso,3,1,4,6,57.61,19.1,3.84,21.86,21.86,6.0,12,12,28.74,24.43,0,1/7 (14%),2-2 (50%),1-1 (50%),0-3 (0%),2026-09-18,Lower TrueSkill rating
 46,Landon Enderich,Vicksburg,3,1,2,9,34.67,15.9,-0.61,18.23,18.23,6.28,11,11,31.39,34.84,0,0/8 (0%),2-1 (67%),0-3 (0%),0-5 (0%),2026-09-14,Lower TrueSkill rating
 47,Remy Parker,Fruitport,3,1,1,8,1.3,11.3,-9.0,12.45,12.45,7.15,17,17,24.63,28.53,0,0/8 (0%),1-4 (20%),0-1 (0%),0-3 (0%),2026-09-12,Worse score margin vs common opponents
 48,Jaiden Ferguson,Grand Rapids Kenowa Hills,3,1,5,4,42.49,17.0,0.1,15.16,15.16,5.02,17,17,15.86,17.76,0,0/3 (0%),5-2 (71%),0-2 (0%),,2026-09-14,Worse score margin vs common opponents
@@ -63,7 +63,7 @@ rank,name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,lo
 62,Joe Searls,Coldwater,3,1,0,9,-47.03,4.5,-11.9,7.41,7.41,6.44,0,0,24.93,25.51,0,0/8 (0%),0-4 (0%),0-2 (0%),0-2 (0%),2026-09-14,Lower TrueSkill rating
 63,Beau Kirtdoll,Niles,3,1,1,14,-29.36,7.0,-10.68,7.62,7.62,6.1,6,6,24.09,22.29,0,1/13 (8%),1-6 (14%),0-4 (0%),0-3 (0%),2026-09-16,Worse score margin vs common opponents
 64,Logan Wonch,Charlotte,3,1,1,9,-79.51,0.0,-18.14,4.77,4.77,7.63,0,0,22.33,19.81,0,0/9 (0%),0-6 (0%),0-1 (0%),0-2 (0%),2026-09-14,Lower TrueSkill rating
-65,Jameson Scott,Flint Kearsley,3,1,0,13,-79.4,0.0,-18.34,3.17,3.17,7.17,0,0,24.59,28.43,0,0/8 (0%),0-7 (0%),0-4 (0%),0-2 (0%),2026-09-16,Lower TrueSkill rating
+65,Jameson Scott,Flint Kearsley,3,1,0,13,-79.4,0.0,-18.34,3.17,3.17,7.17,0,0,24.58,28.43,0,0/8 (0%),0-7 (0%),0-4 (0%),0-2 (0%),2026-09-16,Lower TrueSkill rating
 1,Samuel Kole-James,Detroit Country Day,3,2,8,0,645.56,100.0,33.52,50.54,50.54,5.67,226,226,33.67,41.03,6,1/1 (100%),1-0 (100%),1-0 (100%),5-0 (100%),2026-09-15,
 2,Nolan Marek,Trenton,3,2,10,0,317.75,53.0,21.9,44.28,44.28,7.46,96,96,20.29,7.85,4,,6-0 (100%),4-0 (100%),,2026-09-15,Lower TrueSkill rating
 3,Trevor Ilitch,Bloomfield Hills Cranbrook Kingswood,3,2,12,1,604.38,94.1,24.72,43.8,43.8,6.36,225,225,34.38,41.91,9,,2-0 (100%),2-0 (100%),7-1 (88%),2026-09-18,Lower TrueSkill rating
