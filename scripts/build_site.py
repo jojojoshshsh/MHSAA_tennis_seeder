@@ -669,6 +669,8 @@ html = f"""<!DOCTYPE html>
     </div>
     <button type="button" onclick="addCompareTeam(document.getElementById('cmp-input').value)" style="padding:.6rem 1.2rem;background:#f8fafc;color:#1a3a5c;border:1px solid #c0d4e8;border-radius:8px;cursor:pointer;font-size:.9rem;">Add Team</button>
     <button type="button" onclick="runCompare()" style="padding:.6rem 1.2rem;background:#1a3a5c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Compare</button>
+    <button type="button" onclick="runCompare('desc')" title="1st = 8 pts ... 8th = 1 pt, per flight" style="padding:.6rem 1.2rem;background:#0a7c42;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Points: Descending (8&rarr;1)</button>
+    <button type="button" onclick="runCompare('match')" title="Points = bracket rounds advanced, based on number of teams" style="padding:.6rem 1.2rem;background:#0a7c42;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Points: Per-Match Bracket</button>
   </div>
   <div class="compare-teams-list" id="compare-teams-list"></div>
   <div id="compare-results"></div>
@@ -943,7 +945,30 @@ function renderCompareTeams() {{
   ).join('');
 }}
 
-function getBestPerFlight(school) {{
+// A school's home division = first non-"overall" division it appears under.
+function getSchoolDivision(school) {{
+  const q = school.trim().toLowerCase();
+  for (const data of Object.values(CSV_DATA)) {{
+    const cols = data.cols;
+    const s = cols.indexOf('school'), d = cols.indexOf('division');
+    if (s === -1 || d === -1) continue;
+    for (const row of data.rows) {{
+      if (String(row[s]).trim().toLowerCase() !== q) continue;
+      const div = String(row[d]);
+      if (div !== 'overall') return div;
+    }}
+  }}
+  return null;
+}}
+
+// All selected teams in one division -> that division's rankings.
+// Mixed divisions -> the cross-division "overall" rankings.
+function getCompareScope() {{
+  const divs = new Set(compareTeams.map(getSchoolDivision).filter(d => d !== null));
+  return divs.size === 1 ? Array.from(divs)[0] : 'overall';
+}}
+
+function getBestPerFlight(school, scope) {{
   const q = school.trim().toLowerCase();
   const result = {{}};
 
@@ -962,9 +987,10 @@ function getBestPerFlight(school) {{
     for (const row of data.rows) {{
       if (String(row[schoolIdx]).trim().toLowerCase() !== q) continue;
       const div    = divIdx    >= 0 ? String(row[divIdx])    : '?';
+      if (div !== scope) continue;
       const flight = flightIdx >= 0 ? String(row[flightIdx]) : '?';
       const rank   = rankIdx   >= 0 ? Number(row[rankIdx])   : 9999;
-      const key    = `${{gender}} ${{category}} · Div ${{div}} · Flight ${{flight}}`;
+      const key    = `${{gender}} ${{category}} · Flight ${{flight}}`;
       if (!result[key] || rank < result[key].rank) {{
         result[key] = {{ rank, cols, row }};
       }}
@@ -978,13 +1004,37 @@ function statVal(cols, row, col) {{
   return i >= 0 ? row[i] : null;
 }}
 
-function runCompare() {{
+function ceilLog2(x) {{
+  let r = 0, v = 1;
+  while (v < x) {{ v *= 2; r++; }}
+  return r;
+}}
+
+// Option 1: 1st = 8 pts ... 8th = 1 pt, 9th+ = 0.
+function pointsDescending(pos) {{
+  return pos <= 8 ? 9 - pos : 0;
+}}
+
+// Option 2: points = bracket rounds advanced (byes count).
+//   8 teams:  3,2,1,1,0,0,0,0
+//   9 teams:  4,3,2,2,1,1,1,1,0
+// formula: rounds - ceil(log2(place)), where rounds = ceil(log2(teams))
+function pointsPerMatch(pos, n) {{
+  if (n < 2) return 0;
+  return Math.max(0, ceilLog2(n) - ceilLog2(pos));
+}}
+
+function runCompare(scoring) {{
   if (compareTeams.length === 0) {{ alert('Add at least one team to compare.'); return; }}
 
-  // key ("Boys Singles · Div 1 · Flight 2") -> array of {{team, rank, cols, row}}
+  const scope = getCompareScope();
+  const scopeLabel = scope === 'overall'
+    ? 'General Rankings (teams are from mixed divisions)'
+    : `Division ${{scope}} rankings (all teams are in the same division)`;
+
   const byFlight = {{}};
   for (const team of compareTeams) {{
-    const data = getBestPerFlight(team);
+    const data = getBestPerFlight(team, scope);
     for (const [key, entry] of Object.entries(data)) {{
       if (!byFlight[key]) byFlight[key] = [];
       byFlight[key].push({{ team, rank: entry.rank, cols: entry.cols, row: entry.row }});
@@ -998,14 +1048,22 @@ function runCompare() {{
     return;
   }}
 
-  let html = '';
+  const totals = {{}};
+  compareTeams.forEach(t => {{ totals[t] = 0; }});
+  const ptsHeader = scoring === 'desc' ? 'Pts (8→1)' : 'Pts (bracket)';
+
+  let flightsHtml = '';
   for (const key of keys) {{
     const entries = byFlight[key].slice().sort((a, b) => a.rank - b.rank);
-    html += `<div class="compare-flight"><h3>${{escapeHtml(key)}}</h3>`;
-    html += '<div class="table-wrap"><table class="rankings-table"><thead><tr>' +
-      '<th>Rank</th><th>School</th><th>Name</th><th>Record</th><th>TGRS</th><th>SOS</th><th>Last Match</th>' +
+    const n = entries.length;
+    const suffix = scoring === 'match' ? ` (${{n}}-team bracket)` : '';
+    flightsHtml += `<div class="compare-flight"><h3>${{escapeHtml(key + suffix)}}</h3>`;
+    flightsHtml += '<div class="table-wrap"><table class="rankings-table"><thead><tr>' +
+      '<th>Place</th><th>Rank</th><th>School</th><th>Name</th><th>Record</th><th>TGRS</th><th>SOS</th><th>Last Match</th>' +
+      (scoring ? `<th>${{ptsHeader}}</th>` : '') +
       '</tr></thead><tbody>';
-    for (const e of entries) {{
+    entries.forEach((e, idx) => {{
+      const pos     = idx + 1;
       const name    = statVal(e.cols, e.row, 'pair_name') || statVal(e.cols, e.row, 'name') || '';
       const wins    = statVal(e.cols, e.row, 'wins');
       const losses  = statVal(e.cols, e.row, 'losses');
@@ -1014,19 +1072,43 @@ function runCompare() {{
       const tgrs    = (tgrsRaw !== null && tgrsRaw !== '') ? tgrsRaw : (statVal(e.cols, e.row, 'TGRS') ?? '');
       const sos     = statVal(e.cols, e.row, 'sos') ?? '';
       const lastM   = statVal(e.cols, e.row, 'last_match_date') ?? '';
-      html += '<tr>' +
-        `<td class="compare-flight-rank">${{escapeHtml(e.rank)}}</td>` +
+      let ptsCell = '';
+      if (scoring) {{
+        const pts = scoring === 'desc' ? pointsDescending(pos) : pointsPerMatch(pos, n);
+        totals[e.team] += pts;
+        ptsCell = `<td class="pts-cell">${{pts}}</td>`;
+      }}
+      flightsHtml += '<tr>' +
+        `<td class="compare-flight-rank">${{pos}}</td>` +
+        `<td>${{escapeHtml(e.rank)}}</td>` +
         `<td>${{escapeHtml(e.team)}}</td>` +
         `<td>${{escapeHtml(name)}}</td>` +
         `<td>${{escapeHtml(record)}}</td>` +
         `<td>${{escapeHtml(tgrs)}}</td>` +
         `<td>${{escapeHtml(sos)}}</td>` +
         `<td>${{escapeHtml(lastM)}}</td>` +
-        '</tr>';
-    }}
-    html += '</tbody></table></div></div>';
+        ptsCell + '</tr>';
+    }});
+    flightsHtml += '</tbody></table></div></div>';
   }}
-  container.innerHTML = html;
+
+  let html = `<p class="sim-note" style="margin-bottom:.75rem;">Comparing using: <b>${{escapeHtml(scopeLabel)}}</b></p>`;
+
+  if (scoring) {{
+    const sorted = Object.entries(totals).sort((a, b) => b[1] - a[1]);
+    const title = scoring === 'desc'
+      ? 'Projected Points — Descending (1st = 8 … 8th = 1, per flight)'
+      : 'Projected Points — Per-Match Bracket (points = rounds advanced, per flight)';
+    html += `<div class="sim-summary">${{escapeHtml(title)}}</div>` +
+      '<div class="table-wrap" style="margin-bottom:1rem;"><table class="rankings-table"><thead><tr>' +
+      '<th>#</th><th>School</th><th>Projected Points</th></tr></thead><tbody>' +
+      sorted.map(([team, pts], i) =>
+        `<tr><td>${{i + 1}}</td><td>${{escapeHtml(team)}}</td><td class="pts-cell">${{pts}}</td></tr>`
+      ).join('') +
+      '</tbody></table></div>';
+  }}
+
+  container.innerHTML = html + flightsHtml;
 }}
 
 // ---- Simulate Matchup ------------------------------------------------
