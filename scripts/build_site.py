@@ -670,7 +670,7 @@ html = f"""<!DOCTYPE html>
     <button type="button" onclick="addCompareTeam(document.getElementById('cmp-input').value)" style="padding:.6rem 1.2rem;background:#f8fafc;color:#1a3a5c;border:1px solid #c0d4e8;border-radius:8px;cursor:pointer;font-size:.9rem;">Add Team</button>
     <button type="button" onclick="runCompare()" style="padding:.6rem 1.2rem;background:#1a3a5c;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Compare</button>
     <button type="button" onclick="runCompare('desc')" title="1st = 8 pts ... 8th = 1 pt, per flight" style="padding:.6rem 1.2rem;background:#0a7c42;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Points: Descending (8&rarr;1)</button>
-    <button type="button" onclick="runCompare('match')" title="Points = bracket rounds advanced, based on number of teams" style="padding:.6rem 1.2rem;background:#0a7c42;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Points: Per-Match Bracket</button>
+    <button type="button" onclick="runCompare('match')" title="Points = bracket rounds advanced; bracket size = total teams added, same for every flight" style="padding:.6rem 1.2rem;background:#0a7c42;color:white;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;">Points: Per-Match Bracket</button>
   </div>
   <div class="compare-teams-list" id="compare-teams-list"></div>
   <div id="compare-results"></div>
@@ -1055,7 +1055,8 @@ function runCompare(scoring) {{
   let flightsHtml = '';
   for (const key of keys) {{
     const entries = byFlight[key].slice().sort((a, b) => a.rank - b.rank);
-    const n = entries.length;
+    // Bracket size is the same for every flight: total teams added.
+    const n = compareTeams.length;
     const suffix = scoring === 'match' ? ` (${{n}}-team bracket)` : '';
     flightsHtml += `<div class="compare-flight"><h3>${{escapeHtml(key + suffix)}}</h3>`;
     flightsHtml += '<div class="table-wrap"><table class="rankings-table"><thead><tr>' +
