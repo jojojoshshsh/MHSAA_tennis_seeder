@@ -244,43 +244,54 @@ _DIVISION_MAP: dict[str, str] = {
 VALID_DIVISIONS: frozenset[str] = frozenset({"1", "2", "3", "4"})
 
 
-
-# ----------------------------------------------------------------------
-# Manual same-person name-alias fixes.
-#
-# Occasionally the same real player shows up under two different names
-# in the source data (e.g. a nickname vs. a legal name used on a school
-# roster in different meets). This maps a known variant spelling to one
-# canonical name so the whole engine (records, head-to-head, common
-# opponents, TrueSkill, CSV output, everything) treats them as a single
-# player instead of two.
-#
-# Keyed by (lowercased variant name, lowercased school name) so a fix is
-# scoped to one specific person and can never accidentally merge two
-# different players elsewhere who happen to share a name. Add new
-# entries here as they're discovered; the value is the exact spelling
-# that should appear everywhere downstream.
-# ----------------------------------------------------------------------
-NAME_ALIASES: dict[tuple[str, str], str] = {
-    ("charles ma", "ann arbor huron"): "Chengzhi Ma",
-}
-
-
-def normalize_player_name(name: str, school: str = "") -> str:
+def normalize_player_name(name: str) -> str:
     """
     Doubles teams are written as "Player A/Player B". The two names can
     appear in either order in the source data ("Josh/Gio" vs "Gio/Josh")
     but represent the same team, so canonicalize by alphabetizing the
     slash-separated parts. Singles names (no "/") pass through unchanged.
-
-    Before alphabetizing, each slash-separated part is checked against
-    NAME_ALIASES (scoped by school) and rewritten to its canonical
-    spelling if it matches a known same-person alias.
     """
     parts = [p.strip() for p in name.split("/")]
-    school_key = school.strip().lower()
-    if school_key:
-        parts = [NAME_ALIASES.get((p.lower(), school_key), p) for p in parts]
+    if len(parts) > 1:
+        parts = sorted(parts)
+    return "/".join(parts)
+
+
+# ============================================================================
+# A1.  Known player aliases — same person, different name spellings
+# ============================================================================
+# Maps (school name, alias spelling — case-insensitive) -> the ONE canonical
+# display name to use for that person everywhere (records, ranking, output).
+# Scoped by school so a same-spelled name at a DIFFERENT school never
+# accidentally merges two different people. Add more entries here any time
+# the same person shows up under two different name spellings.
+_PLAYER_ALIASES: dict[tuple[str, str], str] = {
+    ("ann arbor huron", "chengzhi ma"): "Charles Ma",
+    ("ann arbor huron", "charles ma"): "Charles Ma",
+}
+
+
+def resolve_player_alias(name: str, school: str) -> str:
+    """
+    Case-insensitive, school-scoped alias resolution for a single player
+    name (one half of a doubles pair, or a whole singles name). Anyone not
+    listed in _PLAYER_ALIASES passes through completely unchanged — this
+    only touches names explicitly registered as an alias.
+    """
+    key = (school.strip().lower(), name.strip().lower())
+    return _PLAYER_ALIASES.get(key, name)
+
+
+def normalize_player_name_with_school(name: str, school: str) -> str:
+    """
+    Same slash-splitting/alphabetizing behavior as normalize_player_name,
+    but first resolves each individual name (both halves of a doubles
+    pair) through the school-scoped alias table above, case-insensitively.
+    This is what makes e.g. "chengzhi ma" and "Charles Ma" at the same
+    school collapse into one identity — same wins/losses record, same
+    schedule, same seed slot — instead of being tracked as two players.
+    """
+    parts = [resolve_player_alias(p.strip(), school) for p in name.split("/")]
     if len(parts) > 1:
         parts = sorted(parts)
     return "/".join(parts)
@@ -509,25 +520,8 @@ def load_matches(filepath: str, school_meta: dict | None = None,
             except (ValueError, AttributeError):
                 match_date = datetime.min
 
-            winner_school = (
-                row.get("winner_school_name", "")
-                or row.get("winner_school", "")
-                or row.get("winner_team", "")
-            ).strip()
-            loser_school = (
-                row.get("loser_school_name", "")
-                or row.get("loser_school", "")
-                or row.get("loser_team", "")
-            ).strip()
-
-            winner = normalize_player_name(
-                row.get("winner_names", row.get("winner", "")).strip(), winner_school
-            )
-            loser = normalize_player_name(
-                row.get("loser_names", row.get("loser", "")).strip(), loser_school
-            )
-            if not winner or not loser:
-                continue
+            raw_winner = row.get("winner_names", row.get("winner", "")).strip()
+            raw_loser = row.get("loser_names", row.get("loser", "")).strip()
 
             score = row.get("set_score", row.get("score", "")).strip()
             gender = row.get("gender", "").strip()
@@ -540,6 +534,24 @@ def load_matches(filepath: str, school_meta: dict | None = None,
                     unknown_flight_values.add(raw_flight)
                 continue
             flight = raw_flight
+
+            winner_school = (
+                row.get("winner_school_name", "")
+                or row.get("winner_school", "")
+                or row.get("winner_team", "")
+            ).strip()
+            loser_school = (
+                row.get("loser_school_name", "")
+                or row.get("loser_school", "")
+                or row.get("loser_team", "")
+            ).strip()
+
+            # Alias resolution needs each side's school, so it happens here
+            # (school is now known) rather than at raw-string-strip time.
+            winner = normalize_player_name_with_school(raw_winner, winner_school)
+            loser = normalize_player_name_with_school(raw_loser, loser_school)
+            if not winner or not loser:
+                continue
 
             raw_div = row.get("division", "").strip()
 
