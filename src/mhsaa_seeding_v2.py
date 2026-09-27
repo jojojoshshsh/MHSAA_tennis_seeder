@@ -779,6 +779,176 @@ def build_opponent_sets(
 
 
 # ============================================================================
+# 4b.  Power rating — ridge-regularized Massey margin regression
+# ============================================================================
+# This is an EXTRA, purely informational number reported alongside the
+# real ranking. It does NOT feed the ranking core (no cycle removal, no
+# transitive closure, no adjacent fix-up, no TrueSkill) — the seed order
+# is decided entirely by the pipeline in sections 7-9, exactly as before.
+#
+# Every player/pair gets one number fit so that
+#     rating_A - rating_B  ≈  expected game margin of A over B
+# under the convention 1 rating point = 1 game (a 12-point gap predicts
+# a 6-0, 6-0 sweep; a 0-point gap predicts a coin-flip set). This is a
+# ridge-regularized version of the Massey method (the same family of
+# power rating used for things like NCAA computer rankings): for every
+# ranking-eligible match we want rating_winner - rating_loser ≈ that
+# match's game margin, and solve for the rating vector that best
+# satisfies every match's equation at once (weighted least squares),
+# with a small ridge penalty per player (`ridge * rating_i^2`) so a
+# player with very few matches gets pulled toward 0 (the pool average)
+# instead of an extreme rating riding on one result.
+# ============================================================================
+
+class PowerRating:
+    __slots__ = ("rating", "se", "matches")
+
+    def __init__(self, rating: float, se: float, matches: int):
+        self.rating = rating
+        self.se = se
+        self.matches = matches
+
+    @property
+    def conservative(self) -> float:
+        """Rating minus two standard errors — a cautious estimate that
+        discounts under-sampled players. Not used by the ranking core;
+        provided for parity with how TrueSkill's own conservative
+        estimate is used elsewhere, in case downstream code wants it."""
+        return self.rating - 2.0 * self.se
+
+    def __repr__(self) -> str:
+        return f"PowerRating(rating={self.rating:.2f}, se={self.se:.2f}, matches={self.matches})"
+
+
+def compute_power_ratings(
+    matches: list[dict],
+    ridge: float | None = None,
+    recency_half_life_days: float | None = None,
+) -> dict[str, PowerRating]:
+    """
+    Fits one power rating per player from every match in `matches` (pass
+    only ranking-eligible matches), such that (rating_A - rating_B) is
+    the least-squares best estimate of the game margin A would be
+    expected to win by against B. See predicted_score() for a literal
+    score translation of any rating gap.
+
+    ridge: how many "phantom average matches" of shrinkage each player
+    carries. Defaults to config.POWER_RATING_RIDGE, else 2.0.
+
+    recency_half_life_days: if set, a match's weight in the fit decays
+    by half every this-many days. Defaults to
+    config.POWER_RATING_RECENCY_HALF_LIFE_DAYS, else None (every
+    ranking-eligible match weighted equally).
+
+    Returns {player: PowerRating}.
+    """
+    if ridge is None:
+        ridge = getattr(_config, "POWER_RATING_RIDGE", 2.0)
+    if recency_half_life_days is None:
+        recency_half_life_days = getattr(
+            _config, "POWER_RATING_RECENCY_HALF_LIFE_DAYS", None
+        )
+
+    players = sorted({m["winner"] for m in matches} | {m["loser"] for m in matches})
+    idx = {p: i for i, p in enumerate(players)}
+    n = len(players)
+    if n == 0:
+        return {}
+
+    diag = [float(ridge)] * n
+    off: list[dict[int, float]] = [dict() for _ in range(n)]
+    b = [0.0] * n
+    match_counts = [0] * n
+    now = datetime.now()
+
+    for m in matches:
+        w, l = m["winner"], m["loser"]
+        i, j = idx[w], idx[l]
+
+        margin = _player_game_margin_normalized(m, w)
+        if margin <= 0:
+            # A recorded win with no usable games-margin (garbled score
+            # string, etc.) — still a real result, so credit a minimal
+            # margin rather than dropping the match entirely.
+            margin = 0.5
+
+        weight = 1.0
+        if recency_half_life_days:
+            days_ago = max(0.0, (now - m["date"]).days)
+            weight = 0.5 ** (days_ago / recency_half_life_days)
+
+        diag[i] += weight
+        diag[j] += weight
+        off[i][j] = off[i].get(j, 0.0) - weight
+        off[j][i] = off[j].get(i, 0.0) - weight
+        b[i] += weight * margin
+        b[j] -= weight * margin
+        match_counts[i] += 1
+        match_counts[j] += 1
+
+    r = _solve_ridge_massey(diag, off, b)
+
+    ratings: dict[str, PowerRating] = {}
+    for p, i in idx.items():
+        se = 1.0 / math.sqrt(max(diag[i], 1e-9))
+        ratings[p] = PowerRating(rating=r[i], se=se, matches=match_counts[i])
+    return ratings
+
+
+def _solve_ridge_massey(
+    diag: list[float],
+    off: list[dict[int, float]],
+    b: list[float],
+    iterations: int = 2000,
+    tol: float = 1e-10,
+) -> list[float]:
+    """
+    Gauss-Seidel solve of (ridge*I + Massey matrix) r = b. The system is
+    symmetric and strictly diagonally dominant by exactly `ridge` on
+    every row, which guarantees Gauss-Seidel converges — so no
+    numpy/scipy dependency is required for this to be exact and stable.
+    """
+    n = len(diag)
+    r = [0.0] * n
+    for _ in range(iterations):
+        max_delta = 0.0
+        for i in range(n):
+            s = b[i]
+            for j, coeff in off[i].items():
+                s -= coeff * r[j]
+            new_r = s / diag[i]
+            delta = new_r - r[i]
+            if delta < 0:
+                delta = -delta
+            if delta > max_delta:
+                max_delta = delta
+            r[i] = new_r
+        if max_delta < tol:
+            break
+    return r
+
+
+def predicted_score(rating_gap: float) -> str:
+    """
+    Illustrative best-of-two-sets score for a given rating-point gap,
+    under the "1 rating point = 1 game" convention. Human-readable
+    illustration only, not a probability model.
+    """
+    gap = max(0.0, rating_gap)
+    total = min(gap, 12.0)
+    half = total / 2.0
+
+    def _set_score(set_margin: float) -> str:
+        m = int(round(set_margin))
+        m = max(0, min(6, m))
+        if m == 0:
+            return "7-6"
+        return f"6-{6 - m}"
+
+    return f"{_set_score(half)}, {_set_score(total - half)}"
+
+
+# ============================================================================
 # 5.  Score margin parsing  (unchanged, cached)
 # ============================================================================
 
@@ -1577,6 +1747,12 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     ]
     trueskill_ratings = compute_trueskill_margin(match_triples)
 
+    # Power rating: an EXTRA, purely informational number (see section 4b)
+    # fit from the same ranking-eligible matches. It does not feed the
+    # ranking core in any way — seed order still comes entirely from the
+    # transitivity + adjacent fix-up + TrueSkill pipeline below.
+    power_ratings = compute_power_ratings(ranking_matches)
+
     sos_full = precompute_sos(players, ranking_results_idx, trueskill_ratings)
     quality_wins_full = precompute_quality_wins(players, ranking_results_idx, trueskill_ratings)
 
@@ -1646,6 +1822,7 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
             "original_results_idx": original_results_idx,
             "reach": reach,
             "trueskill_ratings": trueskill_ratings,
+            "power_ratings": power_ratings,
             "sos": sos_full,
             "local_sos": local_sos,
             "quality_wins": quality_wins_full,
@@ -1697,6 +1874,7 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         "original_results_idx": original_results_idx,
         "reach": reach,
         "trueskill_ratings": trueskill_ratings,
+        "power_ratings": power_ratings,
         # "local" == "regular" here — there's no division scoping left to
         # distinguish them, the whole cross-division group IS local now.
         "sos": sos_full,
@@ -1776,6 +1954,10 @@ _INDIVIDUAL_FIELDS = [
     "vs_weaker_opp", "vs_mid_opp", "vs_top_opp",
     "last_match_date",
     "reason_below",   # ← why this player is ranked below the one above them
+    # Informational only — see section 4b. Not used anywhere in the
+    # ranking core above; the seed order is still decided entirely by
+    # cycle-removal + transitivity + adjacent fix-up + TrueSkill.
+    "power_rating",
 ]
 
 # Doubles rows use "pair_name" instead of "name" so build_site.py's
@@ -1798,6 +1980,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
     original_results_idx = r.get("original_results_idx", {})
     reach = r.get("reach", {})
     trueskill_ratings = r.get("trueskill_ratings", {})
+    power_ratings = r.get("power_ratings", {})
     sos = r.get("sos", {})
     local_sos = r.get("local_sos", {})
     quality_wins = r.get("quality_wins", {})
@@ -1822,6 +2005,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
     for seed, player in enumerate(seeds, start=1):
         rec = records.get(player, {"matches": 0, "wins": 0, "losses": 0, "last_match_date": None})
         ts = trueskill_ratings.get(player)
+        pr = power_ratings.get(player)
         last_dt = rec.get("last_match_date")
 
         # reason_below: empty for the #1 seed; human-readable label for everyone else.
@@ -1864,6 +2048,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
             "vs_top_opp": _format_record(strength_record["top"]),
             "last_match_date": last_dt.date().isoformat() if last_dt and last_dt.year > 1 else "",
             "reason_below": reason_below,
+            "power_rating": round(pr.rating, 2) if pr else "",
         }
         if not is_doubles:
             row.pop("pair_name", None)
