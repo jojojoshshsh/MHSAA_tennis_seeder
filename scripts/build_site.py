@@ -216,7 +216,7 @@ general_nav = defaultdict(list)
 _PREVIEW_COL_ORDER = [
     "rank", "name", "pair_name", "school",
     "division", "flight", "wins", "losses",
-    "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "ts_sigma",
+    "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "ts_sigma", "power_rating",
     "reachability",
     "sos", "local_sos", "quality_wins",
     "won_after_set1_loss", "vs_weaker_opp", "vs_mid_opp", "vs_top_opp",
@@ -228,6 +228,7 @@ _PREVIEW_COL_ORDER = [
 # scoped inside the team_html loop). Any column not listed here just uses
 # its raw name, same as before.
 INDIVIDUAL_COL_LABELS = {
+    "power_rating": "Power Rating",
     "won_after_set1_loss": "Won After S1 Loss",
     "vs_weaker_opp": "vs Weaker Opp",
     "vs_mid_opp": "vs Mid Opp",
