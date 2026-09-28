@@ -39,7 +39,7 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
              to an ordinary 7-6 first, so it doesn't skew the margin)
           3. dominance — multi-hop reachability in the same DAG used in
              step 2 (does one of them transitively beat the other?)
-          4. TrueSkill conservative rating (last resort before random)
+          4. Power rating (capped game-margin rating; last resort before random)
       If the lower-ranked player should outrank the one above them by
       any of these four checks, swap them. Re-run full top-to-bottom
       passes until one entire pass produces zero swaps (fully stable).
@@ -56,7 +56,7 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       adjacent fix-up pass against the FULL cross-division roster (no
       division split at all). This produces one flight-wide ranking
       (e.g. "Boys Singles Flight 2, every division combined") using the
-      exact same head-to-head / common-opponents / dominance / TrueSkill
+      exact same head-to-head / common-opponents / dominance / power-rating
       rules as the per-division fix-up. It's published as its own
       pseudo-division named "overall", on top of (not replacing) the
       normal per-division output.
@@ -195,7 +195,8 @@ OUTPUT LAYER (UPDATED)
 POWER RATING (UPDATED): "power_rating" is now a capped game-margin rating —
 rating_A - rating_B is the number of games A is favored by, capped at 12
 (12 apart = 6-0 6-0, 1 apart = a 6-7 7-6 10-2 toss-up). See section 4b.
-Informational only; the seed order is unaffected.
+Used as rule 4 (last resort) in the adjacent fix-up comparator; the
+first-pass seed order still uses TrueSkill mu as its tiebreak.
 
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
@@ -1375,14 +1376,14 @@ def compare_adjacent(
     h2h: dict,
     opp_sets: dict[str, set[str]],
     reach: dict[str, set[str]],
-    trueskill_ratings: dict,
+    power_ratings: dict,
 ) -> tuple[str | None, str]:
     """
     The four-rule fix-up comparator, run strictly in this order:
       1. head-to-head
       2. common opponents (win count, then margin — see common_opponent_comparison)
       3. dominance (multi-hop transitive beats)
-      4. TrueSkill conservative rating (last resort)
+      4. Power rating (capped game-margin rating; last resort)
     """
     r = head_to_head_result(a, b, h2h)
     if r is not None:
@@ -1396,13 +1397,13 @@ def compare_adjacent(
     if r is not None:
         return r, "dominance"
 
-    # ── Rule 4: TrueSkill conservative rating (last resort) ──
-    ra = trueskill_ratings.get(a)
-    rb = trueskill_ratings.get(b)
+    # ── Rule 4: Power rating (last resort) ──
+    ra = power_ratings.get(a)
+    rb = power_ratings.get(b)
     if ra is not None and rb is not None:
-        diff = ra.mu - rb.mu
+        diff = ra.rating - rb.rating
         if abs(diff) > 1e-9:
-            return ("a" if diff > 0 else "b"), "trueskill"
+            return ("a" if diff > 0 else "b"), "power_rating"
 
     return None, "tied"
 
@@ -1412,7 +1413,7 @@ def adjacent_fixup(
     h2h: dict,
     opp_sets: dict[str, set[str]],
     reach: dict[str, set[str]],
-    trueskill_ratings: dict,
+    power_ratings: dict,
 ) -> tuple[list[str], list[dict]]:
     """
     Repeated top-to-bottom adjacent-swap passes until a full pass makes
@@ -1429,7 +1430,7 @@ def adjacent_fixup(
         while i < len(cur) - 1:
             a, b = cur[i], cur[i + 1]
             winner, rule = compare_adjacent(
-                a, b, h2h, opp_sets, reach, trueskill_ratings
+                a, b, h2h, opp_sets, reach, power_ratings
             )
             if winner == "b":
                 cur[i], cur[i + 1] = b, a
@@ -1449,7 +1450,7 @@ def build_adjacency_explanations(
     h2h: dict,
     opp_sets: dict[str, set[str]],
     reach: dict[str, set[str]],
-    trueskill_ratings: dict,
+    power_ratings: dict,
 ) -> list[dict]:
     """Re-derive the deciding rule for each adjacent pair in the FINAL
     stable order, for the seed_above/seed_below explain table."""
@@ -1457,7 +1458,7 @@ def build_adjacency_explanations(
     for k in range(len(order) - 1):
         a, b = order[k], order[k + 1]
         winner, rule = compare_adjacent(
-            a, b, h2h, opp_sets, reach, trueskill_ratings
+            a, b, h2h, opp_sets, reach, power_ratings
         )
         out.append({
             "seed_above": a,
@@ -1835,10 +1836,10 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     ]
     trueskill_ratings = compute_trueskill_margin(match_triples)
 
-    # Power rating: an EXTRA, purely informational number (see section 4b)
-    # fit from the same ranking-eligible matches. It does not feed the
-    # ranking core in any way — seed order still comes entirely from the
-    # transitivity + adjacent fix-up + TrueSkill pipeline below.
+    # Power rating (see section 4b), fit from the same ranking-eligible
+    # matches. It is the last-resort tiebreak (rule 4) in the adjacent
+    # fix-up comparator. TrueSkill still drives the initial seed-order
+    # tiebreak, SOS, and quality wins.
     power_ratings = compute_power_ratings(ranking_matches)
 
     sos_full = precompute_sos(players, ranking_results_idx, trueskill_ratings)
@@ -1866,10 +1867,10 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
 
         # --- STEP 4: adjacent fix-up within division ---
         div_ranked, swap_log = adjacent_fixup(
-            division_roster, h2h, opp_sets, reach, trueskill_ratings
+            division_roster, h2h, opp_sets, reach, power_ratings
         )
         div_explanations = build_adjacency_explanations(
-            div_ranked, h2h, opp_sets, reach, trueskill_ratings
+            div_ranked, h2h, opp_sets, reach, power_ratings
         )
 
         div_ranking_matches = [
@@ -1926,10 +1927,10 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     # flight-wide ranking on top of (not instead of) the per-division
     # seed lists above. Published under the pseudo-division "overall".
     overall_ranked, overall_swap_log = adjacent_fixup(
-        seed_order, h2h, opp_sets, reach, trueskill_ratings
+        seed_order, h2h, opp_sets, reach, power_ratings
     )
     overall_explanations = build_adjacency_explanations(
-        overall_ranked, h2h, opp_sets, reach, trueskill_ratings
+        overall_ranked, h2h, opp_sets, reach, power_ratings
     )
 
     tgrs_raw_overall: dict[str, float] = {}
@@ -2020,7 +2021,8 @@ _REASON_LABELS: dict[str, str] = {
     "common-opponents-wins":     "Fewer wins vs common opponents",
     "common-opponents-margin":   "Worse score margin vs common opponents",
     "dominance":                 "Transitively beaten by player above",
-    "trueskill":                 "Lower TrueSkill rating",
+    "power_rating":              "Lower power rating",
+    "trueskill":                 "Lower TrueSkill rating",  # legacy
     "tied":                      "Tied — no deciding criterion found",
 }
 
@@ -2042,9 +2044,7 @@ _INDIVIDUAL_FIELDS = [
     "vs_weaker_opp", "vs_mid_opp", "vs_top_opp",
     "last_match_date",
     "reason_below",   # ← why this player is ranked below the one above them
-    # Informational only — see section 4b. Not used anywhere in the
-    # ranking core above; the seed order is still decided entirely by
-    # cycle-removal + transitivity + adjacent fix-up + TrueSkill.
+    # See section 4b. Used as rule 4 (last resort) in the adjacent fix-up.
     "power_rating",
 ]
 
