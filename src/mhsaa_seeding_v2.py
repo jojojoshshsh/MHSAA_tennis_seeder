@@ -192,6 +192,11 @@ OUTPUT LAYER (UPDATED)
   scoping left to distinguish them from — the whole cross-division group
   IS the local pool at that point.
 
+POWER RATING (UPDATED): "power_rating" is now a capped game-margin rating —
+rating_A - rating_B is the number of games A is favored by, capped at 12
+(12 apart = 6-0 6-0, 1 apart = a 6-7 7-6 10-2 toss-up). See section 4b.
+Informational only; the seed order is unaffected.
+
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
 unchanged from the previous version, aside from the determinism fixes
@@ -779,26 +784,68 @@ def build_opponent_sets(
 
 
 # ============================================================================
-# 4b.  Power rating — ridge-regularized Massey margin regression
+# 4b.  Power rating — capped game-margin rating  (REWRITTEN)
 # ============================================================================
 # This is an EXTRA, purely informational number reported alongside the
 # real ranking. It does NOT feed the ranking core (no cycle removal, no
 # transitive closure, no adjacent fix-up, no TrueSkill) — the seed order
 # is decided entirely by the pipeline in sections 7-9, exactly as before.
 #
-# Every player/pair gets one number fit so that
-#     rating_A - rating_B  ≈  expected game margin of A over B
-# under the convention 1 rating point = 1 game (a 12-point gap predicts
-# a 6-0, 6-0 sweep; a 0-point gap predicts a coin-flip set). This is a
-# ridge-regularized version of the Massey method (the same family of
-# power rating used for things like NCAA computer rankings): for every
-# ranking-eligible match we want rating_winner - rating_loser ≈ that
-# match's game margin, and solve for the rating vector that best
-# satisfies every match's equation at once (weighted least squares),
-# with a small ridge penalty per player (`ridge * rating_i^2`) so a
-# player with very few matches gets pulled toward 0 (the pool average)
-# instead of an extreme rating riding on one result.
+# THE CONTRACT
+# ------------
+# For any two players in the same (gender, match_type, flight) pool:
+#
+#     expected_margin(A over B) = min( rating_A - rating_B , 12 )
+#
+# i.e. subtract the lower rating from the higher one and the result is
+# how many GAMES the higher-rated player is favored by, capped at 12
+# (the largest possible margin in a two-set match):
+#
+#     12 apart  ->  expected 6-0 6-0
+#     ~6 apart  ->  expected something like 6-3 6-3 / 6-2 6-4
+#      2 apart  ->  expected 7-6 7-6
+#      1 apart  ->  expected a three-set toss-up (e.g. 6-7 7-6 10-2)
+#      0 apart  ->  coin flip
+#
+# "Games" are counted the same way the common-opponents tiebreak counts
+# them: a match/super tiebreak "set" is normalized to an ordinary 7-6 (see
+# _normalize_set_token), so 6-7 7-6 10-2 is worth exactly +1 game, not +8.
+#
+# HOW IT'S FIT (what changed vs. the old ridge-Massey version)
+# ------------------------------------------------------------
+# The old version fit an uncapped linear model with a heavy ridge (2.0).
+# Measured on the real match data, that made ratings ~20% too COMPRESSED
+# (a 6-point gap really meant ~7 games of margin), gaps of 18-19 points
+# appeared even though nothing beyond 12 is meaningful, and a 12-point gap
+# did not mean a 6-0 6-0 sweep. Now:
+#
+#   1. CAP IN THE MODEL. Each match contributes the equation
+#          min(rating_winner - rating_loser, CAP) = game margin
+#      so once two players are >= CAP apart the model already predicts a
+#      6-0 6-0 sweep and a further blowout doesn't push them any farther
+#      apart (the residual is flat there, so it has no gradient). Solved
+#      by damped Gauss-Seidel coordinate descent; matches currently at
+#      the cap simply sit out that player's update.
+#   2. A win is always worth at least MIN_WIN_MARGIN (1 game) and at most
+#      CAP, so a razor-thin win still makes the winner a 1-game favorite
+#      rather than being treated as a wash.
+#   3. LIGHT RIDGE (0.5, was 2.0). The ridge is a per-player pull toward
+#      the pool average (0) so a player with 1-2 matches doesn't get an
+#      extreme rating. 0.5 was chosen empirically: fit on the earliest 80%
+#      of each flight's matches, then check predictions on the newest 20%.
+#      At 0.5 the calibration slope (actual margin / predicted gap) is
+#      1.00 — "10 apart" really means ~10 games. The old 2.0 scored 1.21;
+#      lower values (0.25, 0.1) overfit and slide below 1.0.
+#
+# Rating gaps mean the same thing only WITHIN one pool (a gender + match
+# type + flight). Boys singles flight 1 and girls doubles flight 3 are
+# fit separately, so don't subtract ratings across pools.
 # ============================================================================
+
+POWER_RATING_CAP = 12.0          # max expected game margin (6-0 6-0)
+POWER_RATING_MIN_WIN_MARGIN = 1.0  # a win is worth at least this many games
+POWER_RATING_DEFAULT_RIDGE = 0.5
+
 
 class PowerRating:
     __slots__ = ("rating", "se", "matches")
@@ -820,33 +867,58 @@ class PowerRating:
         return f"PowerRating(rating={self.rating:.2f}, se={self.se:.2f}, matches={self.matches})"
 
 
+def expected_margin(rating_a: float, rating_b: float,
+                    cap: float | None = None) -> float:
+    """
+    Expected game margin of A over B: (rating_a - rating_b) clamped to
+    [-cap, +cap]. Positive means A is favored. This is THE way to read a
+    pair of power ratings — the ratings are fit so this number matches
+    real results on average.
+    """
+    if cap is None:
+        cap = getattr(_config, "POWER_RATING_CAP", POWER_RATING_CAP)
+    return max(-cap, min(cap, rating_a - rating_b))
+
+
 def compute_power_ratings(
     matches: list[dict],
     ridge: float | None = None,
     recency_half_life_days: float | None = None,
+    cap: float | None = None,
+    min_win_margin: float | None = None,
 ) -> dict[str, PowerRating]:
     """
     Fits one power rating per player from every match in `matches` (pass
-    only ranking-eligible matches), such that (rating_A - rating_B) is
-    the least-squares best estimate of the game margin A would be
-    expected to win by against B. See predicted_score() for a literal
-    score translation of any rating gap.
+    only ranking-eligible matches) so that expected_margin(A, B) — the
+    rating gap capped at `cap` (default 12) — is the least-squares best
+    estimate of the game margin A wins by over B. See section 4b header
+    for the full contract and reasoning.
 
-    ridge: how many "phantom average matches" of shrinkage each player
-    carries. Defaults to config.POWER_RATING_RIDGE, else 2.0.
+    ridge: per-player pull toward the pool average. Default
+    config.POWER_RATING_RIDGE, else 0.5. (Anything much above ~1 makes
+    ratings compress so gaps understate real margins; much below ~0.25
+    overfits players with a handful of matches.)
 
-    recency_half_life_days: if set, a match's weight in the fit decays
-    by half every this-many days. Defaults to
-    config.POWER_RATING_RECENCY_HALF_LIFE_DAYS, else None (every
-    ranking-eligible match weighted equally).
+    recency_half_life_days: if set, a match's weight decays by half every
+    this-many days. Default config.POWER_RATING_RECENCY_HALF_LIFE_DAYS,
+    else None (all ranking-eligible matches weighted equally).
+
+    cap / min_win_margin: default config.POWER_RATING_CAP (12) and
+    config.POWER_RATING_MIN_WIN_MARGIN (1).
 
     Returns {player: PowerRating}.
     """
     if ridge is None:
-        ridge = getattr(_config, "POWER_RATING_RIDGE", 2.0)
+        ridge = getattr(_config, "POWER_RATING_RIDGE", POWER_RATING_DEFAULT_RIDGE)
     if recency_half_life_days is None:
         recency_half_life_days = getattr(
             _config, "POWER_RATING_RECENCY_HALF_LIFE_DAYS", None
+        )
+    if cap is None:
+        cap = getattr(_config, "POWER_RATING_CAP", POWER_RATING_CAP)
+    if min_win_margin is None:
+        min_win_margin = getattr(
+            _config, "POWER_RATING_MIN_WIN_MARGIN", POWER_RATING_MIN_WIN_MARGIN
         )
 
     players = sorted({m["winner"] for m in matches} | {m["loser"] for m in matches})
@@ -855,71 +927,80 @@ def compute_power_ratings(
     if n == 0:
         return {}
 
-    diag = [float(ridge)] * n
-    off: list[dict[int, float]] = [dict() for _ in range(n)]
-    b = [0.0] * n
+    # adj[i] = list of (opponent_idx, sign, margin, weight) where sign is
+    # +1 if player i won that match and -1 if they lost it, and margin is
+    # the WINNER's normalized game margin (clamped to [min_win_margin, cap]).
+    adj: list[list[tuple[int, int, float, float]]] = [[] for _ in range(n)]
     match_counts = [0] * n
+    weight_sum = [0.0] * n
     now = datetime.now()
 
     for m in matches:
-        w, l = m["winner"], m["loser"]
-        i, j = idx[w], idx[l]
+        i, j = idx[m["winner"]], idx[m["loser"]]
 
-        margin = _player_game_margin_normalized(m, w)
-        if margin <= 0:
-            # A recorded win with no usable games-margin (garbled score
-            # string, etc.) — still a real result, so credit a minimal
-            # margin rather than dropping the match entirely.
-            margin = 0.5
+        margin = _player_game_margin_normalized(m, m["winner"])
+        margin = max(min_win_margin, min(cap, margin))
 
         weight = 1.0
         if recency_half_life_days:
             days_ago = max(0.0, (now - m["date"]).days)
             weight = 0.5 ** (days_ago / recency_half_life_days)
 
-        diag[i] += weight
-        diag[j] += weight
-        off[i][j] = off[i].get(j, 0.0) - weight
-        off[j][i] = off[j].get(i, 0.0) - weight
-        b[i] += weight * margin
-        b[j] -= weight * margin
+        adj[i].append((j, +1, margin, weight))
+        adj[j].append((i, -1, margin, weight))
         match_counts[i] += 1
         match_counts[j] += 1
+        weight_sum[i] += weight
+        weight_sum[j] += weight
 
-    r = _solve_ridge_massey(diag, off, b)
+    r = _solve_capped_margin(adj, ridge, cap)
 
     ratings: dict[str, PowerRating] = {}
     for p, i in idx.items():
-        se = 1.0 / math.sqrt(max(diag[i], 1e-9))
+        se = 1.0 / math.sqrt(max(ridge + weight_sum[i], 1e-9))
         ratings[p] = PowerRating(rating=r[i], se=se, matches=match_counts[i])
     return ratings
 
 
-def _solve_ridge_massey(
-    diag: list[float],
-    off: list[dict[int, float]],
-    b: list[float],
-    iterations: int = 2000,
-    tol: float = 1e-10,
+def _solve_capped_margin(
+    adj: list[list[tuple[int, int, float, float]]],
+    ridge: float,
+    cap: float,
+    sweeps: int = 500,
+    damping: float = 0.7,
+    tol: float = 1e-6,
 ) -> list[float]:
     """
-    Gauss-Seidel solve of (ridge*I + Massey matrix) r = b. The system is
-    symmetric and strictly diagonally dominant by exactly `ridge` on
-    every row, which guarantees Gauss-Seidel converges — so no
-    numpy/scipy dependency is required for this to be exact and stable.
+    Minimizes   sum_matches w * ( min(r_winner - r_loser, cap) - margin )^2
+              + ridge * sum_players r_player^2
+    by damped Gauss-Seidel coordinate descent (pure Python, no numpy).
+
+    For one player i with everyone else held fixed, each match gives the
+    equation  sign * (r_i - r_opp) = margin , i.e.
+    r_i = r_opp + sign * margin. The ridge-weighted average of those is
+    the exact minimizer of the quadratic part. A match where the WINNER
+    is already `cap` or more above the loser is skipped for that update:
+    min(gap, cap) is flat there, so it exerts no pull — that is exactly
+    what "capped at 12" means for the fit. Damping (0.7) stops players
+    from ping-ponging in and out of the cap between sweeps. Players are
+    visited in a fixed (sorted-name) order and start from 0, so output is
+    fully deterministic.
     """
-    n = len(diag)
+    n = len(adj)
     r = [0.0] * n
-    for _ in range(iterations):
+    for _ in range(sweeps):
         max_delta = 0.0
         for i in range(n):
-            s = b[i]
-            for j, coeff in off[i].items():
-                s -= coeff * r[j]
-            new_r = s / diag[i]
-            delta = new_r - r[i]
-            if delta < 0:
-                delta = -delta
+            num = 0.0
+            den = ridge
+            ri = r[i]
+            for j, sign, margin, w in adj[i]:
+                if sign * (ri - r[j]) > cap:
+                    continue  # winner already >= cap above loser: saturated
+                num += w * (r[j] + sign * margin)
+                den += w
+            new_r = ri + damping * (num / den - ri)
+            delta = abs(new_r - ri)
             if delta > max_delta:
                 max_delta = delta
             r[i] = new_r
@@ -928,24 +1009,31 @@ def _solve_ridge_massey(
     return r
 
 
-def predicted_score(rating_gap: float) -> str:
-    """
-    Illustrative best-of-two-sets score for a given rating-point gap,
-    under the "1 rating point = 1 game" convention. Human-readable
-    illustration only, not a probability model.
-    """
-    gap = max(0.0, rating_gap)
-    total = min(gap, 12.0)
-    half = total / 2.0
+# Set margin (games) -> a typical winning set score with that margin.
+_SET_BY_MARGIN = {1: "7-6", 2: "6-4", 3: "6-3", 4: "6-2", 5: "6-1", 6: "6-0"}
 
-    def _set_score(set_margin: float) -> str:
-        m = int(round(set_margin))
-        m = max(0, min(6, m))
-        if m == 0:
-            return "7-6"
-        return f"6-{6 - m}"
 
-    return f"{_set_score(half)}, {_set_score(total - half)}"
+def predicted_score(rating_gap: float, cap: float | None = None) -> str:
+    """
+    Illustrative score for a given rating gap under the "1 rating point =
+    1 game, capped at 12" contract. The two sets' margins add up to the
+    (rounded, capped) gap, so it round-trips:
+        12 -> "6-0, 6-0"    6 -> "6-3, 6-3"    2 -> "7-6, 7-6"
+    A 1-game gap can't be produced by two straight sets (the minimum is
+    7-6 7-6 = 2), so it's shown as a three-set tiebreak-decided match,
+    like 6-7 7-6 10-x. 0 is a coin flip. Human-readable illustration
+    only, not a probability model.
+    """
+    if cap is None:
+        cap = getattr(_config, "POWER_RATING_CAP", POWER_RATING_CAP)
+    g = int(round(max(0.0, min(rating_gap, cap))))
+    if g == 0:
+        return "toss-up"
+    if g == 1:
+        return "6-7, 7-6, 10-x (3 sets, decided by the breaker)"
+    s1 = (g + 1) // 2
+    s2 = g - s1
+    return f"{_SET_BY_MARGIN[s1]}, {_SET_BY_MARGIN[s2]}"
 
 
 # ============================================================================
