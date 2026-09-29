@@ -202,7 +202,7 @@
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <header>
   <h1>Michigan High School Tennis Seed Prediction — 2026 season</h1>
-  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:13 PM EDT.</p>
+  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:18 PM EDT.</p>
 </header>
 <nav>
   <a class="nav-about" href="about.html">About &amp; Methodology</a>
@@ -1182,11 +1182,9 @@ const SIM_FORM_SD = 3.0;               // FORM_SD (games) -- fit to held-out dat
 const SIM_SEED_PRIOR_ACCURACY = 0.950;
 const SIM_SEED_BLEND_WEIGHT = 0.05;    // backtested: 0.05 minimizes held-out log-loss
 // Shape multipliers fit to held-out matches (the exact model over-predicts competitive matches)
-const SIM_THREE_SET_SCALE = 0.57;
-const SIM_THIRD_SET_FULL = true;   // true = full 3rd set; false = 10-pt match tiebreak (mirror THIRD_SET_FULL)
-const SIM_THREE_SET_PRINT_MIN = 0.22;   // display only: print a 3-setter at/above this calibrated 3rd-set chance
-const SIM_TIEBREAK_SCALE = 0.38;
-const SIM_SEVEN_FIVE_SCALE = 0.69;
+const SIM_THREE_SET_SCALE = 0.60;
+const SIM_TIEBREAK_SCALE = 0.46;
+const SIM_SEVEN_FIVE_SCALE = 0.82;
 const SIM_TABLE_STEP = 0.25;
 const SIM_EPS = 1e-9;
 
@@ -1260,8 +1258,6 @@ function simSuperTbDist(p) {
   return out;
 }
 
-function simThirdDist(p) { return SIM_THIRD_SET_FULL ? simSetDist(p) : simSuperTbDist(p); }
-
 const simSplit = s => s.split('-').map(Number);
 const simFlip = s => { const x = simSplit(s); return x[1] + '-' + x[0]; };
 
@@ -1271,8 +1267,8 @@ function simExpMarginForP(p) {
   const sd = simSetDist(p);
   let sWin = 0, eSet = 0;
   for (const k in sd) { const [a, b] = simSplit(k); if (a > b) sWin += sd[k]; eSet += sd[k] * (a - b); }
-  const eThird = SIM_THIRD_SET_FULL ? eSet : (2 * simRaceProb(p, 10) - 1);
-  return 2 * eSet + 2 * sWin * (1 - sWin) * eThird;
+  const t = simRaceProb(p, 10);
+  return 2 * eSet + 2 * sWin * (1 - sWin) * (2 * t - 1);
 }
 
 function simSolveP(d) {
@@ -1288,7 +1284,7 @@ function simSolveP(d) {
 
 // Exact best-of-3 summary for favorite A at point prob p >= 0.5.
 function simMatchOutcomes(p) {
-  const sd = simSetDist(p), tb = simThirdDist(p);
+  const sd = simSetDist(p), tb = simSuperTbDist(p);
   let pw2 = 0, pw3 = 0, pl2 = 0, pl3 = 0, pTb = 0, p75 = 0;
   const aL = {2: {}, 3: {}}, bL = {2: {}, 3: {}};
   const add = (o, k, v) => { o[k] = (o[k] || 0) + v; };
@@ -1299,17 +1295,15 @@ function simMatchOutcomes(p) {
       const joint = sd[s1] * sd[s2];
       const [a1, b1] = simSplit(s1), [a2, b2] = simSplit(s2);
       const w1 = a1 > b1, w2 = a2 > b2;
+      if (isTb(s1) || isTb(s2)) pTb += joint;
+      if (is75(s1) || is75(s2)) p75 += joint;
       if (w1 === w2) {
-        if (isTb(s1) || isTb(s2)) pTb += joint;
-        if (is75(s1) || is75(s2)) p75 += joint;
         if (w1) { pw2 += joint; add(aL[2], s1 + ' ' + s2, joint); }
         else    { pl2 += joint; add(bL[2], simFlip(s1) + ' ' + simFlip(s2), joint); }
       } else {
         for (const t3 in tb) {
           const j3 = joint * tb[t3];
           const [x, y] = simSplit(t3);
-          if (isTb(s1) || isTb(s2) || (SIM_THIRD_SET_FULL && isTb(t3))) pTb += j3;
-          if (is75(s1) || is75(s2) || (SIM_THIRD_SET_FULL && is75(t3))) p75 += j3;
           if (x > y) { pw3 += j3; add(aL[3], s1 + ' ' + s2 + ' ' + t3, j3); }
           else       { pl3 += j3; add(bL[3], simFlip(s1) + ' ' + simFlip(s2) + ' ' + simFlip(t3), j3); }
         }
@@ -1394,7 +1388,8 @@ function matchWinProb(a, b) {
 function predictMatchDetails(a, b, winnerIsA) {
   const d = simExpectedMargin(a, b);
   const s = simMixtureStats(d, simTau(a, b));
-  const shape = (SIM_THREE_SET_SCALE * (s[1] + s[3]) >= SIM_THREE_SET_PRINT_MIN) ? 3 : 2;
+  const w2 = winnerIsA ? s[0] : s[2], w3 = winnerIsA ? s[1] : s[3];
+  const shape = (SIM_THREE_SET_SCALE * w3 > w2 + (1 - SIM_THREE_SET_SCALE) * w3) ? 3 : 2;
   const tab = simTable();
   const idx = Math.min(Math.round(Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP), tab.length - 1);
   const winnerIsFavorite = (winnerIsA === (d >= 0));
