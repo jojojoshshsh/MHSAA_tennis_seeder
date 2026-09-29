@@ -137,6 +137,11 @@ SEED_BLEND_WEIGHT = 0.05
 # odds and to the straight-sets-vs-three-sets pick. Mass removed from
 # three-setters moves to straight sets, so win probability is untouched.
 THREE_SET_SCALE = 0.60
+
+# How tightly the PRINTED scoreline's total game margin must track the
+# expected margin (rating gap). Smaller = margin matches more exactly, at the
+# cost of showing less typical lines.
+MARGIN_SD = 0.75
 TIEBREAK_SCALE = 0.46
 SEVEN_FIVE_SCALE = 0.82
 
@@ -330,35 +335,15 @@ def _match_outcomes(p: float) -> dict:
                         b_lists[3][_canon3((s1[1], s1[0]), (s2[1], s2[0]),
                                            (t3[1], t3[0]))] += j3
 
-    def top(d, k=12):
-        return sorted(d.items(), key=lambda kv: -kv[1])[:k]
-
-    def top_typical(d, k=12):
-        """Three-set lines: rank by closeness to the CONDITIONAL AVERAGE
-        line (winner's games in the set they lost, loser's games in the set
-        they won, loser's games in the deciding set) among reasonably likely
-        candidates. The pure mode is 4-6 / 6-x / 10-8 at almost every gap
-        because each component's mode is the same regardless of matchup."""
-        tot = sum(d.values())
-        if tot <= 0:
-            return []
-        def vec(key):
-            l, w, t = key
-            return (int(l.split('-')[0]), int(w.split('-')[1]), int(t.split('-')[1]))
-        mean = [0.0, 0.0, 0.0]
-        for key, v in d.items():
-            for i, x in enumerate(vec(key)):
-                mean[i] += v / tot * x
-        floor = 0.2 * max(d.values())
-        cands = [(key, v) for key, v in d.items() if v >= floor]
-        wts = (1.0, 1.0, 1.0)
-        cands.sort(key=lambda kv: (sum(wt * (x - m) ** 2 for wt, x, m in zip(wts, vec(kv[0]), mean)), -kv[1]))
-        return cands[:k]
+    def top(d):
+        """Every candidate line, most likely first (there are only a few
+        hundred), so the picker can also weigh game margin."""
+        return sorted(((k, v) for k, v in d.items() if v > 0.0), key=lambda kv: -kv[1])
 
     return {
         "stats": [pw2, pw3, pl2, pl3, p_tb, p_75],
-        "a_wins": {2: top(a_lists[2]), 3: top_typical(a_lists[3])},
-        "b_wins": {2: top(b_lists[2]), 3: top_typical(b_lists[3])},
+        "a_wins": {2: top(a_lists[2]), 3: top(a_lists[3])},
+        "b_wins": {2: top(b_lists[2]), 3: top(b_lists[3])},
     }
 
 
@@ -611,12 +596,11 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
 
       - "exp_margin": games the favorite (by rating) is expected to win by
       - "score": the single representative scoreline, oriented so the
-        FIRST number in each set is the predicted winner's games. Two
-        stages: pick the more likely match SHAPE (straight sets vs three
-        sets, using the data-calibrated odds -- see THREE_SET_SCALE), then
-        the most likely exact score within that shape. Because real matches
-        are mostly straight-set wins even between similar players, a
-        three-setter is only printed when the calibrated odds favor it.
+        FIRST number in each set is the predicted winner's games. Every
+        straight-set and three-set line is scored by how likely it is
+        (with the data-calibrated shape odds, see THREE_SET_SCALE) minus a
+        penalty for missing the expected game margin, so the printed
+        score's total games-ahead matches the "favored by" number.
       - "prob_three_sets" / "prob_tiebreak" / "prob_75": chance the match
         goes to a 3rd set / contains a 7-6 set / contains a 7-5 set.
 
@@ -628,18 +612,48 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     pw2, pw3, pl2, pl3, p_tb, p_75 = _mixture_stats(d, _tau(a, b))
 
     w2, w3 = (pw2, pw3) if winner_is_a else (pl2, pl3)
-    shape = 3 if THREE_SET_SCALE * w3 > w2 + (1.0 - THREE_SET_SCALE) * w3 else 2
 
-    # Table entry nearest |d|; the favorite is whoever the rating gap
-    # favors. If the predicted winner is that favorite use the "a_wins"
-    # lists (winner-side), otherwise the underdog's "b_wins" lists.
+    # Shape weights: same straight-sets vs three-sets odds as before (the
+    # calibrated THREE_SET_SCALE moves the over-predicted three-set mass back
+    # onto straight sets).
+    shape_w = {2: w2 + (1.0 - THREE_SET_SCALE) * w3, 3: THREE_SET_SCALE * w3}
+
     tab = _table()
     idx = min(int(round(min(abs(d), POWER_CAP) / TABLE_STEP)), len(tab) - 1)
     winner_is_favorite = (winner_is_a == (d >= 0))
-    lists = tab[idx]["a_wins" if winner_is_favorite else "b_wins"][shape]
-    if not lists:   # extremely lopsided: no 3-set line survives pruning
-        lists = tab[idx]["a_wins" if winner_is_favorite else "b_wins"][2]
-    score = list(lists[0][0]) if lists else ["6-4", "6-4"]
+    src = tab[idx]["a_wins" if winner_is_favorite else "b_wins"]
+
+    # Target game margin for the printed line: the favorite is expected to
+    # win by |d| games, so a favorite's line should total about that many
+    # games ahead. If the predicted winner is the rating underdog, show a
+    # narrow win.
+    # Floor of 1.5: a winner is essentially always at least a game or two
+    # ahead, so an even matchup shouldn't print a margin of 0.
+    target = max(abs(d), 1.5) if winner_is_favorite else 1.5
+
+    # Score every candidate line: log(how likely, given the shape odds)
+    # minus a penalty for missing the target margin. MARGIN_SD is how many
+    # games of miss cost as much as a factor of e^0.5 in likelihood.
+    best, best_u = None, -1e18
+    for shape in (2, 3):
+        lines = src[shape]
+        tot = sum(p for _, p in lines)
+        if tot <= 0.0 or shape_w[shape] <= 0.0:
+            continue
+        for sets, p in lines:
+            margin = sum(int(x.split("-")[0]) - int(x.split("-")[1]) for x in sets)
+            # The set model over-predicts 7-6 / 7-5 sets (see TIEBREAK_SCALE,
+            # SEVEN_FIVE_SCALE), so damp lines by the fitted ratios per set.
+            damp = 1.0
+            for x in sets:
+                if x in ("7-6", "6-7"):
+                    damp *= TIEBREAK_SCALE
+                elif x in ("7-5", "5-7"):
+                    damp *= SEVEN_FIVE_SCALE
+            u = math.log(shape_w[shape] * p / tot * damp) - (margin - target) ** 2 / (2.0 * MARGIN_SD ** 2)
+            if u > best_u:
+                best, best_u = sets, u
+    score = list(best) if best else ["6-4", "6-4"]
 
     return {
         "score": score,
