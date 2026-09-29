@@ -140,6 +140,9 @@ THREE_SET_SCALE = 0.60
 TIEBREAK_SCALE = 0.5
 SEVEN_FIVE_SCALE = 0.8
 
+# Print a three-set score when the (calibrated) chance of a 3rd set is at least this.
+# Display only. Lower = more three-setters printed.
+THREE_SET_PRINT_MIN = 0.25
 
 TABLE_STEP = 0.25   # rating-gap grid spacing for the precomputed match table
 
@@ -585,7 +588,7 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     pw2, pw3, pl2, pl3, p_tb, p_75 = _mixture_stats(d, _tau(a, b))
 
     w2, w3 = (pw2, pw3) if winner_is_a else (pl2, pl3)
-    shape = 3 if THREE_SET_SCALE * w3 > w2 + (1.0 - THREE_SET_SCALE) * w3 else 2
+    shape = 3 if THREE_SET_SCALE * (pw3 + pl3) >= THREE_SET_PRINT_MIN else 2
 
     # Table entry nearest |d|; the favorite is whoever the rating gap
     # favors. If the predicted winner is that favorite use the "a_wins"
