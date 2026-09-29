@@ -30,7 +30,7 @@ derives *everything* from it in one chain, with no randomness:
 
     rating gap d  (expected game margin)
         |  invert: which per-POINT win probability p makes a best-of-3
-        |  match (2 sets + 10-pt match tiebreak) have an expected game
+        |  match (best of 3 full sets) have an expected game
         |  margin of exactly d?         [_solve_point_prob]
         v
     p  ->  game prob (deuce math) -> set-score distribution (6-x, 7-5,
@@ -261,6 +261,27 @@ def _fmt_set(a: int, b: int) -> str:
     return f"{a}-{b}"
 
 
+def _canon2(s1, s2):
+    """Straight-sets line from the WINNER's side, order-free. The two sets
+    are independent draws, so (6-2, 6-3) and (6-3, 6-2) are the same
+    outcome for ranking purposes; ranking ordered pairs split that mass and
+    let the identical pair (6-2, 6-2) win every time. Merge the orderings
+    and show the bigger win first."""
+    a, b = sorted((s1, s2), key=lambda s: -(s[0] - s[1]))
+    return (_fmt_set(*a), _fmt_set(*b))
+
+
+def _canon3(s1, s2, t3):
+    """Three-set line from the WINNER's side. The winner took two sets and
+    lost one; the two sets they won are interchangeable draws, so merge
+    their orderings (else the identical pair, e.g. 6-3 6-3, wins by
+    default). Shown as: the set lost, the bigger win, then the tighter
+    deciding set."""
+    lost, won = (s1, s2) if s1[0] < s1[1] else (s2, s1)
+    w_a, w_b = sorted((won, t3), key=lambda x: -(x[0] - x[1]))
+    return (_fmt_set(*lost), _fmt_set(*w_a), _fmt_set(*w_b))
+
+
 def _match_outcomes(p: float) -> dict:
     """Exact best-of-3 outcome summary for A vs B at point prob p >= 0.5
     (A is the favorite):
@@ -272,7 +293,7 @@ def _match_outcomes(p: float) -> dict:
       b_wins -> same, for the underdog winning
     """
     sd = _set_dist(p)
-    tb = _super_tb_dist(p)
+    tb = sd   # the 3rd set is a real set, same distribution as sets 1-2
     pw2 = pw3 = pl2 = pl3 = p_tb = p_75 = 0.0
     a_lists: dict[int, dict] = {2: defaultdict(float), 3: defaultdict(float)}
     b_lists: dict[int, dict] = {2: defaultdict(float), 3: defaultdict(float)}
@@ -290,32 +311,54 @@ def _match_outcomes(p: float) -> dict:
                     p_75 += joint
                 if w1:      # A wins 2-0
                     pw2 += joint
-                    a_lists[2][(_fmt_set(*s1), _fmt_set(*s2))] += joint
+                    a_lists[2][_canon2(s1, s2)] += joint
                 else:       # B wins 2-0 (shown from B's side)
                     pl2 += joint
-                    b_lists[2][(_fmt_set(s1[1], s1[0]), _fmt_set(s2[1], s2[0]))] += joint
+                    b_lists[2][_canon2((s1[1], s1[0]), (s2[1], s2[0]))] += joint
             else:
-                if has_tb:
-                    p_tb += joint
-                if has_75:
-                    p_75 += joint
                 for t3, p3 in tb.items():
                     j3 = joint * p3
-                    if t3[0] > t3[1]:   # A wins the breaker -> A wins 2-1
+                    if has_tb or t3 in ((7, 6), (6, 7)):
+                        p_tb += j3
+                    if has_75 or t3 in ((7, 5), (5, 7)):
+                        p_75 += j3
+                    if t3[0] > t3[1]:   # A wins the 3rd set -> A wins 2-1
                         pw3 += j3
-                        a_lists[3][(_fmt_set(*s1), _fmt_set(*s2), _fmt_set(*t3))] += j3
+                        a_lists[3][_canon3(s1, s2, t3)] += j3
                     else:               # B wins 2-1 (B's side)
                         pl3 += j3
-                        b_lists[3][(_fmt_set(s1[1], s1[0]), _fmt_set(s2[1], s2[0]),
-                                    _fmt_set(t3[1], t3[0]))] += j3
+                        b_lists[3][_canon3((s1[1], s1[0]), (s2[1], s2[0]),
+                                           (t3[1], t3[0]))] += j3
 
     def top(d, k=12):
         return sorted(d.items(), key=lambda kv: -kv[1])[:k]
 
+    def top_typical(d, k=12):
+        """Three-set lines: rank by closeness to the CONDITIONAL AVERAGE
+        line (winner's games in the set they lost, loser's games in the set
+        they won, loser's games in the deciding set) among reasonably likely
+        candidates. The pure mode is 4-6 / 6-x / 10-8 at almost every gap
+        because each component's mode is the same regardless of matchup."""
+        tot = sum(d.values())
+        if tot <= 0:
+            return []
+        def vec(key):
+            l, w, t = key
+            return (int(l.split('-')[0]), int(w.split('-')[1]), int(t.split('-')[1]))
+        mean = [0.0, 0.0, 0.0]
+        for key, v in d.items():
+            for i, x in enumerate(vec(key)):
+                mean[i] += v / tot * x
+        floor = 0.2 * max(d.values())
+        cands = [(key, v) for key, v in d.items() if v >= floor]
+        wts = (1.0, 1.0, 1.0)
+        cands.sort(key=lambda kv: (sum(wt * (x - m) ** 2 for wt, x, m in zip(wts, vec(kv[0]), mean)), -kv[1]))
+        return cands[:k]
+
     return {
         "stats": [pw2, pw3, pl2, pl3, p_tb, p_75],
-        "a_wins": {2: top(a_lists[2]), 3: top(a_lists[3])},
-        "b_wins": {2: top(b_lists[2]), 3: top(b_lists[3])},
+        "a_wins": {2: top(a_lists[2]), 3: top_typical(a_lists[3])},
+        "b_wins": {2: top(b_lists[2]), 3: top_typical(b_lists[3])},
     }
 
 
@@ -1077,4 +1120,3 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
-
