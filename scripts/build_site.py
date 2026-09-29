@@ -403,8 +403,9 @@ const SIM_SEED_PRIOR_ACCURACY = 0.950;
 const SIM_SEED_BLEND_WEIGHT = 0.05;    // backtested: 0.05 minimizes held-out log-loss
 // Shape multipliers fit to held-out matches (the exact model over-predicts competitive matches)
 const SIM_THREE_SET_SCALE = 0.60;
-const SIM_TIEBREAK_SCALE = 0.5;
-const SIM_SEVEN_FIVE_SCALE = 0.8;
+const SIM_THREE_SET_PRINT_MIN = 0.22;   // display only: print a 3-setter at/above this calibrated 3rd-set chance
+const SIM_TIEBREAK_SCALE = 0.46;
+const SIM_SEVEN_FIVE_SCALE = 0.82;
 const SIM_TABLE_STEP = 0.25;
 const SIM_EPS = 1e-9;
 
@@ -608,8 +609,7 @@ function matchWinProb(a, b) {
 function predictMatchDetails(a, b, winnerIsA) {
   const d = simExpectedMargin(a, b);
   const s = simMixtureStats(d, simTau(a, b));
-  const w2 = winnerIsA ? s[0] : s[2], w3 = winnerIsA ? s[1] : s[3];
-  const shape = (SIM_THREE_SET_SCALE * w3 > w2 + (1 - SIM_THREE_SET_SCALE) * w3) ? 3 : 2;
+  const shape = (SIM_THREE_SET_SCALE * (s[1] + s[3]) >= SIM_THREE_SET_PRINT_MIN) ? 3 : 2;
   const tab = simTable();
   const idx = Math.min(Math.round(Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP), tab.length - 1);
   const winnerIsFavorite = (winnerIsA === (d >= 0));
