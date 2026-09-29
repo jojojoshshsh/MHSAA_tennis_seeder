@@ -682,8 +682,19 @@ function predictMatchDetails(a, b, winnerIsA) {
     let acc = 0;
     for (const [sets, w] of cands) { acc += w; best = sets; if (r < acc) break; }
   }
+  let score = best || ['6-4', '6-4'];
+  if (score.length === 3) {
+    // Stored as (set lost, won, won) with no order; deal it out in a real
+    // sequence: winner loses set 1 or set 2 (real data 51% / 49%), ALWAYS
+    // wins the last set, and the two sets won can come in either order.
+    let [lost, w1, w2] = score;
+    const seed = simMatchupSeed(a, b, winnerIsA);
+    const lostFirst = simUniform((seed + 0x9E3779B9) >>> 0) < 0.5;
+    if (simUniform((seed + 0x3C6EF372) >>> 0) < 0.5) [w1, w2] = [w2, w1];
+    score = lostFirst ? [lost, w1, w2] : [w1, lost, w2];
+  }
   return {
-    score: best || ['6-4', '6-4'],
+    score: score,
     expMargin: Math.abs(d),
     prob3rd: SIM_THREE_SET_SCALE * (s[1] + s[3]),
   };
