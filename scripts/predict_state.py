@@ -590,6 +590,36 @@ def flip_score(s: str) -> str:
     return f"{y}-{x}"
 
 
+# Salt for the per-matchup score draw. Same players + same salt -> same
+# predicted score on every rebuild; change it to reshuffle all the scorelines.
+SCORE_SEED = 2026
+
+
+def _hash32(text: str) -> int:
+    """FNV-1a, 32-bit. Mirror in build_site.py (simHash32)."""
+    h = 2166136261
+    for byte in text.encode("utf-8"):
+        h = ((h ^ byte) * 16777619) & 0xFFFFFFFF
+    return h
+
+
+def _uniform_from_seed(seed: int) -> float:
+    """First output of mulberry32(seed), in [0, 1). Mirror in build_site.py."""
+    m = 0xFFFFFFFF
+    a = (seed + 0x6D2B79F5) & m
+    t = ((a ^ (a >> 15)) * (a | 1)) & m
+    t ^= (t + (((t ^ (t >> 7)) * (t | 61)) & m)) & m
+    return ((t ^ (t >> 14)) & m) / 4294967296.0
+
+
+def _matchup_seed(a: dict, b: dict, winner_is_a: bool) -> int:
+    """Order-independent seed for a matchup (players' names + schools)."""
+    ka = f"{_player_name(a)}|{a.get('school') or ''}"
+    kb = f"{_player_name(b)}|{b.get('school') or ''}"
+    w = ka if winner_is_a else kb
+    return _hash32(f"{SCORE_SEED}~{'~'.join(sorted((ka, kb)))}~{w}")
+
+
 def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     """
     Everything about one matchup, exact and deterministic:
@@ -600,7 +630,10 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
         straight-set and three-set line is scored by how likely it is
         (with the data-calibrated shape odds, see THREE_SET_SCALE) minus a
         penalty for missing the expected game margin, so the printed
-        score's total games-ahead matches the "favored by" number.
+        score's total games-ahead matches the "favored by" number. One
+        line is then DRAWN from those weights with a seed built from the
+        two players (see SCORE_SEED), so scores vary between matchups but
+        are identical on every rebuild.
       - "prob_three_sets" / "prob_tiebreak" / "prob_75": chance the match
         goes to a 3rd set / contains a 7-6 set / contains a 7-5 set.
 
@@ -634,7 +667,7 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     # Score every candidate line: log(how likely, given the shape odds)
     # minus a penalty for missing the target margin. MARGIN_SD is how many
     # games of miss cost as much as a factor of e^0.5 in likelihood.
-    best, best_u = None, -1e18
+    cands: list[tuple[list, float]] = []
     for shape in (2, 3):
         lines = src[shape]
         tot = sum(p for _, p in lines)
@@ -650,9 +683,22 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
                     damp *= TIEBREAK_SCALE
                 elif x in ("7-5", "5-7"):
                     damp *= SEVEN_FIVE_SCALE
-            u = math.log(shape_w[shape] * p / tot * damp) - (margin - target) ** 2 / (2.0 * MARGIN_SD ** 2)
-            if u > best_u:
-                best, best_u = sets, u
+            wgt = shape_w[shape] * p / tot * damp * math.exp(-(margin - target) ** 2 / (2.0 * MARGIN_SD ** 2))
+            cands.append((sets, wgt))
+    # Replicable "random" draw: sample one line in proportion to its weight
+    # using a seed derived from the matchup, so different matchups with the
+    # same rating gap get different (but realistic) scorelines, while the
+    # same matchup always gets the same one.
+    best = None
+    total_w = sum(w for _, w in cands)
+    if total_w > 0.0:
+        r = _uniform_from_seed(_matchup_seed(a, b, winner_is_a)) * total_w
+        acc = 0.0
+        for sets, w in cands:
+            acc += w
+            best = sets
+            if r < acc:
+                break
     score = list(best) if best else ["6-4", "6-4"]
 
     return {
