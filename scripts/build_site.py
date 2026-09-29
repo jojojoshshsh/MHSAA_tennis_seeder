@@ -387,6 +387,243 @@ prediction_nav_link = (
     if _prediction_html_exists else ""
 )
 
+# JS port of predict_state.py's power-rating engine (single braces on purpose:
+# it is injected into the f-string below as a value, so it isn't re-parsed).
+SIM_ENGINE_JS = r'''// ---- Simulate Matchup ------------------------------------------------
+// JS port of predict_state.py's power-rating engine. A rating gap is the
+// expected game margin (capped at 12 = 6-0 6-0). The gap is inverted into a
+// per-POINT win probability, and the point -> game -> set -> best-of-3 match
+// distribution is then computed EXACTLY (no Monte Carlo, no randomness).
+// Averaging over day-to-day form (SIM_FORM_SD) keeps upsets possible.
+// Constants mirror predict_state.py -- if you change one there, change it here.
+const SIM_CAP = 12;
+const SIM_RIDGE = 0.5;                 // POWER_RIDGE (rating fit)
+const SIM_FORM_SD = 3.0;               // FORM_SD (games) -- fit to held-out data
+const SIM_SEED_PRIOR_ACCURACY = 0.950;
+const SIM_SEED_BLEND_WEIGHT = 0.05;    // backtested: 0.05 minimizes held-out log-loss
+// Shape multipliers fit to held-out matches (the exact model over-predicts competitive matches)
+const SIM_THREE_SET_SCALE = 0.60;
+const SIM_TIEBREAK_SCALE = 0.5;
+const SIM_SEVEN_FIVE_SCALE = 0.8;
+const SIM_TABLE_STEP = 0.25;
+const SIM_EPS = 1e-9;
+
+function simLogit(p) { p = Math.min(Math.max(p, SIM_EPS), 1 - SIM_EPS); return Math.log(p / (1 - p)); }
+function simSigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+const SIM_SEED_PRIOR_LOGIT = simLogit(SIM_SEED_PRIOR_ACCURACY);
+
+function simComb(n, k) {
+  let r = 1;
+  for (let i = 1; i <= k; i++) r = r * (n - k + i) / i;
+  return r;
+}
+
+// P(win a game) with point prob p (ad scoring)
+function simGameProb(p) {
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  const q = 1 - p;
+  return Math.pow(p, 4) * (1 + 4*q + 10*q*q) + 20 * Math.pow(p, 5) * Math.pow(q, 3) / (1 - 2*p*q);
+}
+
+// P(win) a first-to-n, win-by-2 points race (7-pt set TB, 10-pt match TB)
+function simRaceProb(p, n) {
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  const q = 1 - p;
+  let s = 0;
+  for (let k = 0; k < n - 1; k++) s += simComb(n - 1 + k, k) * Math.pow(p, n) * Math.pow(q, k);
+  s += simComb(2*(n-1), n-1) * Math.pow(p*q, n-1) * p*p / (p*p + q*q);
+  return s;
+}
+
+// One set's score distribution from A's side: {"6-4": prob, ...}
+function simSetDist(p) {
+  const g = simGameProb(p), h = 1 - g, t = simRaceProb(p, 7);
+  const reach = {'0,0': 1};
+  const out = {};
+  const add = (k, v) => { out[k] = (out[k] || 0) + v; };
+  for (let total = 0; total <= 12; total++) {
+    for (let ga = 0; ga <= total; ga++) {
+      const gb = total - ga;
+      const pr = reach[ga + ',' + gb] || 0;
+      if (!pr) continue;
+      if (ga === 6 && gb === 6) { add('7-6', pr * t); add('6-7', pr * (1 - t)); continue; }
+      const nexts = [[ga + 1, gb, g], [ga, gb + 1, h]];
+      for (const [na, nb, w] of nexts) {
+        if ((na >= 6 && na - nb >= 2) || (nb >= 6 && nb - na >= 2) || na === 7 || nb === 7) {
+          add(na + '-' + nb, pr * w);
+        } else {
+          reach[na + ',' + nb] = (reach[na + ',' + nb] || 0) + pr * w;
+        }
+      }
+    }
+  }
+  return out;
+}
+
+// 10-pt match tiebreak from A's side; deuce endings lumped into 10-8.
+function simSuperTbDist(p) {
+  const q = 1 - p;
+  const out = {};
+  let aExact = 0, bExact = 0;
+  for (let k = 0; k < 8; k++) {
+    out['10-' + k] = simComb(9 + k, k) * Math.pow(p, 10) * Math.pow(q, k);
+    out[k + '-10'] = simComb(9 + k, k) * Math.pow(q, 10) * Math.pow(p, k);
+    aExact += out['10-' + k]; bExact += out[k + '-10'];
+  }
+  const win = simRaceProb(p, 10);
+  out['10-8'] = Math.max(0, win - aExact);
+  out['8-10'] = Math.max(0, (1 - win) - bExact);
+  return out;
+}
+
+const simSplit = s => s.split('-').map(Number);
+const simFlip = s => { const x = simSplit(s); return x[1] + '-' + x[0]; };
+
+// E[signed game margin of A]; a match tiebreak counts as +/-1 (same
+// convention the power rating is fit on).
+function simExpMarginForP(p) {
+  const sd = simSetDist(p);
+  let sWin = 0, eSet = 0;
+  for (const k in sd) { const [a, b] = simSplit(k); if (a > b) sWin += sd[k]; eSet += sd[k] * (a - b); }
+  const t = simRaceProb(p, 10);
+  return 2 * eSet + 2 * sWin * (1 - sWin) * (2 * t - 1);
+}
+
+function simSolveP(d) {
+  if (d <= 0) return 0.5;
+  if (d >= SIM_CAP) return 1;
+  let lo = 0.5, hi = 1;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (simExpMarginForP(mid) < d) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+// Exact best-of-3 summary for favorite A at point prob p >= 0.5.
+function simMatchOutcomes(p) {
+  const sd = simSetDist(p), tb = simSuperTbDist(p);
+  let pw2 = 0, pw3 = 0, pl2 = 0, pl3 = 0, pTb = 0, p75 = 0;
+  const aL = {2: {}, 3: {}}, bL = {2: {}, 3: {}};
+  const add = (o, k, v) => { o[k] = (o[k] || 0) + v; };
+  const isTb = s => s === '7-6' || s === '6-7';
+  const is75 = s => s === '7-5' || s === '5-7';
+  for (const s1 in sd) {
+    for (const s2 in sd) {
+      const joint = sd[s1] * sd[s2];
+      const [a1, b1] = simSplit(s1), [a2, b2] = simSplit(s2);
+      const w1 = a1 > b1, w2 = a2 > b2;
+      if (isTb(s1) || isTb(s2)) pTb += joint;
+      if (is75(s1) || is75(s2)) p75 += joint;
+      if (w1 === w2) {
+        if (w1) { pw2 += joint; add(aL[2], s1 + ' ' + s2, joint); }
+        else    { pl2 += joint; add(bL[2], simFlip(s1) + ' ' + simFlip(s2), joint); }
+      } else {
+        for (const t3 in tb) {
+          const j3 = joint * tb[t3];
+          const [x, y] = simSplit(t3);
+          if (x > y) { pw3 += j3; add(aL[3], s1 + ' ' + s2 + ' ' + t3, j3); }
+          else       { pl3 += j3; add(bL[3], simFlip(s1) + ' ' + simFlip(s2) + ' ' + simFlip(t3), j3); }
+        }
+      }
+    }
+  }
+  const top = o => Object.entries(o).sort((u, v) => v[1] - u[1]).slice(0, 12).map(e => e[0]);
+  return {
+    stats: [pw2, pw3, pl2, pl3, pTb, p75],
+    aWins: {2: top(aL[2]), 3: top(aL[3])},
+    bWins: {2: top(bL[2]), 3: top(bL[3])},
+  };
+}
+
+let SIM_TABLE = null;
+function simTable() {
+  if (!SIM_TABLE) {
+    SIM_TABLE = [];
+    const n = Math.round(SIM_CAP / SIM_TABLE_STEP);
+    for (let i = 0; i <= n; i++) SIM_TABLE.push(simMatchOutcomes(simSolveP(i * SIM_TABLE_STEP)));
+  }
+  return SIM_TABLE;
+}
+
+// Interpolated [pw2, pw3, pl2, pl3, pTb, p75] for signed gap d (+ = A favored)
+function simStatsAt(d) {
+  const tab = simTable();
+  const x = Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP;
+  const i = Math.min(Math.floor(x), tab.length - 2);
+  const f = x - i;
+  const lo = tab[i].stats, hi = tab[i + 1].stats;
+  const s = lo.map((v, k) => v + f * (hi[k] - v));
+  return d < 0 ? [s[2], s[3], s[0], s[1], s[4], s[5]] : s;
+}
+
+// 7-point Gauss-Hermite rule for a standard normal
+const SIM_GH = (() => {
+  const xs = [0.0, 0.8162878828589647, 1.6735516287674714, 2.6519613568352334];
+  const ws = [0.8102646175568073, 0.4256072526101278, 0.05451558281912703, 0.0009717812450995];
+  const out = [];
+  xs.forEach((x, i) => {
+    const w = ws[i] / Math.sqrt(Math.PI);
+    if (x === 0) out.push([0, w]);
+    else { out.push([Math.SQRT2 * x, w]); out.push([-Math.SQRT2 * x, w]); }
+  });
+  return out;
+})();
+
+function simMixtureStats(d, tau) {
+  const acc = [0, 0, 0, 0, 0, 0];
+  for (const [z, w] of SIM_GH) {
+    const dd = Math.max(-SIM_CAP, Math.min(SIM_CAP, d + tau * z));
+    const s = simStatsAt(dd);
+    for (let k = 0; k < 6; k++) acc[k] += w * s[k];
+  }
+  return acc;
+}
+
+// Games A is expected to beat B by: rating gap capped at +/-12
+function simExpectedMargin(a, b) {
+  return Math.max(-SIM_CAP, Math.min(SIM_CAP, a.power - b.power));
+}
+function simSe(p) { return 1 / Math.sqrt(SIM_RIDGE + Math.max(0, p.wins + p.losses)); }
+function simTau(a, b) { return Math.sqrt(SIM_FORM_SD * SIM_FORM_SD + simSe(a) ** 2 + simSe(b) ** 2); }
+
+function simApplySeedPrior(p, a, b) {
+  if (SIM_SEED_BLEND_WEIGHT <= 0 || !a.rank || !b.rank || a.rank === b.rank) return p;
+  const seedLogit = a.rank < b.rank ? SIM_SEED_PRIOR_LOGIT : -SIM_SEED_PRIOR_LOGIT;
+  return simSigmoid((1 - SIM_SEED_BLEND_WEIGHT) * simLogit(p) + SIM_SEED_BLEND_WEIGHT * seedLogit);
+}
+
+// P(a beats b) -- the "Win Prob." number shown in the results table.
+function matchWinProb(a, b) {
+  const s = simMixtureStats(simExpectedMargin(a, b), simTau(a, b));
+  return simApplySeedPrior(s[0] + s[1], a, b);
+}
+
+// Everything about one matchup, exact. Mirrors predict_match_details() in
+// predict_state.py: pick the more likely shape (straight sets vs three, using
+// the data-calibrated odds), then the most likely exact score in that shape,
+// oriented winner-first.
+function predictMatchDetails(a, b, winnerIsA) {
+  const d = simExpectedMargin(a, b);
+  const s = simMixtureStats(d, simTau(a, b));
+  const w2 = winnerIsA ? s[0] : s[2], w3 = winnerIsA ? s[1] : s[3];
+  const shape = (SIM_THREE_SET_SCALE * w3 > w2 + (1 - SIM_THREE_SET_SCALE) * w3) ? 3 : 2;
+  const tab = simTable();
+  const idx = Math.min(Math.round(Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP), tab.length - 1);
+  const winnerIsFavorite = (winnerIsA === (d >= 0));
+  const src = winnerIsFavorite ? tab[idx].aWins : tab[idx].bWins;
+  const list = (src[shape] && src[shape].length) ? src[shape] : src[2];
+  return {
+    score: list && list.length ? list[0].split(' ') : ['6-4', '6-4'],
+    expMargin: Math.abs(d),
+    prob3rd: SIM_THREE_SET_SCALE * (s[1] + s[3]),
+  };
+}
+
+'''
+
 html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -702,7 +939,7 @@ html = f"""<!DOCTYPE html>
 {tables_html}
 {general_tables_html}
 </main>
-<footer>Individual rankings computed using TrueSkill + Graph Reachability (TGRS). Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
+<footer>Individual rankings computed using TrueSkill + Graph Reachability (TGRS); matchup and state predictions use the game-margin Power Rating. Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
 
 <script>
 const SCHOOLS = {schools_json};
@@ -1113,236 +1350,7 @@ function runCompare(scoring) {{
   container.innerHTML = html + flightsHtml;
 }}
 
-// ---- Simulate Matchup ------------------------------------------------
-// Ports predict_state.py's win-probability + scoreline engine to JS so it
-// can run against CSV_DATA already embedded on this page. Kept in lock-step
-// with predict_state.py's constants (SEED_PRIOR_ACCURACY, SEED_BLEND_WEIGHT,
-// WIN_PROB_SCORELINE_SCALE, DOMINANCE_LOGIT_WEIGHT, GAME_LOGIT_SCALE,
-// TIEBREAK_LOGIT_SCALE) so this tool and the state-tournament predictions
-// never disagree about how a matchup should be read. If those constants
-// change in predict_state.py, mirror the change here too.
-const SIM_BETA = (25/3) / 5;
-const SIM_SEED_PRIOR_ACCURACY = 0.950;
-const SIM_SEED_BLEND_WEIGHT = 0.25;
-const SIM_WIN_PROB_SCALE = 1.0;
-const SIM_DOMINANCE_WEIGHT = 1.4;
-const SIM_TRIALS = 150;
-const SIM_GAME_NOISE = 8.0;
-const SIM_GAME_LOGIT_SCALE = 12.0;    // mirrors predict_state.py's GAME_LOGIT_SCALE
-const SIM_TIEBREAK_LOGIT_SCALE = 8.0; // mirrors predict_state.py's TIEBREAK_LOGIT_SCALE
-const SIM_EPS = 1e-9;
-
-function simLogit(p) {{
-  p = Math.min(Math.max(p, SIM_EPS), 1 - SIM_EPS);
-  return Math.log(p / (1 - p));
-}}
-function simSigmoid(z) {{ return 1 / (1 + Math.exp(-z)); }}
-const SIM_SEED_PRIOR_LOGIT = simLogit(SIM_SEED_PRIOR_ACCURACY);
-
-function simErf(x) {{
-  const sign = x >= 0 ? 1 : -1;
-  x = Math.abs(x);
-  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
-  const t = 1 / (1 + p * x);
-  const y = 1 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1) * t * Math.exp(-x*x);
-  return sign * y;
-}}
-function simPhi(x) {{ return 0.5 * (1 + simErf(x / Math.SQRT2)); }}
-
-// Peter Acklam's rational approximation for the standard-normal quantile
-// function -- JS has no built-in equivalent of Python's
-// statistics.NormalDist().inv_cdf, which predict_state.py uses.
-function simNormInv(p) {{
-  p = Math.min(Math.max(p, SIM_EPS), 1 - SIM_EPS);
-  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02,
-             1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
-  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02,
-             6.680131188771972e+01, -1.328068155288572e+01];
-  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00,
-             -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
-  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
-  const plow = 0.02425, phigh = 1 - plow;
-  let q, r;
-  if (p < plow) {{
-    q = Math.sqrt(-2 * Math.log(p));
-    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-           ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  }} else if (p <= phigh) {{
-    q = p - 0.5; r = q*q;
-    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q /
-           (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
-  }} else {{
-    q = Math.sqrt(-2 * Math.log(1 - p));
-    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) /
-            ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
-  }}
-}}
-
-// cyrb53-style string hash -> deterministic RNG seed per matchup, mirroring
-// predict_state.py's _match_seed_int(): the same two players (by name +
-// mu/sigma) always reproduce the same simulated scoreline.
-function simHash(str) {{
-  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
-  for (let i = 0; i < str.length; i++) {{
-    const ch = str.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }}
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-}}
-function simMakeRng(seed) {{
-  let a = seed >>> 0;
-  return function() {{
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }};
-}}
-function simGaussian(rng, mean, std) {{
-  let u = 0, v = 0;
-  while (u === 0) u = rng();
-  while (v === 0) v = rng();
-  return mean + std * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-}}
-
-function simHeadToHead(muA, sigmaA, muB, sigmaB) {{
-  const c = Math.sqrt(2 * SIM_BETA * SIM_BETA + sigmaA*sigmaA + sigmaB*sigmaB);
-  if (c <= 0) return 0.5;
-  return simPhi((muA - muB) / c);
-}}
-
-function simApplySeedPrior(pTs, a, b) {{
-  if (SIM_SEED_BLEND_WEIGHT <= 0 || !a.rank || !b.rank || a.rank === b.rank) return pTs;
-  const seedLogit = a.rank < b.rank ? SIM_SEED_PRIOR_LOGIT : -SIM_SEED_PRIOR_LOGIT;
-  const blended = (1 - SIM_SEED_BLEND_WEIGHT) * simLogit(pTs) + SIM_SEED_BLEND_WEIGHT * seedLogit;
-  return simSigmoid(blended);
-}}
-
-// P(a beats b) -- TrueSkill blended with the seed-history prior. This is
-// the "Win Prob." number shown in the results table, unmodified.
-function matchWinProb(a, b) {{
-  const pTs = simHeadToHead(a.mu, a.sigma, b.mu, b.sigma);
-  return simApplySeedPrior(pTs, a, b);
-}}
-
-// Dominance proxy (win_pct/sos/TGRS_scaled) -- flavors the scoreline only,
-// mirrors _dominance_proxy() in predict_state.py.
-function simDominanceProxy(p) {{
-  const matches = p.wins + p.losses;
-  const winPct = matches ? p.wins / matches : 0.5;
-  const sosNorm = p.sos ? Math.min(Math.max(p.sos / 50, 0), 1) : 0.5;
-  const tgrsNorm = Math.min(Math.max(p.tgrsScaled / 100, 0), 1);
-  return Math.min(Math.max(0.5*winPct + 0.25*sosNorm + 0.25*tgrsNorm, 0), 1);
-}}
-
-function simCompressWinProb(p) {{
-  p = Math.min(Math.max(p, 0), 1);
-  return 0.5 + SIM_WIN_PROB_SCALE * (p - 0.5);
-}}
-
-// Effective performance gap fed to the scoreline simulator -- same
-// derivation as _perf_diff_for_match() in predict_state.py: fold the
-// dominance nudge into the probability (bounded, logit-space) BEFORE
-// compressing toward 0.5, so a close win-prob matchup can't be turned into
-// a scoreline blowout by a dominance-proxy mismatch.
-function simPerfDiff(a, b) {{
-  const p = matchWinProb(a, b);
-  const domA = simDominanceProxy(a), domB = simDominanceProxy(b);
-  const pWithDom = simSigmoid(simLogit(p) + SIM_DOMINANCE_WEIGHT * (domA - domB));
-  const pScoreline = simCompressWinProb(pWithDom);
-  const c = Math.sqrt(2 * SIM_BETA * SIM_BETA + a.sigma*a.sigma + b.sigma*b.sigma);
-  if (c <= 0) return a.mu - b.mu;
-  return c * simNormInv(pScoreline);
-}}
-
-function simSimulateSet(perfDiff, rng) {{
-  let ga = 0, gb = 0;
-  while (true) {{
-    const noise = simGaussian(rng, 0, SIM_GAME_NOISE);
-    const pAGame = 1 / (1 + Math.exp(-(perfDiff + noise) / SIM_GAME_LOGIT_SCALE));
-    if (rng() < pAGame) ga++; else gb++;
-    if (ga >= 6 && ga - gb >= 2) return [ga, gb];
-    if (gb >= 6 && gb - ga >= 2) return [ga, gb];
-    if (ga === 7 || gb === 7) return [ga, gb];
-    if (ga === 6 && gb === 6) {{
-      return (rng() < 1/(1+Math.exp(-perfDiff/SIM_TIEBREAK_LOGIT_SCALE))) ? [7,6] : [6,7];
-    }}
-  }}
-}}
-
-function simSimulateMatchOnce(rng, perfDiff) {{
-  const sets = [];
-  let aSets = 0, bSets = 0;
-  while (aSets < 2 && bSets < 2) {{
-    const set = simSimulateSet(perfDiff, rng);
-    sets.push(set[0] + '-' + set[1]);
-    if (set[0] > set[1]) aSets++; else bSets++;
-  }}
-  return {{ aWon: aSets > bSets, sets: sets }};
-}}
-
-function simFlipScore(s) {{
-  const parts = s.split('-');
-  return parts[1] + '-' + parts[0];
-}}
-
-// Runs SIM_TRIALS Monte Carlo trials for one matchup (deterministically
-// seeded from both players' names + ratings), then a two-stage pick --
-// most common match SHAPE (2 vs 3 sets) among trials agreeing with the
-// predicted winner, then most common EXACT scoreline within that shape --
-// mirroring predict_match_details() in predict_state.py so three-set
-// matches actually get printed sometimes instead of always losing a flat
-// vote to straight-set outcomes.
-function predictMatchDetails(a, b, winnerIsA, trials) {{
-  trials = trials || SIM_TRIALS;
-  const seedStr = [a.name + '|' + a.mu.toFixed(6) + '|' + a.sigma.toFixed(6),
-                    b.name + '|' + b.mu.toFixed(6) + '|' + b.sigma.toFixed(6)].sort().join('||');
-  const rng = simMakeRng(simHash(seedStr) % 4294967296);
-  const perfDiff = simPerfDiff(a, b);
-
-  const matching = new Map();
-  let lastSets = ['6-4', '6-4'];
-  let threeSetters = 0;
-
-  for (let i = 0; i < trials; i++) {{
-    const result = simSimulateMatchOnce(rng, perfDiff);
-    lastSets = result.sets;
-    if (result.sets.length === 3) threeSetters++;
-    if (result.aWon === winnerIsA) {{
-      const key = result.sets.join('|');
-      matching.set(key, (matching.get(key) || 0) + 1);
-    }}
-  }}
-
-  let chosen;
-  if (matching.size > 0) {{
-    const shapeVotes = new Map();
-    for (const entry of matching) {{
-      const shape = entry[0].split('|').length;
-      shapeVotes.set(shape, (shapeVotes.get(shape) || 0) + entry[1]);
-    }}
-    let majorityShape = 2, bestVotes = -1;
-    for (const sv of shapeVotes) {{
-      if (sv[1] > bestVotes) {{ bestVotes = sv[1]; majorityShape = sv[0]; }}
-    }}
-    let bestKey = null, bestCount = -1;
-    for (const entry of matching) {{
-      if (entry[0].split('|').length === majorityShape && entry[1] > bestCount) {{
-        bestCount = entry[1]; bestKey = entry[0];
-      }}
-    }}
-    chosen = bestKey.split('|');
-  }} else {{
-    chosen = lastSets;
-  }}
-
-  const score = winnerIsA ? chosen : chosen.map(simFlipScore);
-  return {{ score: score, prob3rd: threeSetters / trials }};
-}}
-
+{SIM_ENGINE_JS}
 function getSchoolFlights(school) {{
   const q = school.trim().toLowerCase();
   const result = {{}}; // baseKey -> {{ divisions: {{divValue: entry}}, overall: entry|null }}
@@ -1402,10 +1410,7 @@ function simBuildPlayer(entry, schoolLabel) {{
     rank: Number(simField(entry, 'rank', 9999)),
     wins: Number(simField(entry, 'wins', 0)),
     losses: Number(simField(entry, 'losses', 0)),
-    sos: Number(simField(entry, 'sos', 0)),
-    tgrsScaled: Number(simField(entry, 'TGRS_scaled', 50)),
-    mu: Number(simField(entry, 'ts_mu', 25)),
-    sigma: Number(simField(entry, 'ts_sigma', 25/3)),
+    power: Number(simField(entry, 'power_rating', 0)),
   }};
 }}
 
@@ -1465,13 +1470,14 @@ function runSimulate() {{
     groupsHtml += '<div class="sim-flight-group">' +
       '<h4>' + escapeHtml(key) + '</h4>' +
       '<table class="rankings-table"><thead><tr>' +
-      '<th>Matchup</th><th>Predicted Winner</th><th>Predicted Score</th><th>Win Prob.</th><th>Goes to 3rd Set</th>' +
+      '<th>Matchup</th><th>Predicted Winner</th><th>Predicted Score</th><th>Win Prob.</th><th>Fav. By (games)</th><th>Goes to 3rd Set</th>' +
       '</tr></thead><tbody><tr>' +
       '<td>' + escapeHtml(pa.name) + ' (#' + pa.rank + ', ' + escapeHtml(a) + ') vs ' +
         escapeHtml(pb.name) + ' (#' + pb.rank + ', ' + escapeHtml(b) + ')</td>' +
       '<td><b>' + escapeHtml(winnerName) + '</b></td>' +
       '<td>' + escapeHtml(details.score.join(' ')) + '</td>' +
       '<td>' + (pFav*100).toFixed(0) + '%</td>' +
+      '<td>' + details.expMargin.toFixed(1) + '</td>' +
       '<td>' + (details.prob3rd*100).toFixed(0) + '%</td>' +
       '</tr></tbody></table></div>';
   }}
@@ -1486,8 +1492,10 @@ function runSimulate() {{
     '<p class="sim-note">Based on ' + (winsA + winsB) + ' flight' + ((winsA + winsB) === 1 ? '' : 's') +
     ' where both schools have a ranked player/pair. Same-division flights are compared using that ' +
     'division\\'s own ranking; flights where the schools are in different divisions use each school\\'s ' +
-    'cross-division General Ranking entry instead. Win probabilities blend TrueSkill with a seed-history prior; ' +
-    'scorelines are simulated and deterministic per matchup. Numbers in parentheses are the expected (decimal) ' +
+    'cross-division General Ranking entry instead. Everything comes from the power rating: the gap between two ' +
+    'ratings is how many games the better player is expected to win by (12 = 6-0 6-0), converted into exact ' +
+    'win, score and third-set odds (form noise and a small seed-history blend were fit to held-out matches). ' +
+    'Numbers in parentheses are the expected (decimal) ' +
     'flight total, summing each flight\\'s win probability instead of just the predicted winner.</p>';
 
   container.innerHTML = summary + groupsHtml;
