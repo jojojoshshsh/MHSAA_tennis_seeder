@@ -202,7 +202,7 @@
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <header>
   <h1>Michigan High School Tennis Seed Prediction — 2026 season</h1>
-  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:46 PM EDT.</p>
+  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:53 PM EDT.</p>
 </header>
 <nav>
   <a class="nav-about" href="about.html">About &amp; Methodology</a>
@@ -1434,31 +1434,37 @@ function predictMatchDetails(a, b, winnerIsA) {
   // Printed line's total game margin should track the expected margin (|d|),
   // floored at 1.5; an underdog winner shows a narrow win.
   const target = winnerIsFavorite ? Math.max(Math.abs(d), 1.5) : 1.5;
+  // Step 1: pick the SHAPE (straight sets vs three) with the data-calibrated
+  // odds so printed three-setters match real frequency; step 2: sample a line
+  // inside that shape, matching the target margin as well as the shape allows.
+  const seed = simMatchupSeed(a, b, winnerIsA);
+  const p3 = (shapeW[2] + shapeW[3]) > 0 ? shapeW[3] / (shapeW[2] + shapeW[3]) : 0;
+  let shapePick = simUniform((seed + 0x1B873593) >>> 0) < p3 ? 3 : 2;
+  if (!src[shapePick].length) shapePick = 2;
+  const lines = src[shapePick];
+  // Straight-set wins are realistically never narrower than ~6-4 6-4 (+4).
+  const tgt = shapePick === 2 ? Math.max(target, 4) : target;
+  let tot = 0;
+  for (const e of lines) tot += e[1];
   const cands = [];
   let totalW = 0;
-  for (const shape of [2, 3]) {
-    const lines = src[shape];
-    let tot = 0;
-    for (const e of lines) tot += e[1];
-    if (tot <= 0 || shapeW[shape] <= 0) continue;
-    for (const [key, p] of lines) {
-      const sets = key.split(' ');
-      let margin = 0, damp = 1;
-      for (const x of sets) {
-        const [a, b] = simSplit(x);
-        margin += a - b;
-        if (x === '7-6' || x === '6-7') damp *= SIM_TIEBREAK_SCALE;
-        else if (x === '7-5' || x === '5-7') damp *= SIM_SEVEN_FIVE_SCALE;
-      }
-      const wgt = shapeW[shape] * p / tot * damp * Math.exp(-((margin - target) ** 2) / (2 * SIM_MARGIN_SD ** 2));
-      cands.push([sets, wgt]);
-      totalW += wgt;
+  for (const [key, p] of lines) {
+    const sets = key.split(' ');
+    let margin = 0, damp = 1;
+    for (const x of sets) {
+      const [a1, b1] = simSplit(x);
+      margin += a1 - b1;
+      if (x === '7-6' || x === '6-7') damp *= SIM_TIEBREAK_SCALE;
+      else if (x === '7-5' || x === '5-7') damp *= SIM_SEVEN_FIVE_SCALE;
     }
+    const wgt = p / tot * damp * Math.exp(-((margin - tgt) ** 2) / (2 * SIM_MARGIN_SD ** 2));
+    cands.push([sets, wgt]);
+    totalW += wgt;
   }
   // Replicable draw: same matchup -> same line; different matchups vary.
   let best = null;
   if (totalW > 0) {
-    const r = simUniform(simMatchupSeed(a, b, winnerIsA)) * totalW;
+    const r = simUniform(seed) * totalW;
     let acc = 0;
     for (const [sets, w] of cands) { acc += w; best = sets; if (r < acc) break; }
   }
@@ -1468,7 +1474,6 @@ function predictMatchDetails(a, b, winnerIsA) {
     // sequence: winner loses set 1 or set 2 (real data 51% / 49%), ALWAYS
     // wins the last set, and the two sets won can come in either order.
     let [lost, w1, w2] = score;
-    const seed = simMatchupSeed(a, b, winnerIsA);
     const lostFirst = simUniform((seed + 0x9E3779B9) >>> 0) < 0.5;
     if (simUniform((seed + 0x3C6EF372) >>> 0) < 0.5) [w1, w2] = [w2, w1];
     score = lostFirst ? [lost, w1, w2] : [w1, lost, w2];
