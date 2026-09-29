@@ -30,8 +30,7 @@ derives *everything* from it in one chain, with no randomness:
 
     rating gap d  (expected game margin)
         |  invert: which per-POINT win probability p makes a best-of-3
-        |  match (2 sets + a deciding 3rd set: a full set or a 10-pt
-        |  match tiebreak, see THIRD_SET_FULL) have an expected game
+        |  match (2 sets + 10-pt match tiebreak) have an expected game
         |  margin of exactly d?         [_solve_point_prob]
         v
     p  ->  game prob (deuce math) -> set-score distribution (6-x, 7-5,
@@ -130,30 +129,16 @@ FORM_SD = 3.0
 SEED_PRIOR_ACCURACY = 0.950
 SEED_BLEND_WEIGHT = 0.05
 
-# The point-by-point model treats the two sets as independent, so it
-# over-predicts how often matches are competitive. On held-out matches (with
-# the full-3rd-set model below) it said 25.1% go to a 3rd set (actual
-# 14.3%), 14.6% contain a 7-6 set (actual 5.6%) and 15.9% contain a 7-5 set
-# (actual 11.0%). These multipliers apply those observed ratios to the
-# REPORTED shape odds and to the printed-shape pick. Mass removed from
+# The point-by-point model treats the two sets as independent given the
+# match's form, so it over-predicts how often matches are competitive. On
+# held-out matches it said 23.8% go to a 3rd set (actual 14.3%), 12.1%
+# contain a 7-6 set (actual 5.6%) and 13.4% contain a 7-5 set (actual
+# 11.0%). These multipliers apply those observed ratios to the REPORTED shape
+# odds and to the straight-sets-vs-three-sets pick. Mass removed from
 # three-setters moves to straight sets, so win probability is untouched.
-# Re-fit with calibrate_predictor.py if you change THIRD_SET_FULL.
-THREE_SET_SCALE = 0.57
-
-# How a deciding 3rd set is played and predicted. True = a FULL third set
-# (6-4, 7-5, 7-6 ... i.e. a printed score like "6-4 3-6 6-3"); False = a
-# 10-point match tiebreak ("6-4 3-6 10-7"). NOTE: in the 2026 data ~83% of
-# real 3rd sets were match tiebreaks (only ~17% full sets), so False matches
-# how most matches actually finish; True is what you asked to display.
-# Mirror in build_site.py (SIM_THIRD_SET_FULL).
-THIRD_SET_FULL = True
-
-# Display only: print a three-set scoreline when the calibrated chance of a
-# 3rd set is at least this. Lower = more three-setters printed. Does not
-# change any reported probability. Mirror in build_site.py.
-THREE_SET_PRINT_MIN = 0.22
-TIEBREAK_SCALE = 0.38
-SEVEN_FIVE_SCALE = 0.69
+THREE_SET_SCALE = 0.60
+TIEBREAK_SCALE = 0.46
+SEVEN_FIVE_SCALE = 0.82
 
 
 TABLE_STEP = 0.25   # rating-gap grid spacing for the precomputed match table
@@ -242,27 +227,17 @@ def _super_tb_dist(p: float) -> dict[tuple[int, int], float]:
     return out
 
 
-def _third_set_dist(p: float) -> dict[tuple[int, int], float]:
-    """Score distribution of the deciding 3rd set from A's side: a full set
-    (same distribution as sets 1 and 2) or a 10-point match tiebreak."""
-    return _set_dist(p) if THIRD_SET_FULL else _super_tb_dist(p)
-
-
 def _expected_margin_for_point_prob(p: float) -> float:
     """E[signed game margin of A] for a best-of-3 match, using the SAME
     convention the power rating was fit on: a set's margin is its game
     difference (7-6 = +1) and the match tiebreak counts as +/-1 (an
-    ordinary 7-6). A FULL third set (THIRD_SET_FULL) counts its real game
-    margin. Closed form via linearity -- both sets are always played; the
-    3rd only when they split."""
+    ordinary 7-6). Closed form via linearity -- both sets are always
+    played; the 3rd only when they split."""
     sd = _set_dist(p)
     s_win = sum(v for (a, b), v in sd.items() if a > b)
     e_set = sum(v * (a - b) for (a, b), v in sd.items())
-    if THIRD_SET_FULL:
-        e_third = e_set
-    else:
-        e_third = 2.0 * _race_prob(p, 10) - 1.0
-    return 2.0 * e_set + 2.0 * s_win * (1.0 - s_win) * e_third
+    t = _race_prob(p, 10)
+    return 2.0 * e_set + 2.0 * s_win * (1.0 - s_win) * (2.0 * t - 1.0)
 
 
 def _solve_point_prob(d: float) -> float:
@@ -297,7 +272,7 @@ def _match_outcomes(p: float) -> dict:
       b_wins -> same, for the underdog winning
     """
     sd = _set_dist(p)
-    tb = _third_set_dist(p)
+    tb = _super_tb_dist(p)
     pw2 = pw3 = pl2 = pl3 = p_tb = p_75 = 0.0
     a_lists: dict[int, dict] = {2: defaultdict(float), 3: defaultdict(float)}
     b_lists: dict[int, dict] = {2: defaultdict(float), 3: defaultdict(float)}
@@ -320,12 +295,12 @@ def _match_outcomes(p: float) -> dict:
                     pl2 += joint
                     b_lists[2][(_fmt_set(s1[1], s1[0]), _fmt_set(s2[1], s2[0]))] += joint
             else:
+                if has_tb:
+                    p_tb += joint
+                if has_75:
+                    p_75 += joint
                 for t3, p3 in tb.items():
                     j3 = joint * p3
-                    if has_tb or (THIRD_SET_FULL and t3 in ((7, 6), (6, 7))):
-                        p_tb += j3
-                    if has_75 or (THIRD_SET_FULL and t3 in ((7, 5), (5, 7))):
-                        p_75 += j3
                     if t3[0] > t3[1]:   # A wins the breaker -> A wins 2-1
                         pw3 += j3
                         a_lists[3][(_fmt_set(*s1), _fmt_set(*s2), _fmt_set(*t3))] += j3
@@ -595,9 +570,10 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
       - "score": the single representative scoreline, oriented so the
         FIRST number in each set is the predicted winner's games. Two
         stages: pick the more likely match SHAPE (straight sets vs three
-        sets: a three-setter prints when the calibrated 3rd-set chance is at
-        least THREE_SET_PRINT_MIN), then the most likely exact score within
-        that shape. Display only -- reported odds are unaffected.
+        sets, using the data-calibrated odds -- see THREE_SET_SCALE), then
+        the most likely exact score within that shape. Because real matches
+        are mostly straight-set wins even between similar players, a
+        three-setter is only printed when the calibrated odds favor it.
       - "prob_three_sets" / "prob_tiebreak" / "prob_75": chance the match
         goes to a 3rd set / contains a 7-6 set / contains a 7-5 set.
 
@@ -608,7 +584,8 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     d = expected_margin(a, b)
     pw2, pw3, pl2, pl3, p_tb, p_75 = _mixture_stats(d, _tau(a, b))
 
-    shape = 3 if THREE_SET_SCALE * (pw3 + pl3) >= THREE_SET_PRINT_MIN else 2
+    w2, w3 = (pw2, pw3) if winner_is_a else (pl2, pl3)
+    shape = 3 if THREE_SET_SCALE * w3 > w2 + (1.0 - THREE_SET_SCALE) * w3 else 2
 
     # Table entry nearest |d|; the favorite is whoever the rating gap
     # favors. If the predicted winner is that favorite use the "a_wins"
@@ -1100,3 +1077,4 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
+
