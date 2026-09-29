@@ -2,219 +2,91 @@
 predict_state.py
 =================
 
-Turns the per-(division, flight) rankings produced by mhsaa_seeding_v2.py
-into a projected 32-draw state tournament: real single-elimination
-brackets seeded 1-vs-32/16-vs-17/etc., exact win/finalist/semifinalist
-probabilities computed from TrueSkill ratings (a closed recursive
-calculation over the bracket tree -- no randomness involved in the
-probabilities themselves), a single "most likely" run through every
-bracket with realistic set-by-set scorelines, and a team point
-projection (+1 team point per predicted match win) per gender/division.
+Projects the MHSAA state tournament from the rankings written by
+mhsaa_seeding_v2.py: real single-elimination 32-draw brackets (1v32,
+16v17, ...), exact champion / finalist / semifinalist probabilities, a
+single "most likely" run through every bracket with a realistic scoreline,
+and a team point projection (+1 per predicted match win).
 
-This version replaces the old hash/ladder-based scoreline generator with
-the same "hyper-realistic" Monte Carlo scoreline engine that
-predict_matchup.py uses for one-off head-to-head predictions (dominance
-proxy from wins/losses + sos + TGRS_scaled, simulated game-by-game with
-Gaussian noise). See "SCORELINE ENGINE" below for details. It also no
-longer touches docs/index.html -- instead it writes a brand-new,
-self-contained HTML report.
-
-Run this AFTER mhsaa_seeding_v2.py and build_site.py:
+Run AFTER mhsaa_seeding_v2.py (and, optionally, build_site.py):
 
     python scripts/mhsaa_seeding_v2.py <matches.csv>
-    python scripts/build_site.py          # optional, unrelated to this script now
     python scripts/predict_state.py
 
-WHERE THE WIN PROBABILITIES COME FROM
----------------------------------------
-Every ranking CSV row already carries ts_mu / ts_sigma -- the two
-Gaussian parameters underlying ts_rating (= ts_mu - 3*ts_sigma).
-Head-to-head win probability starts from the standard TrueSkill win
-formula (identical to _match_probability() in trueskill_engine_v2.py,
-and identical to win_probability() in predict_matchup.py):
+WHAT CHANGED: THE POWER RATING IS NOW THE PREDICTION MODEL
+------------------------------------------------------------
+Previously every prediction came from TrueSkill (mu/sigma) blended with a
+seed prior, and the scoreline was a Monte Carlo of a *different* quantity
+(a dominance proxy built from win%, SOS and TGRS). Three separate signals
+had to be glued together and tuned against each other.
 
-    P(a beats b) = Phi( (mu_a - mu_b) / sqrt(2*BETA^2 + sigma_a^2 + sigma_b^2) )
+The power rating already answers the question directly. Its contract is:
 
-That TrueSkill number is then blended with a SEED-HISTORY PRIOR: real
-MHSAA seed-committee data (see the comment above SEED_PRIOR_ACCURACY,
-section 1) showing the higher seed has won ~96.0% of matches across 19
-years of tournament results. The blend happens in logit space via
-_apply_seed_prior() so a lopsided TrueSkill gap can't be overwhelmed by a
-prior calibrated mainly for close calls, and is fully tunable/disableable
-via SEED_BLEND_WEIGHT. This means win probabilities are no longer *pure*
-TrueSkill -- they're TrueSkill informed by real historical seed
-reliability -- but the blend degrades gracefully back to pure TrueSkill
-when SEED_BLEND_WEIGHT = 0, or when either player has no seed number.
+    rating_A - rating_B  =  how many GAMES A is expected to win by
+                            (capped at 12 = 6-0 6-0)
 
-This match_win_prob() -- TrueSkill blended with the seed prior -- is
-used AS-IS, unmodified, for every bracket-advancement calculation in
-this file (both the exact recursive probabilities in section 3 and the
-single-path bracket walk in section 5). It is only reshaped for one
-purpose: deriving the performance gap that flavors a match's *simulated
-scoreline* -- see SCORELINE ENGINE below.
+so this file now uses that number as the single source of truth, and
+derives *everything* from it in one chain, with no randomness:
 
-Given every pairwise probability, the probability of a seed reaching any
-given round of a KNOWN bracket is NOT just "win N coin flips" -- it also
-depends on who they'd face, who *that* opponent would have had to have
-beaten to get there, and so on recursively. This module computes that
-exactly with a standard bracket-probability recursion (split the bracket
-in half, recursively get each half's "who emerges" distribution, then
-convolve the two distributions through the head-to-head formula) rather
-than approximating it by simulating many random brackets. No randomness
-is used anywhere for these bracket-advancement probabilities -- every
-number in the "Championship / Final / Semifinal Odds" tables is a
-deterministic function of the input ratings (and, per above, the seed
-prior).
+    rating gap d  (expected game margin)
+        |  invert: which per-POINT win probability p makes a best-of-3
+        |  match (2 sets + 10-pt match tiebreak) have an expected game
+        |  margin of exactly d?         [_solve_point_prob]
+        v
+    p  ->  game prob (deuce math) -> set-score distribution (6-x, 7-5,
+           7-6 via a 7-pt tiebreak) -> match-score distribution
+        |  all EXACT, computed by dynamic programming
+        v
+    P(win), P(3 sets), P(7-6 set), P(7-5 set), every exact scoreline
 
-SCORELINE ENGINE (now shared with predict_matchup.py)
---------------------------------------------------------
-For the single "most likely path" bracket, the winner of each real match
-is still simply whichever side has p >= 0.5 (the favorite always
-advances -- no coin flips, so the bracket-path table stays consistent
-with the exact probabilities above).
+Because the model is built on the same margin convention the rating was
+fit on (a match tiebreak counts as +/-1 game, i.e. an ordinary 7-6), a
+rating gap of 12 maps to p -> 1 (6-0 6-0), a gap of 2 to a ~68% favorite,
+a gap of 1 to a near coin flip that usually goes three sets, and so on --
+the whole scale falls out of the rating instead of being hand-tuned.
 
-The *scoreline* attached to that match, however, now comes straight from
-predict_matchup.py's engine instead of the old deterministic
-hash-and-ladder generator:
+FORM NOISE. A pure point-by-point model is far too sure of itself: it
+would call a 6-game favorite a 94% lock. Real players have good and bad
+days, and the ratings themselves carry estimation error. So the gap is
+treated as a random variable
 
-  - A "dominance profile" is built per player from win_pct, sos, and
-    TGRS_scaled -- an explicit PROXY (see _dominance_proxy() below,
-    copied verbatim from predict_matchup.py), since true per-player
-    dominance is never persisted per player (compute_match_margin() is a
-    per-MATCH quantity, never aggregated and saved).
-  - A performance gap is formed from an EFFECTIVE mu gap that already
-    folds in a weighted dominance-proxy nudge -- see the docstring on
-    _perf_diff_for_match() below for exactly how, and why it has to be
-    folded in *before* the win-probability is compressed rather than
-    added on afterwards (that ordering bug is what used to make
-    genuinely close matchups print as scoreline blowouts -- see the
-    CALIBRATION note below the module docstring for the real-data check
-    that surfaced it). The effective mu gap is derived from
-    match_win_prob(a, b) -- the SAME blended (TrueSkill + seed-prior)
-    probability that decides who advances in the bracket -- rather than
-    the raw, unblended mu_a - mu_b. This keeps the scoreline simulator's
-    notion of "who's favored" identical to the bracket's notion of
-    "who's favored"; see the docstring on _perf_diff_for_match() for why
-    that matters (it fixes a real bug where close, seed-prior-flipped
-    matchups could print a winner alongside a scoreline showing them
-    losing 0-6, 0-6).
-  - Before that combined probability is converted into a performance
-    gap, it is first re-centered with a linear shift-and-scale toward
-    0.5 -- see WIN_PROB_SCORELINE_SCALE and _compress_win_prob() below.
-    This is NOT a cap or clamp on the performance gap itself: it is a
-    rescaling of the underlying probability distribution (which is
-    naturally bounded to [0, 1], unlike the performance gap, which is
-    unbounded). Shrinking the *probability* toward a coin flip before
-    the unbounded-domain conversion (mu-gap via the inverse normal CDF)
-    means the resulting performance gap is automatically bounded too,
-    without ever touching or post-processing the gap value itself. See
-    _compress_win_prob()'s docstring for the full rationale and the
-    empirical bagel-rate problem this fixes. Critically, the dominance
-    nudge is folded in as a logit-space adjustment to the probability
-    *before* this compression step (see DOMINANCE_LOGIT_WEIGHT and
-    _perf_diff_for_match()), so it is bounded by the same [0, 1]
-    probability arithmetic as everything else -- it can shade a
-    close call toward one side, but it can no longer manufacture a
-    blowout performance gap out of a coin-flip matchup on its own.
-  - Individual sets are simulated game-by-game via a logistic function
-    of that (rescaled) performance gap plus fixed Gaussian noise
-    (_simulate_set(), copied verbatim from predict_matchup.py), through
-    a full best-of-3 match.
-  - Because this uses real randomness (random.Random), and this script
-    must be reproducible on re-run, each match's simulation is seeded
-    deterministically from a hash of the two competitors' names and
-    TrueSkill mu/sigma (same idea predict_matchup.py exposes via its
-    `--seed` flag, applied per-match here). Several hundred trials are
-    simulated per match; among the trials whose simulated outcome agrees
-    with the TrueSkill favorite (so the printed scoreline never
-    contradicts the printed winner), the single most common exact
-    scoreline is what gets displayed -- the same "most common outcome
-    across many simulated trials" logic predict_matchup.py's predict()
-    uses for its own scoreline-distribution table.
-  - Volatility is intentionally NOT used anywhere in this engine -- same
-    as predict_matchup.py, it's neither persisted per-player in the
-    ranking CSVs nor factored into the win-probability or
-    scoreline-simulation math.
+    d' ~ Normal(d, FORM_SD^2 + se_a^2 + se_b^2)      (clipped to +/-12)
 
-CALIBRATION NOTE -- "close matches never get predicted" (fixed)
---------------------------------------------------------------
-Checked against the real Fall 2025 MHSAA state bracket results: roughly
-a third to a bit under half of real varsity matches are genuinely close
-(one set at 6-4/7-5/7-6, or a three-setter, frequently decided by a
-10-point 3rd-set match tiebreak -- e.g. "7-5 6-2", "6-1 7-6", "2-6 6-3
-10-7", "3-6 6-3 1-0"), not lopsided 6-0/6-1/6-2 blowouts. Previously,
-_perf_diff_for_match() computed the compressed, bounded mu-gap from
-match_win_prob() (correct, and consistent with the bracket-advancement
-math), but then ADDED the dominance-proxy nudge (8.0 * (dom_a - dom_b))
-on top of that, completely unbounded and outside the
-_compress_win_prob() rescaling that the rest of the SCORELINE ENGINE
-section relies on to keep performance gaps sane. Because the dominance
-proxy is built from win_pct/sos/TGRS_scaled -- numbers that can differ a
-lot between two players even when their TrueSkill ratings (and the
-seed-prior-blended match_win_prob()) call the match a near coin flip --
-that uncompressed nudge routinely dominated the performance gap and
-turned genuinely close matchups (bracket win probability near 50/50)
-into scoreline blowouts, which is exactly why close matches never showed
-up in the printed bracket path. The fix: fold the dominance nudge into
-the *probability* (as a bounded logit-space adjustment, see
-DOMINANCE_LOGIT_WEIGHT below) before -- not after -- _compress_win_prob()
-runs, so it shares the same bounded [0, 1] arithmetic as the TrueSkill/
-seed-prior signal and can no longer escape the compression that's
-supposed to keep scorelines realistic.
+and every probability is averaged over d' with a fixed 7-point
+Gauss-Hermite rule (deterministic -- still no Monte Carlo). se comes from
+the same formula the rating fit uses, 1/sqrt(ridge + matches).
+FORM_SD (below) controls how upset-prone the tournament is.
 
-SECOND BUG, same symptom -- "no three-set matches ever get printed":
-fixing the performance-gap magnitude above was necessary but not
-sufficient. Even with a realistic perf_diff, predict_match_details() was
-picking the printed scoreline by taking a flat Counter.most_common(1)
-over every exact simulated scoreline tuple among the winner-matching
-trials. That vote structurally disadvantages three-setters even when
-they're a large share -- sometimes a plurality -- of realistic outcomes:
-a straight-sets win concentrates into a small number of distinct
-scorelines (6-3 6-4, 6-2 6-3, ...), while a three-set win fragments
-across dozens of distinct exact sequences (6-4 3-6 6-3, 7-5 4-6 6-2, 6-3
-3-6 7-5, ...). No single three-set tuple can accumulate as many votes as
-the single most common two-set tuple even when "goes to a 3rd set" is
-correctly computed at 40-50%, because that 40-50% is spread thin across
-many different exact sequences instead of pooled into one. The fix (see
-predict_match_details()) is a two-stage pick: first decide the more
-common match SHAPE (best-of-2 vs. three sets) by aggregate vote share
-among the winner-matching trials, then take the most-common EXACT
-scoreline within that shape only. This does not change any probability
-number in the output (prob_three_sets/prob_tiebreak/prob_75 were already
-computed correctly across all trials) -- it only changes which single
-representative scoreline gets printed as "the" predicted score.
+Ratings are only comparable inside one pool (gender + singles/doubles +
+flight). Every bracket here lives in exactly one pool, and the
+cross-division "overall" ranking is fit on the whole pool, so gaps between
+schools in different divisions are valid too.
+
+The seed-committee prior is blended in at a small, backtested weight
+(SEED_BLEND_WEIGHT): the rating gap already contains the results that
+produced the seeds, so a heavy blend double counts them and hurts accuracy.
+FORM_SD, the blend weight and the shape multipliers are all fit to a
+walk-forward backtest -- see the constants block and calibrate_predictor.py.
 
 OUTPUT
 ------
   - docs/csv/predictions/bracket_*.csv           (per-bracket seed odds)
   - docs/csv/predictions/team_predicted_*.csv    (per-division team points)
-  - docs/prediction_of_state.html                (standalone report --
-    this script no longer edits docs/index.html at all, but it does
-    link BACK to docs/index.html so the page isn't a dead end)
+  - docs/csv/predictions/matches_*.csv           (every predicted match,
+                                                  incl. expected margin)
+  - docs/prediction_of_state.html                (standalone report)
 """
 
 from __future__ import annotations
 
 import csv
-import hashlib
 import math
-import random
 import sys
-from collections import Counter, defaultdict
+from collections import defaultdict
 from pathlib import Path
-from statistics import NormalDist
 
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src"))
-
-try:
-    from trueskill_engine_v2 import BETA  # noqa: E402  (path insert above)
-except ImportError:
-    # Fallback so this script can still run standalone if trueskill_engine_v2
-    # isn't importable for some reason -- matches its own default derivation,
-    # and matches predict_matchup.py's own fallback.
-    _MU, _SIGMA = 25.0, 25.0 / 3
-    BETA = _SIGMA / 5
 
 SRC_DIR = REPO_ROOT / "src" / "rankings_by_division_flight"
 DOCS_DIR = REPO_ROOT / "docs"
@@ -223,79 +95,53 @@ PRED_HTML_PATH = DOCS_DIR / "prediction_of_state.html"
 
 MAX_BRACKET = 32
 VALID_FLIGHTS = {"1", "2", "3", "4"}
-SCORELINE_TRIALS = 400  # Monte Carlo trials per bracket match, for the printed scoreline only
 
-# Linear shift-and-scale applied to the (dominance-adjusted) match
-# probability -- NOT to the performance gap -- before that probability is
-# converted into a performance gap for the scoreline simulator only. See
-# _compress_win_prob() for the mechanism and rationale, and the
-# SCORELINE ENGINE section of the module docstring for the empirical
-# problem this fixes (double-bagel scorelines being wildly over-frequent
-# for lopsided seed gaps). 1.0 = no rescaling (the probability is used
-# as-is); 0.0 = every matchup's scoreline is simulated as a coin flip
-# regardless of how lopsided the real matchup is. Empirically tuned (see
-# the repo's calibration notes / git history for the check script used)
-# so that a genuine blowout (99%+ win probability) tops out around a
-# ~25% chance of a single 6-0 set and a ~6% chance of a full
-# double-bagel match, rather than ~90%/~85%, while leaving close-to-
-# moderate matchups (which were never the problem) close to untouched.
+# ---- Power-rating model constants -----------------------------------------
+# Must match mhsaa_seeding_v2.py (POWER_RATING_CAP / POWER_RATING_DEFAULT_RIDGE).
+POWER_CAP = 12.0
+POWER_RIDGE = 0.5
+
+# ---- Constants FIT TO DATA (walk-forward backtest; see calibrate_predictor.py)
 #
-# UPDATE: raised from 0.35 back to 1.0 (no compression). The prior
-# compression was solving a real problem (moderate favorites were
-# printing as near-guaranteed blowouts) but it overcorrected: it also
-# flattened GENUINE blowouts (98-99%+ win probability) down to the same
-# modest performance gap as a 65% favorite, so a true mismatch never
-# printed a real 6-0/6-1 scoreline either. The actual ask is for the
-# scoreline to track the win probability proportionally end-to-end: a
-# 51% coin-flip match should simulate close (7-6, 7-6-type breakers),
-# and a 99% mismatch should simulate a real blowout (6-0, 6-1-type
-# sets) -- which is what happens naturally once nothing compresses the
-# probability before _implied_mu_gap() converts it into a performance
-# gap. With SEED_BLEND_WEIGHT lowered to 0.15 (see above), routine seed
-# gaps no longer get pushed to false-blowout probabilities in the first
-# place, so removing this compression no longer reintroduces the
-# original over-confidence problem -- it just lets whatever probability
-# match_win_prob() actually reports come through honestly into the
-# scoreline. Lower this back toward 0.5-0.7 if blowouts still feel too
-# frequent for genuinely close win probabilities; 0.0 would collapse
-# every matchup's scoreline to a coin flip regardless of win probability.
-WIN_PROB_SCORELINE_SCALE = 1.0
+# Backtest: 2026 boys data, 13 daily cutoffs. At each cutoff the real seeding
+# pipeline was run on everything before it, then the following day(s) of
+# matches were predicted: 2,444 held-out matches, 693 of them between two
+# players who both had 5+ matches (which is what a state bracket looks like).
+#
+# FORM_SD -- std-dev, in GAMES, of a player's day-to-day performance around
+# their rating (on top of rating estimation error). Fit by maximum likelihood
+# of the FULL observed scoreline, not just who won: the optimum is flat
+# between 3 and 4, and 3.0 costs almost nothing in win-probability log-loss
+# (0.3715 vs 0.3688 at the win-only optimum of 2.0). Mirror in build_site.py.
+FORM_SD = 3.0
 
-# Per-game logistic sensitivity: how many performance-gap points it takes
-# to meaningfully swing a single game's win probability. Originally a
-# hardcoded /6.0 inside _simulate_set() (and a hardcoded /4.0 for the
-# 6-6 tiebreak decision -- kept at the same 2:3 ratio here). At /6.0,
-# games became near-certain for the favorite far too quickly as perf_diff
-# grew, so *any* comfortable favorite (even an 80% match win probability)
-# was already printing 6-0/6-1 blowouts, leaving no gradation between
-# "clearly better" and "totally dominant". Raising this to 12.0 spreads
-# that same range of performance gaps out over more games, so the
-# printed scoreline actually grades with win probability end-to-end:
-#   ~65% match win prob  -> close sets, e.g. 6-4, 6-4
-#   ~80% match win prob  -> comfortable sets, e.g. 6-3, 6-2
-#   ~90% match win prob  -> clear sets, e.g. 6-1, 6-1
-#   ~99% match win prob  -> real blowout, e.g. 6-0, 6-0
-# Lower this to make scorelines more decisive for a given win probability;
-# raise it to keep matches closer even for lopsided favorites.
-GAME_LOGIT_SCALE = 12.0
-TIEBREAK_LOGIT_SCALE = 8.0  # keeps the original /6.0-vs-/4.0 (2:3) ratio at the new scale
+# Seed-committee prior: the higher seed wins ~95% of matches (19 years of
+# MHSAA data). SEED_BLEND_WEIGHT is how much of that prior is mixed into the
+# rating-based win probability, in logit space. Held-out log-loss (lower is
+# better), matches with 5+ games played by both players:
+#     w = 0.00 -> 0.3715    w = 0.05 -> 0.3706 (best)    w = 0.10 -> 0.3715
+#     w = 0.15 -> 0.3741    w = 0.25 -> ~0.385 (the old default: WORSE)
+#     w = 0.50 -> 0.4377
+# The rating gap already contains the results that produced the seeds, so
+# the prior is nearly redundant: a small weight helps a hair (the 95% CI on
+# the gain includes zero), a big one clearly hurts. 0.05 keeps the blend ON
+# at the accuracy-maximizing strength. Mirror in build_site.py.
+SEED_PRIOR_ACCURACY = 0.950
+SEED_BLEND_WEIGHT = 0.05
 
-# Weight (in logit space) applied to the dominance-proxy differential
-# before it's folded into the win probability that feeds the scoreline
-# simulator -- see _perf_diff_for_match(). This REPLACES the old
-# "+ 8.0 * (dom_a - dom_b)" raw mu-gap addition, which lived outside
-# _compress_win_prob()'s bounded rescaling and could turn a coin-flip
-# matchup into a guaranteed scoreline blowout (see the CALIBRATION NOTE
-# in the module docstring). Because this now operates in logit space on
-# a proxy already confined to [0, 1] (dom_a, dom_b are both in [0, 1],
-# so dom_a - dom_b is in [-1, 1]), a maximal dominance mismatch shifts
-# the probability by at most sigmoid(+/-DOMINANCE_LOGIT_WEIGHT) worth of
-# logit -- large enough to meaningfully flavor a scoreline, but no longer
-# capable of overriding how close match_win_prob() judged the match
-# before this adjustment and the WIN_PROB_SCORELINE_SCALE compression
-# both get applied. 0.0 disables the dominance nudge entirely (scorelines
-# then depend purely on the blended TrueSkill/seed-prior probability).
-DOMINANCE_LOGIT_WEIGHT = 1.4
+# The point-by-point model treats the two sets as independent given the
+# match's form, so it over-predicts how often matches are competitive. On
+# held-out matches it said 23.8% go to a 3rd set (actual 14.3%), 12.1%
+# contain a 7-6 set (actual 5.6%) and 13.4% contain a 7-5 set (actual
+# 11.0%). These multipliers apply those observed ratios to the REPORTED shape
+# odds and to the straight-sets-vs-three-sets pick. Mass removed from
+# three-setters moves to straight sets, so win probability is untouched.
+THREE_SET_SCALE = 0.60
+TIEBREAK_SCALE = 0.5
+SEVEN_FIVE_SCALE = 0.8
+
+
+TABLE_STEP = 0.25   # rating-gap grid spacing for the precomputed match table
 
 FINISH_LABELS = {
     1: "Champion",
@@ -307,36 +153,225 @@ FINISH_LABELS = {
 }
 
 BYE = object()  # sentinel for an empty bracket slot (small fields get first-round byes)
+_EPS = 1e-9
 
 
 # ============================================================================
-# 1.  TrueSkill head-to-head probability (identical math to predict_matchup.py)
+# 1.  Exact point -> game -> set -> match model
 # ============================================================================
 
-def _Phi(x: float) -> float:
-    return 0.5 * math.erfc(-x / math.sqrt(2.0))
+def _game_prob(p: float) -> float:
+    """P(win a game) when each point is won with prob p (ad scoring)."""
+    if p <= 0.0:
+        return 0.0
+    if p >= 1.0:
+        return 1.0
+    q = 1.0 - p
+    return p ** 4 * (1 + 4 * q + 10 * q * q) + 20 * p ** 5 * q ** 3 / (1 - 2 * p * q)
 
 
-def head_to_head_probability(mu_a: float, sigma_a: float, mu_b: float, sigma_b: float) -> float:
-    """P(a beats b), the standard TrueSkill win-probability formula (eps=0).
-    Same formula as win_probability() in predict_matchup.py."""
-    c = math.sqrt(2.0 * BETA ** 2 + sigma_a ** 2 + sigma_b ** 2)
-    if c <= 0:
+def _race_prob(p: float, n: int) -> float:
+    """P(win) a first-to-n, win-by-2 points race (7-pt set tiebreak: n=7;
+    10-pt match tiebreak: n=10) when each point is won with prob p."""
+    if p <= 0.0:
+        return 0.0
+    if p >= 1.0:
+        return 1.0
+    q = 1.0 - p
+    s = sum(math.comb(n - 1 + k, k) * p ** n * q ** k for k in range(n - 1))
+    s += math.comb(2 * (n - 1), n - 1) * (p * q) ** (n - 1) * p * p / (p * p + q * q)
+    return s
+
+
+def _set_dist(p: float) -> dict[tuple[int, int], float]:
+    """Exact distribution of one set's score, from A's side: 6-0..6-4,
+    7-5, and 7-6 (7-pt tiebreak at 6-6), plus the mirror images."""
+    g = _game_prob(p)
+    h = 1.0 - g
+    t = _race_prob(p, 7)
+    reach = {(0, 0): 1.0}
+    out: dict[tuple[int, int], float] = defaultdict(float)
+    for total in range(13):
+        for ga in range(total + 1):
+            gb = total - ga
+            pr = reach.get((ga, gb), 0.0)
+            if not pr:
+                continue
+            if ga == 6 and gb == 6:
+                out[(7, 6)] += pr * t
+                out[(6, 7)] += pr * (1 - t)
+                continue
+            for na, nb, w in ((ga + 1, gb, g), (ga, gb + 1, h)):
+                if (na >= 6 and na - nb >= 2) or (nb >= 6 and nb - na >= 2) or na == 7 or nb == 7:
+                    out[(na, nb)] += pr * w
+                else:
+                    reach[(na, nb)] = reach.get((na, nb), 0.0) + pr * w
+    return dict(out)
+
+
+def _super_tb_dist(p: float) -> dict[tuple[int, int], float]:
+    """Exact 10-point match-tiebreak score from A's side. 10-0 .. 10-7 are
+    exact; 10-8 also absorbs every longer deuce ending (11-9, 12-10, ...)
+    so the display never needs a score the data doesn't use."""
+    q = 1.0 - p
+    out: dict[tuple[int, int], float] = {}
+    a_exact = b_exact = 0.0
+    for k in range(8):
+        out[(10, k)] = math.comb(9 + k, k) * p ** 10 * q ** k
+        out[(k, 10)] = math.comb(9 + k, k) * q ** 10 * p ** k
+        a_exact += out[(10, k)]
+        b_exact += out[(k, 10)]
+    win = _race_prob(p, 10)
+    out[(10, 8)] = max(0.0, win - a_exact)
+    out[(8, 10)] = max(0.0, (1.0 - win) - b_exact)
+    return out
+
+
+def _expected_margin_for_point_prob(p: float) -> float:
+    """E[signed game margin of A] for a best-of-3 match, using the SAME
+    convention the power rating was fit on: a set's margin is its game
+    difference (7-6 = +1) and the match tiebreak counts as +/-1 (an
+    ordinary 7-6). Closed form via linearity -- both sets are always
+    played; the 3rd only when they split."""
+    sd = _set_dist(p)
+    s_win = sum(v for (a, b), v in sd.items() if a > b)
+    e_set = sum(v * (a - b) for (a, b), v in sd.items())
+    t = _race_prob(p, 10)
+    return 2.0 * e_set + 2.0 * s_win * (1.0 - s_win) * (2.0 * t - 1.0)
+
+
+def _solve_point_prob(d: float) -> float:
+    """Point-win probability p in [0.5, 1) whose best-of-3 expected game
+    margin equals d (0 <= d <= POWER_CAP). Monotone -> bisection."""
+    if d <= 0.0:
         return 0.5
-    return _Phi((mu_a - mu_b) / c)
+    if d >= POWER_CAP:
+        return 1.0
+    lo, hi = 0.5, 1.0
+    for _ in range(60):
+        mid = 0.5 * (lo + hi)
+        if _expected_margin_for_point_prob(mid) < d:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
 
 
-def _player_mu_sigma(row: dict) -> tuple[float, float]:
-    try:
-        mu = float(row.get("ts_mu") or 25.0)
-    except (TypeError, ValueError):
-        mu = 25.0
-    try:
-        sigma = float(row.get("ts_sigma") or (25.0 / 3))
-    except (TypeError, ValueError):
-        sigma = 25.0 / 3
-    return mu, sigma
+def _fmt_set(a: int, b: int) -> str:
+    return f"{a}-{b}"
 
+
+def _match_outcomes(p: float) -> dict:
+    """Exact best-of-3 outcome summary for A vs B at point prob p >= 0.5
+    (A is the favorite):
+
+      stats  -> [P(A wins 2-0), P(A wins 2-1), P(B wins 2-0), P(B wins 2-1),
+                 P(some set is 7-6), P(some set is 7-5)]
+      a_wins -> {2: [(sets, prob)...], 3: [...]}  scorelines from the
+                WINNER's side, top entries only
+      b_wins -> same, for the underdog winning
+    """
+    sd = _set_dist(p)
+    tb = _super_tb_dist(p)
+    pw2 = pw3 = pl2 = pl3 = p_tb = p_75 = 0.0
+    a_lists: dict[int, dict] = {2: defaultdict(float), 3: defaultdict(float)}
+    b_lists: dict[int, dict] = {2: defaultdict(float), 3: defaultdict(float)}
+
+    for s1, p1 in sd.items():
+        for s2, p2 in sd.items():
+            joint = p1 * p2
+            has_tb = {s1, s2} & {(7, 6), (6, 7)}
+            has_75 = {s1, s2} & {(7, 5), (5, 7)}
+            w1, w2 = s1[0] > s1[1], s2[0] > s2[1]
+            if w1 == w2:
+                if has_tb:
+                    p_tb += joint
+                if has_75:
+                    p_75 += joint
+                if w1:      # A wins 2-0
+                    pw2 += joint
+                    a_lists[2][(_fmt_set(*s1), _fmt_set(*s2))] += joint
+                else:       # B wins 2-0 (shown from B's side)
+                    pl2 += joint
+                    b_lists[2][(_fmt_set(s1[1], s1[0]), _fmt_set(s2[1], s2[0]))] += joint
+            else:
+                if has_tb:
+                    p_tb += joint
+                if has_75:
+                    p_75 += joint
+                for t3, p3 in tb.items():
+                    j3 = joint * p3
+                    if t3[0] > t3[1]:   # A wins the breaker -> A wins 2-1
+                        pw3 += j3
+                        a_lists[3][(_fmt_set(*s1), _fmt_set(*s2), _fmt_set(*t3))] += j3
+                    else:               # B wins 2-1 (B's side)
+                        pl3 += j3
+                        b_lists[3][(_fmt_set(s1[1], s1[0]), _fmt_set(s2[1], s2[0]),
+                                    _fmt_set(t3[1], t3[0]))] += j3
+
+    def top(d, k=12):
+        return sorted(d.items(), key=lambda kv: -kv[1])[:k]
+
+    return {
+        "stats": [pw2, pw3, pl2, pl3, p_tb, p_75],
+        "a_wins": {2: top(a_lists[2]), 3: top(a_lists[3])},
+        "b_wins": {2: top(b_lists[2]), 3: top(b_lists[3])},
+    }
+
+
+_TABLE: list[dict] | None = None
+
+
+def _table() -> list[dict]:
+    """Lazily build the match table on a rating-gap grid 0..POWER_CAP."""
+    global _TABLE
+    if _TABLE is None:
+        n = int(round(POWER_CAP / TABLE_STEP))
+        _TABLE = [_match_outcomes(_solve_point_prob(i * TABLE_STEP)) for i in range(n + 1)]
+    return _TABLE
+
+
+def _stats_at(d: float) -> list[float]:
+    """Interpolated [pw2, pw3, pl2, pl3, p_tb, p_75] for signed gap d
+    (positive = A favored). Negative gaps use the mirror image."""
+    tab = _table()
+    x = min(abs(d), POWER_CAP) / TABLE_STEP
+    i = min(int(x), len(tab) - 2)
+    f = x - i
+    lo, hi = tab[i]["stats"], tab[i + 1]["stats"]
+    s = [lo[k] + f * (hi[k] - lo[k]) for k in range(6)]
+    if d < 0:
+        s = [s[2], s[3], s[0], s[1], s[4], s[5]]
+    return s
+
+
+# 7-point Gauss-Hermite rule for a standard normal (nodes, weights).
+_GH_X = (0.0, 0.8162878828589647, 1.6735516287674714, 2.6519613568352334)
+_GH_W = (0.8102646175568073, 0.4256072526101278, 0.05451558281912703, 0.0009717812450995)
+_GH: list[tuple[float, float]] = []
+for _x, _w in zip(_GH_X, _GH_W):
+    _w_n = _w / math.sqrt(math.pi)
+    if _x == 0.0:
+        _GH.append((0.0, _w_n))
+    else:
+        _GH.append((math.sqrt(2.0) * _x, _w_n))
+        _GH.append((-math.sqrt(2.0) * _x, _w_n))
+
+
+def _mixture_stats(d: float, tau: float) -> list[float]:
+    """Average _stats_at over d' ~ Normal(d, tau^2), clipped to +/-cap."""
+    acc = [0.0] * 6
+    for z, w in _GH:
+        dd = max(-POWER_CAP, min(POWER_CAP, d + tau * z))
+        s = _stats_at(dd)
+        for k in range(6):
+            acc[k] += w * s[k]
+    return acc
+
+
+# ============================================================================
+# 2.  Reading a ranking row as a power rating
+# ============================================================================
 
 def _to_float(row: dict, key: str, default: float = 0.0) -> float:
     try:
@@ -352,87 +387,29 @@ def _to_int(row: dict, key: str, default: int = 0) -> int:
         return default
 
 
-def match_win_prob(a, b) -> float:
-    """
-    P(a beats b), with BYE handling (a real player always beats a bye),
-    blended with the seed-history prior below (see
-    SEED_PRIOR_ACCURACY / SEED_BLEND_WEIGHT). Set SEED_BLEND_WEIGHT = 0.0
-    to fall back to pure TrueSkill, matching the original behavior.
-
-    This is the number used for every bracket-advancement decision in
-    this file (sections 3 and 5) and is returned/used completely
-    unmodified there. It is only reshaped -- via _compress_win_prob() and
-    the dominance-proxy logit nudge, downstream in
-    _perf_diff_for_match() -- for the separate purpose of flavoring a
-    simulated scoreline; it is never itself rescaled.
-    """
-    if a is BYE and b is BYE:
-        return 0.5
-    if a is BYE:
-        return 0.0
-    if b is BYE:
-        return 1.0
-    mu_a, sigma_a = _player_mu_sigma(a)
-    mu_b, sigma_b = _player_mu_sigma(b)
-    p_ts = head_to_head_probability(mu_a, sigma_a, mu_b, sigma_b)
-    return _apply_seed_prior(p_ts, a, b)
+def _player_name(row: dict) -> str:
+    return row.get("name") or row.get("pair_name") or "Unknown"
 
 
-# ----------------------------------------------------------------------------
-# Seed-history prior
-# ----------------------------------------------------------------------------
-#
-# Source: MHSAA Fall 2025 Teusink Seed Committee Report (compiled by Gary
-# Ellis, Allegan). Its "Champions by Seed Number" table gives a per-year
-# "Total Accuracy" figure -- the match-level rate, across every round of
-# every flight/division, at which the better-seeded player actually won.
-# Averaged over the 19 available years (2007 Spring/Fall through 2025,
-# excluding the COVID-modified 2020 season):
-#
-#   2025 96.1  2024 95.3  2023 96.7  2022 97.7  2021 94.5  2019 97.6
-#   2018 99.2  2017 98.4  2016 99.2  2015 97.6  2014 94.0  2013 96.1
-#   2012 93.7  2011 95.3  2010 94.5  2009 94.5  2008 94.5
-#   2007(Fall) 95.3  2007(Spring) 94.5
-#   -> 19-year average = 96.0%
-#
-# That figure lines up closely with the Fall 2025 report's own semifinal
-# breakdown (seeded players reaching the semis: 30/32, 31/32, 32/32, 30/32
-# across the four divisions = 123/128 = 96.1%), which is a good sign it's
-# a genuine match-level base rate rather than a champion-only statistic.
-#
-# CAVEAT: that 96% blends together every round of every bracket --
-# including early rounds (e.g. #1 seed vs #32 seed) where TrueSkill alone
-# would already call the outcome correctly almost every time. It does NOT
-# tell us, on its own, how often seeds hold in a genuinely close matchup
-# (e.g. a #1-vs-#2 final). Applying the full 96% prior uniformly, on top
-# of what TrueSkill already captures, would double-count that signal for
-# lopsided matchups. So this uses a BLEND WEIGHT (SEED_BLEND_WEIGHT) below
-# 1.0: the seed prior pulls a close TrueSkill call meaningfully toward the
-# higher seed, while a matchup TrueSkill already considers lopsided is
-# barely moved (the prior can't push probability past what a full 96%
-# read would imply, since it's blended, not substituted).
-#
-# HOW TO RE-TUNE: if the seed committee publishes gap-specific data later
-# (e.g. accuracy broken out by how many seed positions apart the two
-# players are), the flat SEED_PRIOR_ACCURACY below could be replaced with
-# a lookup keyed on abs(seed_a - seed_b) for a more precise prior. Until
-# then this flat rate + moderate blend weight is the most defensible
-# reading of what's actually been reported.
-#
-# UPDATE: lowered SEED_BLEND_WEIGHT from 0.35 to 0.15. At 0.35, blending
-# in a prior as strong as 96% (logit ~= 3.18) was pushing match_win_prob()
-# -- which feeds BOTH the bracket odds tables in section 3 AND, via
-# _perf_diff_for_match(), the scoreline simulator -- too far toward
-# certainty even for ordinary seed gaps (e.g. a clean top-vs-mid-seed
-# matchup was reading more like an 80-90% favorite than the ~65-75% a
-# TrueSkill-only read would suggest). At 0.15 the seed prior still nudges
-# close TrueSkill calls toward the higher seed, but can no longer amplify
-# a moderate rating gap into a near-certainty on its own.
+def _power(row: dict) -> float:
+    """The row's power rating (0 = pool average if missing)."""
+    return _to_float(row, "power_rating", 0.0)
 
-SEED_PRIOR_ACCURACY = 0.950   # 19-year average "higher seed wins" rate, see note above
-SEED_BLEND_WEIGHT = 0.25      # 0.0 = pure TrueSkill (old behavior); 1.0 = pure seed prior
-_EPS = 1e-9
-_STD_NORMAL = NormalDist()    # standard normal CDF/quantile, used by _implied_mu_gap() below
+
+def _power_se(row: dict) -> float:
+    """Standard error of the rating: the same 1/sqrt(ridge + matches) the
+    rating fit reports, rebuilt from the row's record."""
+    n = max(0, _to_int(row, "wins") + _to_int(row, "losses"))
+    return 1.0 / math.sqrt(POWER_RIDGE + n)
+
+
+def expected_margin(a: dict, b: dict) -> float:
+    """Games A is expected to beat B by: rating gap, capped at +/-12."""
+    return max(-POWER_CAP, min(POWER_CAP, _power(a) - _power(b)))
+
+
+def _tau(a: dict, b: dict) -> float:
+    return math.sqrt(FORM_SD ** 2 + _power_se(a) ** 2 + _power_se(b) ** 2)
 
 
 def _logit(p: float) -> float:
@@ -444,7 +421,7 @@ def _sigmoid(z: float) -> float:
     return 1.0 / (1.0 + math.exp(-z))
 
 
-_SEED_PRIOR_LOGIT = _logit(SEED_PRIOR_ACCURACY)  # ~= 3.178 at 96.0%
+_SEED_PRIOR_LOGIT = _logit(SEED_PRIOR_ACCURACY)
 
 
 def _seed_number(row: dict) -> int | None:
@@ -454,24 +431,28 @@ def _seed_number(row: dict) -> int | None:
         return None
 
 
-def _apply_seed_prior(p_ts: float, a: dict, b: dict) -> float:
-    """
-    Blends the pure-TrueSkill probability `p_ts` (P(a beats b)) with the
-    seed-history prior above, in logit space, so the result always stays
-    a legal probability and a big TrueSkill gap isn't overwhelmed by a
-    prior meant to matter most for close calls. Returns p_ts unchanged if
-    either player is missing a seed number or the two are tied on seed
-    (nothing to prefer).
-    """
+def _apply_seed_prior(p: float, a: dict, b: dict) -> float:
+    """Optional logit-space blend with the seed prior (off by default)."""
     if SEED_BLEND_WEIGHT <= 0.0:
-        return p_ts
-    seed_a, seed_b = _seed_number(a), _seed_number(b)
-    if seed_a is None or seed_b is None or seed_a == seed_b:
-        return p_ts
+        return p
+    sa, sb = _seed_number(a), _seed_number(b)
+    if sa is None or sb is None or sa == sb:
+        return p
+    seed_logit = _SEED_PRIOR_LOGIT if sa < sb else -_SEED_PRIOR_LOGIT
+    return _sigmoid((1.0 - SEED_BLEND_WEIGHT) * _logit(p) + SEED_BLEND_WEIGHT * seed_logit)
 
-    seed_logit = _SEED_PRIOR_LOGIT if seed_a < seed_b else -_SEED_PRIOR_LOGIT
-    blended_logit = (1.0 - SEED_BLEND_WEIGHT) * _logit(p_ts) + SEED_BLEND_WEIGHT * seed_logit
-    return _sigmoid(blended_logit)
+
+def match_win_prob(a, b) -> float:
+    """P(a beats b): the exact best-of-3 model driven by the power-rating
+    gap, averaged over form noise. A real player always beats a BYE."""
+    if a is BYE and b is BYE:
+        return 0.5
+    if a is BYE:
+        return 0.0
+    if b is BYE:
+        return 1.0
+    s = _mixture_stats(expected_margin(a, b), _tau(a, b))
+    return _apply_seed_prior(s[0] + s[1], a, b)
 
 
 # ============================================================================
@@ -567,373 +548,67 @@ def compute_bracket_probabilities(players: list) -> dict[int, dict]:
     return captured
 
 
+
+
 # ============================================================================
-# 4.  Scoreline engine -- ported directly from predict_matchup.py
+# 4.  Predicted scoreline (exact -- replaces the Monte Carlo engine)
 # ============================================================================
-#
-# Everything in this section mirrors predict_matchup.py's simulation code
-# (_dominance_proxy, _simulate_set, _simulate_match) as closely as
-# possible, operating on the same raw CSV row dicts predict_state.py
-# already carries around. The additions here are (a) deterministic
-# per-match seeding (predict_matchup.py exposes --seed for the whole CLI
-# run; here each bracket match gets its own derived seed so re-running
-# this script always reproduces the same bracket), (b) deriving the
-# simulator's performance gap from the SAME blended win probability that
-# decides bracket advancement, via _perf_diff_for_match() /
-# _implied_mu_gap() below -- see those functions for why -- and (c)
-# reshaping that probability first (fold in the dominance nudge, then
-# _compress_win_prob()) so extreme seed mismatches -- or extreme
-# dominance-proxy mismatches -- don't turn every game of a set into a
-# near-certainty for the favorite. See the docstrings on
-# _compress_win_prob() and _perf_diff_for_match() for the full story,
-# including the CALIBRATION NOTE in the module docstring.
-
-def _player_name(row: dict) -> str:
-    return row.get("name") or row.get("pair_name") or "Unknown"
-
-
-def _implied_mu_gap(p: float, c: float) -> float:
-    """
-    Inverts the TrueSkill win-probability formula
-    P = Phi((mu_a - mu_b) / c) to recover an "effective mu gap" that is
-    consistent with a given probability `p` -- which, via
-    match_win_prob(), may already be blended with the seed-history prior
-    (see _apply_seed_prior()), not just raw TrueSkill, and which the
-    caller (_perf_diff_for_match()) may have additionally adjusted (the
-    dominance-proxy nudge) and rescaled (via _compress_win_prob()) before
-    this function ever sees it.
-
-    Phi is the standard normal CDF (see _Phi() above), so its inverse is
-    the standard normal quantile function, i.e. statistics.NormalDist's
-    inv_cdf. When `p` is the raw, unblended, unrescaled p_ts for a pair,
-    this returns mu_a - mu_b back out again (up to floating point), so
-    behavior is unchanged whenever SEED_BLEND_WEIGHT = 0.0,
-    DOMINANCE_LOGIT_WEIGHT = 0.0, and WIN_PROB_SCORELINE_SCALE = 1.0.
-    """
-    p = min(max(p, _EPS), 1.0 - _EPS)
-    return c * _STD_NORMAL.inv_cdf(p)
-
-
-def _compress_win_prob(p: float, scale: float = WIN_PROB_SCORELINE_SCALE) -> float:
-    """
-    Linearly shifts and scales the win probability `p` toward 0.5:
-
-        p_scoreline = 0.5 + scale * (p - 0.5)
-
-    This is deliberately a rescaling of the *probability distribution*
-    (which lives on the bounded interval [0, 1]) rather than a cap or
-    clamp applied to the performance gap the probability eventually
-    becomes (which lives on an unbounded scale). Because probability is
-    bounded, a plain linear rescale toward its center is automatically
-    bounded too -- e.g. with scale=0.5, no matter how close the real
-    match_win_prob() gets to 1.0, p_scoreline can never exceed 0.75 -- so
-    nothing downstream needs an explicit cap or saturation function; the
-    boundedness falls out naturally from doing the rescaling in
-    probability space instead of gap space.
-
-    IMPORTANT: for this guarantee to actually hold, `p` must already
-    include every adjustment the scoreline should reflect (TrueSkill,
-    seed prior, AND the dominance-proxy nudge) by the time it reaches
-    this function -- anything folded in *after* _compress_win_prob() runs
-    escapes the bound entirely. See _perf_diff_for_match() for where the
-    dominance nudge is folded in (before this call), and the
-    CALIBRATION NOTE in the module docstring for what went wrong when it
-    used to be added afterwards instead.
-
-    WHY THIS IS NEEDED: match_win_prob() already blends TrueSkill with a
-    seed-history prior that's been shown to be ~96% accurate (see
-    SEED_PRIOR_ACCURACY), which routinely pushes very lopsided seed
-    matchups (e.g. a #1 vs a #32) well past 99%. Converting a probability
-    that close to 1 straight into a performance gap via
-    _implied_mu_gap() (using the inverse normal CDF, which diverges
-    toward +/-infinity as p approaches 0 or 1) produces enormous gaps.
-    Fed into the logistic per-game formula in _simulate_set(), an
-    enormous gap makes the favorite nearly unbeatable in every single
-    game, so winning six straight games (a 6-0 set) stops being a rare
-    event -- empirically, a genuine blowout matchup was printing a
-    double-bagel (6-0, 6-0) something like a third of the time, which is
-    far more lopsided than real high school tennis actually looks even
-    in a clear mismatch (there's almost always at least one hard-fought
-    game -- a service letdown, a nerves-driven game from the leader,
-    etc.).
-
-    Rescaling the probability first means the *scoreline simulator*
-    never has to reason about a matchup as more lopsided than roughly a
-    3-to-1 (75/25) proposition per set, no matter how one-sided the real
-    seeding/rating/dominance gap is -- while match_win_prob() itself, and
-    every bracket-advancement number derived from it in sections 3 and 5,
-    stays completely untouched.
-
-    scale=1.0 disables this entirely (p_scoreline == p); scale=0.0
-    collapses every matchup to a coin flip for scoreline purposes only.
-    """
-    p = min(max(p, 0.0), 1.0)
-    return 0.5 + scale * (p - 0.5)
-
-
-def _dominance_proxy(row: dict) -> float:
-    """
-    NOT real per-match dominance data -- true per-player dominance is
-    never persisted (see module docstring). This is the same explicit
-    stand-in predict_matchup.py uses, built from three numbers that ARE
-    persisted: win percentage, strength of schedule, and scaled TGRS.
-    Used only to flavor the simulated scoreline, never the
-    win-probability number, which comes from match_win_prob() (TrueSkill
-    blended with the seed-history prior -- see _apply_seed_prior()), not
-    from this dominance proxy.
-
-    Returns a value in [0, 1]; see _perf_diff_for_match() for how the
-    difference between two players' proxies gets folded into the
-    scoreline (as a bounded logit-space nudge, not a raw mu-scale
-    addition).
-    """
-    wins = _to_int(row, "wins")
-    losses = _to_int(row, "losses")
-    matches = wins + losses
-    win_pct = wins / matches if matches else 0.5
-    sos = _to_float(row, "sos")
-    sos_norm = min(max(sos / 50.0, 0.0), 1.0) if sos else 0.5
-    tgrs_scaled = _to_float(row, "TGRS_scaled", default=50.0)
-    tgrs_norm = min(max(tgrs_scaled / 100.0, 0.0), 1.0)
-    return max(0.0, min(1.0, 0.5 * win_pct + 0.25 * sos_norm + 0.25 * tgrs_norm))
-
-
-def _perf_diff_for_match(a: dict, b: dict) -> float:
-    """
-    The performance gap fed into the scoreline simulator (positive
-    favors `a`): an effective mu-gap consistent with a fully-adjusted,
-    RESCALED version of match_win_prob(a, b).
-
-    "Fully-adjusted" means the dominance-proxy differential (see
-    _dominance_proxy()) is folded into the probability itself, as a
-    bounded logit-space nudge weighted by DOMINANCE_LOGIT_WEIGHT, BEFORE
-    _compress_win_prob() ever runs -- not added afterwards as a raw
-    mu-scale term. That ordering is the fix for a real bug (see the
-    CALIBRATION NOTE in the module docstring): this used to be
-    (mu_a - mu_b, derived from a compressed probability) + a separate,
-    uncompressed "8.0 * (dom_a - dom_b)" addition. That second term had
-    no bound at all, so two players whose win_pct/sos/TGRS_scaled
-    happened to differ a lot -- which happens often even between
-    similarly-rated players -- could dominate the whole performance gap
-    regardless of how close match_win_prob() judged the actual matchup,
-    turning near-coin-flip matches into scoreline blowouts. Checked
-    against real state-tournament results, close matches (7-5/7-6 sets,
-    three-setters, match tiebreaks) make up something like a third to
-    45% of matches -- so a scoreline engine that can only produce
-    blowouts for anything but the most lopsided TrueSkill/seed gaps is
-    visibly miscalibrated.
-
-    Folding the dominance nudge into probability space first means it
-    shares the exact same bounded [0, 1] arithmetic, and the same
-    WIN_PROB_SCORELINE_SCALE compression, as the TrueSkill/seed-prior
-    signal -- so it can shade a scoreline (a "close win prob" match
-    between two players with very different dominance profiles can still
-    lean a bit more decisive than a coin flip) without ever being able to
-    override how close the match_win_prob() call actually was.
-
-    This whole function reduces to the original, pre-fix TrueSkill-only
-    behavior whenever SEED_BLEND_WEIGHT = 0, DOMINANCE_LOGIT_WEIGHT = 0,
-    and WIN_PROB_SCORELINE_SCALE = 1.0.
-    """
-    sigma_a = _player_mu_sigma(a)[1]
-    sigma_b = _player_mu_sigma(b)[1]
-    p = match_win_prob(a, b)
-
-    dom_a, dom_b = _dominance_proxy(a), _dominance_proxy(b)
-    p_with_dominance = _sigmoid(_logit(p) + DOMINANCE_LOGIT_WEIGHT * (dom_a - dom_b))
-
-    p_scoreline = _compress_win_prob(p_with_dominance)
-    c = math.sqrt(2.0 * BETA ** 2 + sigma_a ** 2 + sigma_b ** 2)
-    if c <= 0:
-        mu_a, mu_b = _player_mu_sigma(a)[0], _player_mu_sigma(b)[0]
-        return mu_a - mu_b
-    return _implied_mu_gap(p_scoreline, c)
-
-
-def _simulate_set(perf_diff: float, game_noise: float, rng: random.Random) -> tuple[int, int]:
-    """
-    One simulated set. perf_diff > 0 favors player A (expected to already
-    be derived from a rescaled probability -- see
-    _perf_diff_for_match()/_compress_win_prob()). Games are drawn one at
-    a time from a logistic function of the per-game performance gap
-    (plus fixed Gaussian noise, divided down by GAME_LOGIT_SCALE -- see
-    that constant's docstring for why this is no longer a hardcoded /6.0)
-    until someone reaches 6 with a 2-game lead, or a 7-6/7-5 breaker
-    outcome (decided by the same logistic shape at TIEBREAK_LOGIT_SCALE).
-    """
-    games_a = games_b = 0
-    while True:
-        noise = rng.gauss(0.0, game_noise)
-        p_a_game = 1.0 / (1.0 + math.exp(-(perf_diff + noise) / GAME_LOGIT_SCALE))
-        if rng.random() < p_a_game:
-            games_a += 1
-        else:
-            games_b += 1
-
-        if games_a >= 6 and games_a - games_b >= 2:
-            return games_a, games_b
-        if games_b >= 6 and games_b - games_a >= 2:
-            return games_a, games_b
-        if games_a == 7 or games_b == 7:
-            return games_a, games_b
-        if games_a == 6 and games_b == 6:
-            if rng.random() < 1.0 / (1.0 + math.exp(-perf_diff / TIEBREAK_LOGIT_SCALE)):
-                return 7, 6
-            return 6, 7
-
-
-def _simulate_match_once(a: dict, b: dict, rng: random.Random,
-                          perf_diff: float) -> tuple[bool, list[str]]:
-    """
-    One simulated best-of-3 match between two REAL players (never a
-    BYE), identical mechanics to predict_matchup.py's _simulate_match(),
-    except it also reports which side (a or b) won, and the set scores
-    are always returned from `a`'s perspective ("a_games-b_games").
-
-    `perf_diff` (positive favors a) is computed once per matchup by
-    _perf_diff_for_match() -- see that function's docstring for why it's
-    no longer derived from the raw mu_a - mu_b gap, and why the
-    probability behind it is rescaled toward 0.5 first.
-    """
-    game_noise = 8.0  # fixed within-set randomness; no volatility input
-
-    sets: list[str] = []
-    a_sets = b_sets = 0
-    while a_sets < 2 and b_sets < 2:
-        ga, gb = _simulate_set(perf_diff, game_noise, rng)
-        sets.append(f"{ga}-{gb}")
-        if ga > gb:
-            a_sets += 1
-        else:
-            b_sets += 1
-    return a_sets > b_sets, sets
-
 
 def flip_score(s: str) -> str:
-    """Reverse a set score string to the other side's perspective, e.g.
-    '6-4' -> '4-6'. 'BYE' passes through unchanged."""
+    """Reverse a set score string to the other side's perspective."""
     if s == "BYE":
         return s
     x, y = s.split("-")
     return f"{y}-{x}"
 
 
-def _match_seed_int(a, b) -> int:
+def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     """
-    Deterministic seed for a single bracket match's Monte Carlo run,
-    derived from both competitors' names + TrueSkill mu/sigma (order
-    independent), so re-running this script always reproduces the same
-    scoreline for the same matchup -- there is no time/OS-entropy
-    randomness anywhere in this file.
+    Everything about one matchup, exact and deterministic:
+
+      - "exp_margin": games the favorite (by rating) is expected to win by
+      - "score": the single representative scoreline, oriented so the
+        FIRST number in each set is the predicted winner's games. Two
+        stages: pick the more likely match SHAPE (straight sets vs three
+        sets, using the data-calibrated odds -- see THREE_SET_SCALE), then
+        the most likely exact score within that shape. Because real matches
+        are mostly straight-set wins even between similar players, a
+        three-setter is only printed when the calibrated odds favor it.
+      - "prob_three_sets" / "prob_tiebreak" / "prob_75": chance the match
+        goes to a 3rd set / contains a 7-6 set / contains a 7-5 set.
+
+    Match-shape odds use the full form-noise mixture, scaled by the
+    fitted shape multipliers; the exact scoreline text is read from the
+    table entry nearest the raw rating gap.
     """
-    def _sig(p):
-        if p is BYE:
-            return "BYE"
-        mu, sigma = _player_mu_sigma(p)
-        return f"{_player_name(p)}|{mu:.6f}|{sigma:.6f}"
+    d = expected_margin(a, b)
+    pw2, pw3, pl2, pl3, p_tb, p_75 = _mixture_stats(d, _tau(a, b))
 
-    raw = "||".join(sorted([_sig(a), _sig(b)]))
-    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
-    return int(digest[:16], 16)
+    w2, w3 = (pw2, pw3) if winner_is_a else (pl2, pl3)
+    shape = 3 if THREE_SET_SCALE * w3 > w2 + (1.0 - THREE_SET_SCALE) * w3 else 2
 
-
-def predict_match_details(a: dict, b: dict, winner_is_a: bool,
-                           trials: int = SCORELINE_TRIALS) -> dict:
-    """
-    Runs predict_matchup.py's Monte Carlo engine `trials` times for this
-    matchup (deterministically seeded, see _match_seed_int; performance
-    gap held fixed per matchup, see _perf_diff_for_match) and returns:
-
-      - "score": the most common exact scoreline among the trials that
-        agree with the TrueSkill/seed-prior favorite (`winner_is_a`),
-        chosen in TWO STAGES rather than one flat "most common tuple"
-        vote -- see the CALIBRATION NOTE in the module docstring for why
-        a flat vote structurally never picks a three-setter. Stage one
-        picks the more common MATCH SHAPE (best-of-2 vs. a full three
-        sets) among the winner-matching trials; stage two picks the
-        single most common exact scoreline within that shape. Oriented
-        so the FIRST number in each set is always the eventual bracket
-        winner's game count (e.g. a winner who dropped set two reads
-        ["6-4", "4-6", "7-5"]).
-      - "sim_seed": the integer seed (from _match_seed_int) that drove
-        this matchup's random.Random instance -- re-running this script
-        for the same two players always reproduces this exact seed and
-        therefore this exact scoreline/stat set. (Computed here and kept
-        internally for reproducibility, but no longer surfaced in the
-        CSV/HTML output -- see write_prediction_csvs() and
-        _bracket_path_html() below.)
-      - "prob_three_sets" / "prob_tiebreak" / "prob_75": match-shape odds
-        across ALL `trials` simulated matches for this matchup (not just
-        the ones matching the favorite) -- identical definitions to
-        predict_matchup.py's prob_three_sets / prob_any_tiebreak /
-        prob_any_75 ("Goes to a 3rd set", "Contains a 7-6 tiebreak",
-        "Contains a 7-5 set").
-    """
-    seed = _match_seed_int(a, b)
-    rng = random.Random(seed)
-    perf_diff = _perf_diff_for_match(a, b)
-
-    matching: Counter[tuple[str, ...]] = Counter()
-    last_sets: list[str] = ["6-4", "6-4"]  # harmless fallback, overwritten below
-    three_setters = tiebreak_sets = seven_five_sets = 0
-
-    for _ in range(trials):
-        a_won, sets = _simulate_match_once(a, b, rng, perf_diff)
-        last_sets = sets
-
-        if len(sets) == 3:
-            three_setters += 1
-        for s in sets:
-            gw, gl = (int(x) for x in s.split("-"))
-            if {gw, gl} == {7, 6}:
-                tiebreak_sets += 1
-            if {gw, gl} == {7, 5}:
-                seven_five_sets += 1
-
-        if a_won == winner_is_a:
-            matching[tuple(sets)] += 1
-
-    if matching:
-        # Two-stage pick -- see the CALIBRATION NOTE in the module
-        # docstring for why a flat Counter.most_common(1) over every
-        # exact scoreline structurally never selects a three-setter:
-        # three-set outcomes fragment across many distinct exact
-        # sequences while two-set outcomes concentrate into a handful,
-        # so no single three-set tuple can out-vote the single most
-        # common two-set tuple even when three-setters are the more
-        # probable *shape* of the match overall.
-        #
-        # Stage 1: which match shape (best-of-2 vs. three sets) won more
-        # votes among the winner-matching trials?
-        shape_votes: Counter[int] = Counter()
-        for sets_tuple, count in matching.items():
-            shape_votes[len(sets_tuple)] += count
-        majority_shape = shape_votes.most_common(1)[0][0]
-
-        # Stage 2: most common EXACT scoreline within that shape only.
-        same_shape = Counter({k: v for k, v in matching.items() if len(k) == majority_shape})
-        chosen = list(same_shape.most_common(1)[0][0])
-    else:
-        # Vanishingly rare (would require a huge upset never once landing
-        # on the favorite's side across `trials` runs) -- fall back to the
-        # last simulated result rather than leaving the match unscored.
-        chosen = last_sets
-
-    # chosen is always in `a`'s perspective; re-orient to the winner's
-    # perspective if the winner is actually b.
-    score = chosen if winner_is_a else [flip_score(s) for s in chosen]
+    # Table entry nearest |d|; the favorite is whoever the rating gap
+    # favors. If the predicted winner is that favorite use the "a_wins"
+    # lists (winner-side), otherwise the underdog's "b_wins" lists.
+    tab = _table()
+    idx = min(int(round(min(abs(d), POWER_CAP) / TABLE_STEP)), len(tab) - 1)
+    winner_is_favorite = (winner_is_a == (d >= 0))
+    lists = tab[idx]["a_wins" if winner_is_favorite else "b_wins"][shape]
+    if not lists:   # extremely lopsided: no 3-set line survives pruning
+        lists = tab[idx]["a_wins" if winner_is_favorite else "b_wins"][2]
+    score = list(lists[0][0]) if lists else ["6-4", "6-4"]
 
     return {
         "score": score,
-        "sim_seed": seed,
-        "prob_three_sets": three_setters / trials,
-        "prob_tiebreak": tiebreak_sets / trials,
-        "prob_75": seven_five_sets / trials,
+        "exp_margin": abs(d),
+        "prob_three_sets": THREE_SET_SCALE * (pw3 + pl3),
+        "prob_tiebreak": TIEBREAK_SCALE * p_tb,
+        "prob_75": SEVEN_FIVE_SCALE * p_75,
     }
 
 
 # ============================================================================
-# 5.  Deterministic single-path bracket simulation
+# 5.  Deterministic single-path bracket run
 # ============================================================================
 
 def simulate_bracket(players: list) -> list[list[dict]]:
@@ -941,11 +616,8 @@ def simulate_bracket(players: list) -> list[list[dict]]:
     One deterministic run through the whole bracket: in every match the
     favorite (p >= 0.5) always advances (no coin flips -- keeps this
     path consistent with the exact probabilities in section 3), and each
-    match's scoreline comes from predict_match_scoreline() above. Bye
-    matches are marked score=["BYE"]. `p` here is match_win_prob(a, b),
-    used unmodified (see _compress_win_prob()'s docstring for why the
-    scoreline generator alone sees a rescaled, dominance-adjusted version
-    of it instead).
+    match's scoreline comes from predict_match_details() above. Bye
+    matches are marked score=["BYE"].
     """
     current = list(players)
     rounds: list[list[dict]] = []
@@ -960,7 +632,7 @@ def simulate_bracket(players: list) -> list[list[dict]]:
             if a is BYE or b is BYE:
                 winner = b if a is BYE else a
                 matches.append({"a": a, "b": b, "winner": winner, "loser": BYE,
-                                 "score": ["BYE"], "p_fav": 1.0, "sim_seed": None,
+                                 "score": ["BYE"], "p_fav": 1.0, "exp_margin": None,
                                  "prob_three_sets": None, "prob_tiebreak": None,
                                  "prob_75": None})
                 next_round.append(winner)
@@ -973,7 +645,7 @@ def simulate_bracket(players: list) -> list[list[dict]]:
             matches.append({
                 "a": a, "b": b, "winner": winner, "loser": loser,
                 "score": details["score"], "p_fav": p_fav,
-                "sim_seed": details["sim_seed"],
+                "exp_margin": details["exp_margin"],
                 "prob_three_sets": details["prob_three_sets"],
                 "prob_tiebreak": details["prob_tiebreak"],
                 "prob_75": details["prob_75"],
@@ -1004,6 +676,7 @@ def finish_round_reached(players: list, rounds: list[list[dict]]) -> dict:
         if champion is not BYE:
             finish[id(champion)] = 1
     return finish
+
 
 
 # ============================================================================
@@ -1039,6 +712,12 @@ def load_groups() -> dict[tuple, list[dict]]:
 
     for rows in groups.values():
         rows.sort(key=lambda r: int(r.get("rank") or 9999))
+
+    n_rows = sum(len(v) for v in groups.values())
+    n_missing = sum(1 for v in groups.values() for r in v if not (r.get("power_rating") or "").strip())
+    if n_rows and n_missing:
+        print(f"  WARNING: {n_missing}/{n_rows} ranking rows have no power_rating "
+              f"(treated as pool-average 0.0). Re-run mhsaa_seeding_v2.py.")
     return groups
 
 
@@ -1167,7 +846,7 @@ def write_prediction_csvs(all_results: list[dict], team_points: dict) -> None:
             writer.writerow([
                 "round", "player_a", "seed_a", "player_b", "seed_b",
                 "predicted_winner", "predicted_score", "win_prob_pct",
-                "prob_three_sets_pct", "prob_7_6_tiebreak_pct",
+                "exp_margin_games", "prob_three_sets_pct", "prob_7_6_tiebreak_pct",
                 "prob_7_5_set_pct",
             ])
             for rnd_idx, rnd in enumerate(result["rounds"], start=1):
@@ -1182,6 +861,7 @@ def write_prediction_csvs(all_results: list[dict], team_points: dict) -> None:
                         rnd_idx, a_name, a_seed, b_name, b_seed,
                         _player_name(m["winner"]), " ".join(m["score"]),
                         round(m["p_fav"] * 100, 1),
+                        round(m.get("exp_margin") or 0.0, 1),
                         round((m.get("prob_three_sets") or 0.0) * 100, 1),
                         round((m.get("prob_tiebreak") or 0.0) * 100, 1),
                         round((m.get("prob_75") or 0.0) * 100, 1),
@@ -1211,6 +891,8 @@ def _bracket_path_html(result: dict) -> str:
             b_seed = m["b"].get("rank", "") if isinstance(m["b"], dict) else ""
             winner_name = _player_name(m["winner"])
             score_str = " ".join(m["score"])
+            em = m.get("exp_margin")
+            em_str = f"{em:.1f}" if em is not None else "--"
             p3 = m.get("prob_three_sets")
             ptb = m.get("prob_tiebreak")
             p75 = m.get("prob_75")
@@ -1222,6 +904,7 @@ def _bracket_path_html(result: dict) -> str:
                 f"<td>{_esc(a_name)} (#{_esc(a_seed)}) vs {_esc(b_name)} (#{_esc(b_seed)})</td>"
                 f"<td><b>{_esc(winner_name)}</b></td><td>{_esc(score_str)}</td>"
                 f"<td>{m['p_fav']*100:.0f}%</td>"
+                f"<td>{em_str}</td>"
                 f"<td>{p3_str}</td><td>{ptb_str}</td><td>{p75_str}</td></tr>"
             )
     return f"""
@@ -1231,6 +914,7 @@ def _bracket_path_html(result: dict) -> str:
         <thead><tr>
           <th>Round</th><th>Matchup (seed #)</th><th>Predicted Winner</th>
           <th>Predicted Score</th><th>Win Prob.</th>
+          <th>Fav. By (games)</th>
           <th>Goes to 3rd Set</th><th>Contains 7-6 TB</th><th>Contains 7-5 Set</th>
         </tr></thead>
         <tbody>{rows_html}</tbody>
@@ -1320,24 +1004,22 @@ def build_full_html(all_results: list[dict], team_points: dict) -> str:
   <h1>Prediction of State</h1>
   <p class="back-link"><a href="index.html">&larr; Back to Rankings</a></p>
   <p class="intro-note">
-    Championship / final / semifinal odds below are computed once, in closed
-    form, from each player's TrueSkill rating blended with a real
-    seed-history prior (the higher seed has won ~96.0% of matches across 19
-    years of MHSAA seed-committee data), and their position in a real seeded
-    32-draw bracket (favorites can't meet early -- #1 and #2 can only meet
-    in the final, etc.) -- no simulation or randomness is involved in those
-    numbers, just a deterministic blend of the rating gap and that seed
-    prior. The bracket path shown is the single most-likely outcome: the
-    higher blended-probability side always advances, and each printed
-    scoreline comes from the same Monte Carlo scoreline engine used by
-    predict_matchup.py (flavored by a win-percentage/SOS/TGRS dominance
-    proxy folded in as a bounded probability nudge, simulated set-by-set,
-    and seeded deterministically per matchup so re-running this report
-    reproduces the same scorelines). Each matchup row in the bracket path
-    below also lists both players' tournament seed numbers and three
-    match-shape odds computed across all simulated trials for that
-    matchup: the chance it goes to a 3rd set, the chance it contains a 7-6
-    tiebreak set, and the chance it contains a 7-5 set.
+    Every number below comes from one place: each player's <b>power
+    rating</b>. The difference between two ratings is how many games the
+    better player is expected to win by (12 = 6-0 6-0). That gap is turned
+    into exact point-, game-, set- and match-level probabilities, then
+    averaged over day-to-day form so upsets stay possible. Championship /
+    final / semifinal odds are computed in closed form over the real seeded
+    32-draw bracket (#1 and #2 can only meet in the final, etc.) -- no
+    simulation or randomness anywhere, so re-running reproduces every
+    number. The bracket path is the single most-likely outcome: the
+    higher-rated side always advances, and each printed scoreline is the
+    most likely exact score for that matchup. Form noise, the small
+    seed-history blend and the match-shape odds were all fit to a
+    walk-forward backtest of held-out matches.
+    "Fav. By" is the expected game margin; the last three columns are the
+    chance the match goes to a 3rd set, contains a 7-6 tiebreak set, or
+    contains a 7-5 set.
   </p>
 
   <h2>Projected Team Standings</h2>
