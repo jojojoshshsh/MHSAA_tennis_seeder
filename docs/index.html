@@ -202,7 +202,7 @@
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <header>
   <h1>Michigan High School Tennis Seed Prediction — 2026 season</h1>
-  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:28 PM EDT.</p>
+  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:35 PM EDT.</p>
 </header>
 <nav>
   <a class="nav-about" href="about.html">About &amp; Methodology</a>
@@ -1185,6 +1185,7 @@ const SIM_SEED_BLEND_WEIGHT = 0.05;    // backtested: 0.05 minimizes held-out lo
 const SIM_THREE_SET_SCALE = 0.60;
 const SIM_TIEBREAK_SCALE = 0.46;
 const SIM_SEVEN_FIVE_SCALE = 0.82;
+const SIM_MARGIN_SD = 0.75;            // MARGIN_SD: how tightly the printed line's game margin tracks the rating gap
 const SIM_TABLE_STEP = 0.25;
 const SIM_EPS = 1e-9;
 
@@ -1298,23 +1299,6 @@ function simCanon3(s1, s2, t3) {
   const [wa, wb] = m(won) >= m(t3) ? [won, t3] : [t3, won];
   return lost + ' ' + wa + ' ' + wb;
 }
-// Three-set lines ranked by closeness to the conditional AVERAGE line among
-// reasonably likely candidates (the pure mode is 4-6 x 10-8 at every gap).
-function simTopTypical(o) {
-  const ents = Object.entries(o);
-  let tot = 0, mx = 0;
-  for (const [, v] of ents) { tot += v; mx = Math.max(mx, v); }
-  if (!tot) return [];
-  const vec = k => { const p = k.split(' '); return [+p[0].split('-')[0], +p[1].split('-')[1], +p[2].split('-')[1]]; };
-  const mean = [0, 0, 0];
-  for (const [k, v] of ents) vec(k).forEach((x, i) => { mean[i] += v / tot * x; });
-  const wts = [1, 1, 1];
-  const dist = k => vec(k).reduce((a, x, i) => a + wts[i] * (x - mean[i]) ** 2, 0);
-  return ents.filter(e => e[1] >= 0.2 * mx)
-    .sort((u, v) => dist(u[0]) - dist(v[0]) || v[1] - u[1])
-    .slice(0, 12).map(e => e[0]);
-}
-
 // Exact best-of-3 summary for favorite A at point prob p >= 0.5.
 function simMatchOutcomes(p) {
   const sd = simSetDist(p), tb = sd;  // 3rd set is a real set
@@ -1344,11 +1328,11 @@ function simMatchOutcomes(p) {
       }
     }
   }
-  const top = o => Object.entries(o).sort((u, v) => v[1] - u[1]).slice(0, 12).map(e => e[0]);
+  const top = o => Object.entries(o).filter(e => e[1] > 0).sort((u, v) => v[1] - u[1]);
   return {
     stats: [pw2, pw3, pl2, pl3, pTb, p75],
-    aWins: {2: top(aL[2]), 3: simTopTypical(aL[3])},
-    bWins: {2: top(bL[2]), 3: simTopTypical(bL[3])},
+    aWins: {2: top(aL[2]), 3: top(aL[3])},
+    bWins: {2: top(bL[2]), 3: top(bL[3])},
   };
 }
 
@@ -1423,14 +1407,35 @@ function predictMatchDetails(a, b, winnerIsA) {
   const d = simExpectedMargin(a, b);
   const s = simMixtureStats(d, simTau(a, b));
   const w2 = winnerIsA ? s[0] : s[2], w3 = winnerIsA ? s[1] : s[3];
-  const shape = (SIM_THREE_SET_SCALE * w3 > w2 + (1 - SIM_THREE_SET_SCALE) * w3) ? 3 : 2;
+  const shapeW = {2: w2 + (1 - SIM_THREE_SET_SCALE) * w3, 3: SIM_THREE_SET_SCALE * w3};
   const tab = simTable();
   const idx = Math.min(Math.round(Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP), tab.length - 1);
   const winnerIsFavorite = (winnerIsA === (d >= 0));
   const src = winnerIsFavorite ? tab[idx].aWins : tab[idx].bWins;
-  const list = (src[shape] && src[shape].length) ? src[shape] : src[2];
+  // Printed line's total game margin should track the expected margin (|d|),
+  // floored at 1.5; an underdog winner shows a narrow win.
+  const target = winnerIsFavorite ? Math.max(Math.abs(d), 1.5) : 1.5;
+  let best = null, bestU = -1e18;
+  for (const shape of [2, 3]) {
+    const lines = src[shape];
+    let tot = 0;
+    for (const e of lines) tot += e[1];
+    if (tot <= 0 || shapeW[shape] <= 0) continue;
+    for (const [key, p] of lines) {
+      const sets = key.split(' ');
+      let margin = 0, damp = 1;
+      for (const x of sets) {
+        const [a, b] = simSplit(x);
+        margin += a - b;
+        if (x === '7-6' || x === '6-7') damp *= SIM_TIEBREAK_SCALE;
+        else if (x === '7-5' || x === '5-7') damp *= SIM_SEVEN_FIVE_SCALE;
+      }
+      const u = Math.log(shapeW[shape] * p / tot * damp) - (margin - target) ** 2 / (2 * SIM_MARGIN_SD ** 2);
+      if (u > bestU) { best = sets; bestU = u; }
+    }
+  }
   return {
-    score: list && list.length ? list[0].split(' ') : ['6-4', '6-4'],
+    score: best || ['6-4', '6-4'],
     expMargin: Math.abs(d),
     prob3rd: SIM_THREE_SET_SCALE * (s[1] + s[3]),
   };
