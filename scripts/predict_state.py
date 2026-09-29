@@ -667,32 +667,45 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     # Score every candidate line: log(how likely, given the shape odds)
     # minus a penalty for missing the target margin. MARGIN_SD is how many
     # games of miss cost as much as a factor of e^0.5 in likelihood.
+    # Step 1 -- pick the SHAPE (straight sets vs three sets) with the
+    # data-calibrated odds, so the share of printed three-setters matches
+    # real matches (see THREE_SET_SCALE) instead of being driven by margin.
+    seed = _matchup_seed(a, b, winner_is_a)
+    p3 = shape_w[3] / (shape_w[2] + shape_w[3]) if (shape_w[2] + shape_w[3]) > 0.0 else 0.0
+    shape_pick = 3 if _uniform_from_seed((seed + 0x1B873593) & 0xFFFFFFFF) < p3 else 2
+    if not src[shape_pick]:
+        shape_pick = 2
+
+    # Step 2 -- inside that shape, sample a line: likelihood x damping x
+    # closeness to the target margin. A compromise: the margin is matched as
+    # well as the shape allows (a straight-set win can't be narrower than
+    # about +3, a three-setter can't be as lopsided as +10).
+    lines = src[shape_pick]
+    tot = sum(p for _, p in lines)
+    # A straight-set win is realistically never narrower than ~6-4 6-4 (+4);
+    # without this floor close matchups drift to double-tiebreak lines.
+    if shape_pick == 2:
+        target = max(target, 4.0)
     cands: list[tuple[list, float]] = []
-    for shape in (2, 3):
-        lines = src[shape]
-        tot = sum(p for _, p in lines)
-        if tot <= 0.0 or shape_w[shape] <= 0.0:
-            continue
-        for sets, p in lines:
-            margin = sum(int(x.split("-")[0]) - int(x.split("-")[1]) for x in sets)
-            # The set model over-predicts 7-6 / 7-5 sets (see TIEBREAK_SCALE,
-            # SEVEN_FIVE_SCALE), so damp lines by the fitted ratios per set.
-            damp = 1.0
-            for x in sets:
-                if x in ("7-6", "6-7"):
-                    damp *= TIEBREAK_SCALE
-                elif x in ("7-5", "5-7"):
-                    damp *= SEVEN_FIVE_SCALE
-            wgt = shape_w[shape] * p / tot * damp * math.exp(-(margin - target) ** 2 / (2.0 * MARGIN_SD ** 2))
-            cands.append((sets, wgt))
-    # Replicable "random" draw: sample one line in proportion to its weight
-    # using a seed derived from the matchup, so different matchups with the
-    # same rating gap get different (but realistic) scorelines, while the
-    # same matchup always gets the same one.
+    for sets, p in lines:
+        margin = sum(int(x.split("-")[0]) - int(x.split("-")[1]) for x in sets)
+        # The set model over-predicts 7-6 / 7-5 sets (see TIEBREAK_SCALE,
+        # SEVEN_FIVE_SCALE), so damp lines by the fitted ratios per set.
+        damp = 1.0
+        for x in sets:
+            if x in ("7-6", "6-7"):
+                damp *= TIEBREAK_SCALE
+            elif x in ("7-5", "5-7"):
+                damp *= SEVEN_FIVE_SCALE
+        wgt = p / tot * damp * math.exp(-(margin - target) ** 2 / (2.0 * MARGIN_SD ** 2))
+        cands.append((sets, wgt))
+    # Replicable "random" draw seeded from the matchup: different matchups
+    # with the same rating gap get different (but realistic) scorelines,
+    # while the same matchup always gets the same one.
     best = None
     total_w = sum(w for _, w in cands)
     if total_w > 0.0:
-        r = _uniform_from_seed(_matchup_seed(a, b, winner_is_a)) * total_w
+        r = _uniform_from_seed(seed) * total_w
         acc = 0.0
         for sets, w in cands:
             acc += w
@@ -706,7 +719,6 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
         # 51% / 49%) and ALWAYS wins the last set, and the two sets they won
         # can come in either order. Seeded, so it is repeatable.
         lost, w1, w2 = score
-        seed = _matchup_seed(a, b, winner_is_a)
         lost_first = _uniform_from_seed((seed + 0x9E3779B9) & 0xFFFFFFFF) < 0.5
         swap = _uniform_from_seed((seed + 0x3C6EF372) & 0xFFFFFFFF) < 0.5
         if swap:
