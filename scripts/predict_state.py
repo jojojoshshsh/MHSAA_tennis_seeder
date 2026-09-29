@@ -700,6 +700,18 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
             if r < acc:
                 break
     score = list(best) if best else ["6-4", "6-4"]
+    if len(score) == 3:
+        # The line is stored as (set lost, won, won) with no order; deal it
+        # out in a real sequence. The winner loses set 1 or set 2 (real data:
+        # 51% / 49%) and ALWAYS wins the last set, and the two sets they won
+        # can come in either order. Seeded, so it is repeatable.
+        lost, w1, w2 = score
+        seed = _matchup_seed(a, b, winner_is_a)
+        lost_first = _uniform_from_seed((seed + 0x9E3779B9) & 0xFFFFFFFF) < 0.5
+        swap = _uniform_from_seed((seed + 0x3C6EF372) & 0xFFFFFFFF) < 0.5
+        if swap:
+            w1, w2 = w2, w1
+        score = [lost, w1, w2] if lost_first else [w1, lost, w2]
 
     return {
         "score": score,
