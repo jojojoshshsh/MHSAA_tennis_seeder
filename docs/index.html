@@ -202,7 +202,7 @@
 <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 <header>
   <h1>Michigan High School Tennis Seed Prediction — 2026 season</h1>
-  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:18 PM EDT.</p>
+  <p>Updated automatically every day at 4am EDT. Last update: September 29, 2026 at 06:28 PM EDT.</p>
 </header>
 <nav>
   <a class="nav-about" href="about.html">About &amp; Methodology</a>
@@ -1282,9 +1282,42 @@ function simSolveP(d) {
   return (lo + hi) / 2;
 }
 
+// Straight-sets line, winner's side, order-free (merge (6-2,6-3) with (6-3,6-2)
+// so identical-set pairs no longer win by default); bigger win shown first.
+function simCanon2(s1, s2) {
+  const m = s => { const [a, b] = simSplit(s); return a - b; };
+  return m(s1) >= m(s2) ? s1 + ' ' + s2 : s2 + ' ' + s1;
+}
+// Three-set line, winner's side: the set lost, then the bigger win, then the
+// tighter deciding set. The two sets won are interchangeable draws, so their
+// orderings are merged (else an identical pair like 6-3 6-3 wins by default).
+function simCanon3(s1, s2, t3) {
+  const [a1, b1] = simSplit(s1);
+  const lost = a1 < b1 ? s1 : s2, won = a1 < b1 ? s2 : s1;
+  const m = s => { const [a, b] = simSplit(s); return a - b; };
+  const [wa, wb] = m(won) >= m(t3) ? [won, t3] : [t3, won];
+  return lost + ' ' + wa + ' ' + wb;
+}
+// Three-set lines ranked by closeness to the conditional AVERAGE line among
+// reasonably likely candidates (the pure mode is 4-6 x 10-8 at every gap).
+function simTopTypical(o) {
+  const ents = Object.entries(o);
+  let tot = 0, mx = 0;
+  for (const [, v] of ents) { tot += v; mx = Math.max(mx, v); }
+  if (!tot) return [];
+  const vec = k => { const p = k.split(' '); return [+p[0].split('-')[0], +p[1].split('-')[1], +p[2].split('-')[1]]; };
+  const mean = [0, 0, 0];
+  for (const [k, v] of ents) vec(k).forEach((x, i) => { mean[i] += v / tot * x; });
+  const wts = [1, 1, 1];
+  const dist = k => vec(k).reduce((a, x, i) => a + wts[i] * (x - mean[i]) ** 2, 0);
+  return ents.filter(e => e[1] >= 0.2 * mx)
+    .sort((u, v) => dist(u[0]) - dist(v[0]) || v[1] - u[1])
+    .slice(0, 12).map(e => e[0]);
+}
+
 // Exact best-of-3 summary for favorite A at point prob p >= 0.5.
 function simMatchOutcomes(p) {
-  const sd = simSetDist(p), tb = simSuperTbDist(p);
+  const sd = simSetDist(p), tb = sd;  // 3rd set is a real set
   let pw2 = 0, pw3 = 0, pl2 = 0, pl3 = 0, pTb = 0, p75 = 0;
   const aL = {2: {}, 3: {}}, bL = {2: {}, 3: {}};
   const add = (o, k, v) => { o[k] = (o[k] || 0) + v; };
@@ -1295,17 +1328,18 @@ function simMatchOutcomes(p) {
       const joint = sd[s1] * sd[s2];
       const [a1, b1] = simSplit(s1), [a2, b2] = simSplit(s2);
       const w1 = a1 > b1, w2 = a2 > b2;
-      if (isTb(s1) || isTb(s2)) pTb += joint;
-      if (is75(s1) || is75(s2)) p75 += joint;
+      if (w1 === w2) { if (isTb(s1) || isTb(s2)) pTb += joint; if (is75(s1) || is75(s2)) p75 += joint; }
       if (w1 === w2) {
-        if (w1) { pw2 += joint; add(aL[2], s1 + ' ' + s2, joint); }
-        else    { pl2 += joint; add(bL[2], simFlip(s1) + ' ' + simFlip(s2), joint); }
+        if (w1) { pw2 += joint; add(aL[2], simCanon2(s1, s2), joint); }
+        else    { pl2 += joint; add(bL[2], simCanon2(simFlip(s1), simFlip(s2)), joint); }
       } else {
         for (const t3 in tb) {
           const j3 = joint * tb[t3];
+          if (isTb(s1) || isTb(s2) || isTb(t3)) pTb += j3;
+          if (is75(s1) || is75(s2) || is75(t3)) p75 += j3;
           const [x, y] = simSplit(t3);
-          if (x > y) { pw3 += j3; add(aL[3], s1 + ' ' + s2 + ' ' + t3, j3); }
-          else       { pl3 += j3; add(bL[3], simFlip(s1) + ' ' + simFlip(s2) + ' ' + simFlip(t3), j3); }
+          if (x > y) { pw3 += j3; add(aL[3], simCanon3(s1, s2, t3), j3); }
+          else       { pl3 += j3; add(bL[3], simCanon3(simFlip(s1), simFlip(s2), simFlip(t3)), j3); }
         }
       }
     }
@@ -1313,8 +1347,8 @@ function simMatchOutcomes(p) {
   const top = o => Object.entries(o).sort((u, v) => v[1] - u[1]).slice(0, 12).map(e => e[0]);
   return {
     stats: [pw2, pw3, pl2, pl3, pTb, p75],
-    aWins: {2: top(aL[2]), 3: top(aL[3])},
-    bWins: {2: top(bL[2]), 3: top(bL[3])},
+    aWins: {2: top(aL[2]), 3: simTopTypical(aL[3])},
+    bWins: {2: top(bL[2]), 3: simTopTypical(bL[3])},
   };
 }
 
