@@ -406,6 +406,7 @@ const SIM_THREE_SET_SCALE = 0.60;
 const SIM_TIEBREAK_SCALE = 0.46;
 const SIM_SEVEN_FIVE_SCALE = 0.82;
 const SIM_MARGIN_SD = 0.75;            // MARGIN_SD: how tightly the printed line's game margin tracks the rating gap
+const SIM_SCORE_SEED = 2026;           // SCORE_SEED: change to reshuffle all predicted scorelines
 const SIM_TABLE_STEP = 0.25;
 const SIM_EPS = 1e-9;
 
@@ -619,6 +620,24 @@ function matchWinProb(a, b) {
   return simApplySeedPrior(s[0] + s[1], a, b);
 }
 
+// FNV-1a 32-bit hash of the UTF-8 text; mirrors _hash32() in predict_state.py.
+function simHash32(text) {
+  let h = 2166136261;
+  for (const byte of new TextEncoder().encode(text)) h = Math.imul(h ^ byte, 16777619) >>> 0;
+  return h >>> 0;
+}
+// First output of mulberry32(seed) in [0, 1); mirrors _uniform_from_seed().
+function simUniform(seed) {
+  let a = (seed + 0x6D2B79F5) >>> 0;
+  let t = Math.imul(a ^ (a >>> 15), a | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+function simMatchupSeed(a, b, winnerIsA) {
+  const ka = a.name + '|' + (a.school || ''), kb = b.name + '|' + (b.school || '');
+  return simHash32(SIM_SCORE_SEED + '~' + [ka, kb].sort().join('~') + '~' + (winnerIsA ? ka : kb));
+}
+
 // Everything about one matchup, exact. Mirrors predict_match_details() in
 // predict_state.py: pick the more likely shape (straight sets vs three, using
 // the data-calibrated odds), then the most likely exact score in that shape,
@@ -635,7 +654,8 @@ function predictMatchDetails(a, b, winnerIsA) {
   // Printed line's total game margin should track the expected margin (|d|),
   // floored at 1.5; an underdog winner shows a narrow win.
   const target = winnerIsFavorite ? Math.max(Math.abs(d), 1.5) : 1.5;
-  let best = null, bestU = -1e18;
+  const cands = [];
+  let totalW = 0;
   for (const shape of [2, 3]) {
     const lines = src[shape];
     let tot = 0;
@@ -650,9 +670,17 @@ function predictMatchDetails(a, b, winnerIsA) {
         if (x === '7-6' || x === '6-7') damp *= SIM_TIEBREAK_SCALE;
         else if (x === '7-5' || x === '5-7') damp *= SIM_SEVEN_FIVE_SCALE;
       }
-      const u = Math.log(shapeW[shape] * p / tot * damp) - (margin - target) ** 2 / (2 * SIM_MARGIN_SD ** 2);
-      if (u > bestU) { best = sets; bestU = u; }
+      const wgt = shapeW[shape] * p / tot * damp * Math.exp(-((margin - target) ** 2) / (2 * SIM_MARGIN_SD ** 2));
+      cands.push([sets, wgt]);
+      totalW += wgt;
     }
+  }
+  // Replicable draw: same matchup -> same line; different matchups vary.
+  let best = null;
+  if (totalW > 0) {
+    const r = simUniform(simMatchupSeed(a, b, winnerIsA)) * totalW;
+    let acc = 0;
+    for (const [sets, w] of cands) { acc += w; best = sets; if (r < acc) break; }
   }
   return {
     score: best || ['6-4', '6-4'],
