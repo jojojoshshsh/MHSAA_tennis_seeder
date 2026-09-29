@@ -137,12 +137,14 @@ SEED_BLEND_WEIGHT = 0.05
 # odds and to the straight-sets-vs-three-sets pick. Mass removed from
 # three-setters moves to straight sets, so win probability is untouched.
 THREE_SET_SCALE = 0.60
-TIEBREAK_SCALE = 0.5
-SEVEN_FIVE_SCALE = 0.8
 
-# Print a three-set score when the (calibrated) chance of a 3rd set is at least this.
-# Display only. Lower = more three-setters printed.
-THREE_SET_PRINT_MIN = 0.25
+# Display only: print a three-set scoreline when the calibrated chance of a
+# 3rd set is at least this. Lower = more three-setters printed. Does not
+# change any reported probability. Mirror in build_site.py.
+THREE_SET_PRINT_MIN = 0.22
+TIEBREAK_SCALE = 0.46
+SEVEN_FIVE_SCALE = 0.82
+
 
 TABLE_STEP = 0.25   # rating-gap grid spacing for the precomputed match table
 
@@ -573,10 +575,9 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
       - "score": the single representative scoreline, oriented so the
         FIRST number in each set is the predicted winner's games. Two
         stages: pick the more likely match SHAPE (straight sets vs three
-        sets, using the data-calibrated odds -- see THREE_SET_SCALE), then
-        the most likely exact score within that shape. Because real matches
-        are mostly straight-set wins even between similar players, a
-        three-setter is only printed when the calibrated odds favor it.
+        sets: a three-setter prints when the calibrated 3rd-set chance is at
+        least THREE_SET_PRINT_MIN), then the most likely exact score within
+        that shape. Display only -- reported odds are unaffected.
       - "prob_three_sets" / "prob_tiebreak" / "prob_75": chance the match
         goes to a 3rd set / contains a 7-6 set / contains a 7-5 set.
 
@@ -587,7 +588,6 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     d = expected_margin(a, b)
     pw2, pw3, pl2, pl3, p_tb, p_75 = _mixture_stats(d, _tau(a, b))
 
-    w2, w3 = (pw2, pw3) if winner_is_a else (pl2, pl3)
     shape = 3 if THREE_SET_SCALE * (pw3 + pl3) >= THREE_SET_PRINT_MIN else 2
 
     # Table entry nearest |d|; the favorite is whoever the rating gap
