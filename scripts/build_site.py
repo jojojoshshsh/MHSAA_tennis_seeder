@@ -216,7 +216,7 @@ general_nav = defaultdict(list)
 _PREVIEW_COL_ORDER = [
     "rank", "name", "pair_name", "school",
     "division", "flight", "wins", "losses",
-    "TGRS", "TGRS_scaled", "ts_rating", "ts_mu", "ts_sigma", "power_rating",
+    "ts_mu", "power_rating",
     "reachability",
     "sos", "local_sos", "quality_wins",
     "won_after_set1_loss", "vs_weaker_opp", "vs_mid_opp", "vs_top_opp",
@@ -1022,7 +1022,7 @@ html = f"""<!DOCTYPE html>
 {tables_html}
 {general_tables_html}
 </main>
-<footer>Individual rankings computed using TrueSkill + Graph Reachability (TGRS); matchup and state predictions use the game-margin Power Rating. Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
+<footer>Individual rankings computed using Power Rating + Graph Reachability; matchup and state predictions use the game-margin Power Rating. Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
 
 <script>
 const SCHOOLS = {schools_json};
@@ -1381,7 +1381,7 @@ function runCompare(scoring) {{
     const suffix = scoring === 'match' ? ` (${{n}}-team bracket)` : '';
     flightsHtml += `<div class="compare-flight"><h3>${{escapeHtml(key + suffix)}}</h3>`;
     flightsHtml += '<div class="table-wrap"><table class="rankings-table"><thead><tr>' +
-      '<th>Place</th><th>Rank</th><th>School</th><th>Name</th><th>Record</th><th>TGRS</th><th>SOS</th><th>Last Match</th>' +
+      '<th>Place</th><th>Rank</th><th>School</th><th>Name</th><th>Record</th><th>SOS</th><th>Last Match</th>' +
       (scoring ? `<th>${{ptsHeader}}</th>` : '') +
       '</tr></thead><tbody>';
     entries.forEach((e, idx) => {{
@@ -1390,8 +1390,6 @@ function runCompare(scoring) {{
       const wins    = statVal(e.cols, e.row, 'wins');
       const losses  = statVal(e.cols, e.row, 'losses');
       const record  = (wins !== null && losses !== null && wins !== '' && losses !== '') ? `${{wins}}-${{losses}}` : '';
-      const tgrsRaw = statVal(e.cols, e.row, 'TGRS_scaled');
-      const tgrs    = (tgrsRaw !== null && tgrsRaw !== '') ? tgrsRaw : (statVal(e.cols, e.row, 'TGRS') ?? '');
       const sos     = statVal(e.cols, e.row, 'sos') ?? '';
       const lastM   = statVal(e.cols, e.row, 'last_match_date') ?? '';
       let ptsCell = '';
@@ -1406,7 +1404,6 @@ function runCompare(scoring) {{
         `<td>${{escapeHtml(e.team)}}</td>` +
         `<td>${{escapeHtml(name)}}</td>` +
         `<td>${{escapeHtml(record)}}</td>` +
-        `<td>${{escapeHtml(tgrs)}}</td>` +
         `<td>${{escapeHtml(sos)}}</td>` +
         `<td>${{escapeHtml(lastM)}}</td>` +
         ptsCell + '</tr>';
