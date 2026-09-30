@@ -199,7 +199,8 @@ rating_A - rating_B is the number of games A is favored by, capped at 12
 Used as rule 4 (last resort) in the adjacent fix-up comparator; the
 first-pass seed order still uses TrueSkill mu as its tiebreak.
 sos / local_sos now average opponents' POWER RATINGS, and quality_wins counts
-wins over opponents rated >= 0 (the pool average) rather than TrueSkill mu >= 25.
+wins over opponents rated at or above the group's MEDIAN power rating
+(rather than TrueSkill mu >= 25).
 
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
@@ -1509,19 +1510,23 @@ def precompute_quality_wins(
     players: list[str],
     results_idx: dict[str, list[dict]],
     power_ratings: dict,
-    threshold_rating: float = 0.0,
+    threshold_rating: float | None = None,
 ) -> dict[str, int]:
     """
     Count of wins against opponents whose POWER RATING is at or above
-    threshold_rating (default 0.0, the pool average) at the time ratings
-    were finalized. A simple, explainable quality-win count rather than a
-    continuous score.
+    threshold_rating at the time ratings were finalized. A simple,
+    explainable quality-win count rather than a continuous score.
 
-    NOTE: this is a change in meaning from the old TrueSkill version, not
-    just in scale. The old cutoff (mu >= 25) was the fixed TrueSkill
-    starting value; 0 here is where the ridge fit pulls ratings toward,
-    i.e. the average of the pool the ratings were fit on.
+    threshold_rating defaults to the MEDIAN power rating of `players`
+    (those with a rating).
+
+    NOTE: this is a change in meaning from the old TrueSkill version (a
+    fixed mu >= 25 cutoff), not just in scale.
     """
+    if threshold_rating is None:
+        vals = sorted(power_ratings[p].rating for p in players if p in power_ratings)
+        threshold_rating = _percentile(vals, 0.50)
+
     qw: dict[str, int] = {}
     for p in players:
         count = 0
@@ -1663,9 +1668,9 @@ def compute_opponent_strength_thresholds(
 ) -> tuple[float, float]:
     """
     p50 and p75 of POWER RATING (games-margin rating, see section 4b),
-    computed over this division/flight's own seeded roster
-    (`division_roster`) -- the same population `local_sos` /
-    `local_quality_wins` are scoped to.
+    computed over the roster passed in. process_group's output feeds this
+    the WHOLE cross-division pool for the flight (not one division), the
+    same population the quality-win median is taken over.
 
     Power ratings are comparable inside one pool (gender + match type +
     flight), which is exactly the pool every player and opponent here
@@ -1896,7 +1901,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         ]
         div_ranking_idx = build_results_index(div_ranking_matches)
         local_sos = precompute_sos(div_ranked, div_ranking_idx, power_ratings)
-        local_quality_wins = precompute_quality_wins(div_ranked, div_ranking_idx, power_ratings)
 
         tgrs_raw: dict[str, float] = {}
         for p in div_ranked:
@@ -1932,7 +1936,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
             "sos": sos_full,
             "local_sos": local_sos,
             "quality_wins": quality_wins_full,
-            "local_quality_wins": local_quality_wins,
             "tgrs_raw": tgrs_raw,
             "tgrs_scaled": tgrs_scaled,
         })
@@ -1986,7 +1989,6 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         "sos": sos_full,
         "local_sos": sos_full,
         "quality_wins": quality_wins_full,
-        "local_quality_wins": quality_wins_full,
         "tgrs_raw": tgrs_raw_overall,
         "tgrs_scaled": tgrs_scaled_overall,
     })
@@ -2102,7 +2104,11 @@ def _result_rows_for_division(r: dict) -> list[dict]:
         if records.get(p, {}).get("matches", 0) >= MIN_MATCHES
     ]
 
-    p50, p75 = compute_opponent_strength_thresholds(r["seeds"], power_ratings)
+    # Whole-pool quartiles (full cross-division flight roster), not this
+    # division's roster, so every division is judged against the same bar.
+    p50, p75 = compute_opponent_strength_thresholds(
+        r.get("unified_rank") or r["seeds"], power_ratings
+    )
     _, gender_l = _category_filename_stem(r["match_type"], r["gender"])
     is_doubles = "/" in (seeds[0] if seeds else "")
     name_field = "pair_name" if is_doubles else "name"
