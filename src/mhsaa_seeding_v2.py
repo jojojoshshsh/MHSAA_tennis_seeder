@@ -175,8 +175,9 @@ OUTPUT LAYER (UPDATED)
   (formatted "3/5 (60%)"). Blank if they never lost a first set.
 
   "vs_weaker_opp" / "vs_mid_opp" / "vs_top_opp" is a win-loss record
-  against opponents grouped by TrueSkill conservative-rating percentile
-  — see section 9c for exactly how the thresholds and buckets work.
+  against opponents grouped by POWER RATING percentile (games-margin
+  rating, NOT TrueSkill) — see section 9c for how the thresholds and
+  buckets work.
 
   "local_*" columns are computed within just that player's division/
   flight group (the existing per-division ranking pass); the non-local
@@ -1591,13 +1592,14 @@ def _scale_tgrs(raw_scores: dict[str, float]) -> dict[str, float]:
 #
 #   vs_weaker_opp / vs_mid_opp / vs_top_opp
 #   -----------------------------------------
-#   Per the request: instead of bucketing by opponent's raw win%, bucket
-#   by opponent's TrueSkill conservative rating (mu - 3*sigma), which
-#   already accounts for strength of schedule instead of just counting
-#   wins against whoever they happened to play.
+#   Opponents are bucketed by their POWER RATING (the capped game-margin
+#   rating from section 4b), not raw win% and not TrueSkill. The power
+#   rating already accounts for strength of schedule, and it is the same
+#   number the state predictions use, so "top / mid / weak" on the site
+#   means the same thing as the prediction model's view of the opponent.
 #
 #   Thresholds (p50 / p75) are computed ONCE per division/flight pool,
-#   from the ts_rating of that division/flight's own seeded roster only
+#   from the power_rating of that division/flight's own seeded roster only
 #   (the same population `local_sos` is computed from) — this is what
 #   "for each specific division and flight pool" means here. But once
 #   the thresholds exist, a player's record against them counts EVERY
@@ -1646,21 +1648,26 @@ def _percentile(sorted_vals: list[float], pct: float) -> float:
 
 def compute_opponent_strength_thresholds(
     division_roster: list[str],
-    trueskill_ratings: dict,
+    power_ratings: dict,
 ) -> tuple[float, float]:
     """
-    p50 and p75 of TrueSkill conservative rating, computed over this
-    division/flight's own seeded roster (`division_roster`) — the same
-    population `local_sos`/`local_quality_wins` are scoped to.
+    p50 and p75 of POWER RATING (games-margin rating, see section 4b),
+    computed over this division/flight's own seeded roster
+    (`division_roster`) -- the same population `local_sos` /
+    `local_quality_wins` are scoped to.
+
+    Power ratings are comparable inside one pool (gender + match type +
+    flight), which is exactly the pool every player and opponent here
+    lives in, so the thresholds can be applied to any opponent.
 
     Returns (p50, p75). If the roster has no rated players, returns
-    (0.0, 0.0), which will bucket everyone as "top" — harmless edge case
+    (0.0, 0.0), which will bucket everyone as "top" -- harmless edge case
     for an empty/degenerate group.
     """
     vals = sorted(
-        trueskill_ratings[p].conservative
+        power_ratings[p].rating
         for p in division_roster
-        if p in trueskill_ratings
+        if p in power_ratings
     )
     return _percentile(vals, 0.50), _percentile(vals, 0.75)
 
@@ -1668,30 +1675,29 @@ def compute_opponent_strength_thresholds(
 def compute_opponent_strength_record(
     player: str,
     results_idx: dict[str, list[dict]],
-    trueskill_ratings: dict,
+    power_ratings: dict,
     p50: float,
     p75: float,
 ) -> dict[str, list[int]]:
     """
-    Win-loss record for `player`, bucketed by OPPONENT's TrueSkill
-    conservative rating against the (p50, p75) thresholds:
+    Win-loss record for `player`, bucketed by OPPONENT's POWER RATING
+    against the (p50, p75) thresholds:
         < p50        -> "weak"  (bottom 50% of the pool)
         p50 to <p75  -> "mid"   (50th-75th percentile)
         >= p75       -> "top"   (top quartile)
 
     Uses `results_idx` for ALL of the player's matches (any division,
-    any flight, including matches later dropped from ranking) — only the
+    any flight, including matches later dropped from ranking) -- only the
     thresholds themselves are scoped to the player's own division/flight
-    pool. Opponents with no TrueSkill rating on record are skipped (can
-    happen for players who never had enough matches to be rated at all).
+    pool. Opponents with no power rating on record are skipped.
     """
     buckets: dict[str, list[int]] = {"weak": [0, 0], "mid": [0, 0], "top": [0, 0]}
     for m in results_idx.get(player, []):
         opp = m["loser"] if m["winner"] == player else m["winner"]
-        r = trueskill_ratings.get(opp)
+        r = power_ratings.get(opp)
         if r is None:
             continue
-        rating = r.conservative
+        rating = r.rating
         if rating < p50:
             key = "weak"
         elif rating < p75:
@@ -2085,7 +2091,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
         if records.get(p, {}).get("matches", 0) >= MIN_MATCHES
     ]
 
-    p50, p75 = compute_opponent_strength_thresholds(r["seeds"], trueskill_ratings)
+    p50, p75 = compute_opponent_strength_thresholds(r["seeds"], power_ratings)
     _, gender_l = _category_filename_stem(r["match_type"], r["gender"])
     is_doubles = "/" in (seeds[0] if seeds else "")
     name_field = "pair_name" if is_doubles else "name"
@@ -2108,7 +2114,7 @@ def _result_rows_for_division(r: dict) -> list[dict]:
         # so they reflect everything the player actually played.
         wins_after_l1, opportunities_l1 = compute_won_after_set1_loss(player, original_results_idx)
         strength_record = compute_opponent_strength_record(
-            player, original_results_idx, trueskill_ratings, p50, p75
+            player, original_results_idx, power_ratings, p50, p75
         )
 
         row = {
