@@ -198,6 +198,8 @@ rating_A - rating_B is the number of games A is favored by, capped at 12
 (12 apart = 6-0 6-0, 1 apart = a 6-7 7-6 10-2 toss-up). See section 4b.
 Used as rule 4 (last resort) in the adjacent fix-up comparator; the
 first-pass seed order still uses TrueSkill mu as its tiebreak.
+sos / local_sos now average opponents' POWER RATINGS, and quality_wins counts
+wins over opponents rated >= 0 (the pool average) rather than TrueSkill mu >= 25.
 
 Everything in the ranking core (cycle removal, transitive closure,
 adjacent fix-up, CSV loading, division normalisation, school lookup) is
@@ -1477,39 +1479,48 @@ def build_adjacency_explanations(
 def precompute_sos(
     players: list[str],
     results_idx: dict[str, list[dict]],
-    trueskill_ratings: dict,
+    power_ratings: dict,
 ) -> dict[str, float]:
     """
-    Strength of schedule: average opponent TrueSkill mu across every
-    ranking-eligible match a player played, in this group. Computed once
-    on the full cross-division group (the "sos" column) and again on
+    Strength of schedule: average opponent POWER RATING (section 4b) across
+    every ranking-eligible match a player played, in this group. Computed
+    once on the full cross-division group (the "sos" column) and again on
     just a division/flight subset (the "local_sos" column) by passing a
     results_idx already scoped to that subset.
+
+    Power ratings are centered near 0 (the pool average), so sos > 0 means
+    an above-average schedule and sos < 0 a below-average one. The unit is
+    games of expected margin, not TrueSkill mu.
     """
     sos: dict[str, float] = {}
     for p in players:
         ms = results_idx.get(p, [])
-        opp_mus = []
+        opp_ratings = []
         for m in ms:
             opp = m["loser"] if m["winner"] == p else m["winner"]
-            r = trueskill_ratings.get(opp)
+            r = power_ratings.get(opp)
             if r is not None:
-                opp_mus.append(r.mu)
-        sos[p] = sum(opp_mus) / len(opp_mus) if opp_mus else 0.0
+                opp_ratings.append(r.rating)
+        sos[p] = sum(opp_ratings) / len(opp_ratings) if opp_ratings else 0.0
     return sos
 
 
 def precompute_quality_wins(
     players: list[str],
     results_idx: dict[str, list[dict]],
-    trueskill_ratings: dict,
-    threshold_mu: float = 25.0,
+    power_ratings: dict,
+    threshold_rating: float = 0.0,
 ) -> dict[str, int]:
     """
-    Count of wins against opponents whose TrueSkill mu is at or above
-    threshold_mu (the starting mu — i.e. "at least average") at the time
-    ratings were finalized. A simple, explainable quality-win count
-    rather than a continuous score.
+    Count of wins against opponents whose POWER RATING is at or above
+    threshold_rating (default 0.0, the pool average) at the time ratings
+    were finalized. A simple, explainable quality-win count rather than a
+    continuous score.
+
+    NOTE: this is a change in meaning from the old TrueSkill version, not
+    just in scale. The old cutoff (mu >= 25) was the fixed TrueSkill
+    starting value; 0 here is where the ridge fit pulls ratings toward,
+    i.e. the average of the pool the ratings were fit on.
     """
     qw: dict[str, int] = {}
     for p in players:
@@ -1518,8 +1529,8 @@ def precompute_quality_wins(
             if m["winner"] != p:
                 continue
             opp = m["loser"]
-            r = trueskill_ratings.get(opp)
-            if r is not None and r.mu >= threshold_mu:
+            r = power_ratings.get(opp)
+            if r is not None and r.rating >= threshold_rating:
                 count += 1
         qw[p] = count
     return qw
@@ -1845,11 +1856,11 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     # Power rating (see section 4b), fit from the same ranking-eligible
     # matches. It is the last-resort tiebreak (rule 4) in the adjacent
     # fix-up comparator. TrueSkill still drives the initial seed-order
-    # tiebreak, SOS, and quality wins.
+    # tiebreak (SOS and quality wins now use power ratings too).
     power_ratings = compute_power_ratings(ranking_matches)
 
-    sos_full = precompute_sos(players, ranking_results_idx, trueskill_ratings)
-    quality_wins_full = precompute_quality_wins(players, ranking_results_idx, trueskill_ratings)
+    sos_full = precompute_sos(players, ranking_results_idx, power_ratings)
+    quality_wins_full = precompute_quality_wins(players, ranking_results_idx, power_ratings)
 
     # --- STEP 1: break every cycle, regardless of length ---
     acyclic_matches = resolve_all_cycles(ranking_matches, players)
@@ -1884,8 +1895,8 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
             if m["winner"] in div_ranked and m["loser"] in div_ranked
         ]
         div_ranking_idx = build_results_index(div_ranking_matches)
-        local_sos = precompute_sos(div_ranked, div_ranking_idx, trueskill_ratings)
-        local_quality_wins = precompute_quality_wins(div_ranked, div_ranking_idx, trueskill_ratings)
+        local_sos = precompute_sos(div_ranked, div_ranking_idx, power_ratings)
+        local_quality_wins = precompute_quality_wins(div_ranked, div_ranking_idx, power_ratings)
 
         tgrs_raw: dict[str, float] = {}
         for p in div_ranked:
