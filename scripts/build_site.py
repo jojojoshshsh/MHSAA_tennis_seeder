@@ -235,14 +235,6 @@ INDIVIDUAL_COL_LABELS = {
     "vs_top_opp": "vs Top Opp",
 }
 
-# Hover text for columns whose meaning isn't obvious from the header.
-INDIVIDUAL_COL_TIPS = {
-    "vs_weaker_opp": "Record vs opponents in the bottom 50% of this flight by POWER RATING",
-    "vs_mid_opp": "Record vs opponents between the 50th and 75th percentile by POWER RATING",
-    "vs_top_opp": "Record vs opponents in the top 25% of this flight by POWER RATING",
-    "power_rating": "Games-margin rating: the gap between two ratings is the expected game margin (12 = 6-0 6-0)",
-}
-
 
 def _render_individual_table(entry, anchor_prefix, label_prefix, include_data_division):
     """Shared table-building logic for both the per-division tables
@@ -263,7 +255,7 @@ def _render_individual_table(entry, anchor_prefix, label_prefix, include_data_di
     label = f"{label_prefix}Flight {flight} · {gender} {category}"
 
     thead = "<thead><tr>" + "".join(
-        f'<th onclick="sortTable(this)" title="{_html_escape_py(INDIVIDUAL_COL_TIPS.get(col, col))}">{_html_escape_py(INDIVIDUAL_COL_LABELS.get(col, col))}</th>'
+        f'<th onclick="sortTable(this)" title="{_html_escape_py(col)}">{_html_escape_py(INDIVIDUAL_COL_LABELS.get(col, col))}</th>'
         for col in preview_cols
     ) + "</tr></thead>"
 
@@ -395,83 +387,237 @@ prediction_nav_link = (
     if _prediction_html_exists else ""
 )
 
-# Data-fit match model, shared with predict_state.py through one JSON file
-# (written by scripts/calibrate_predictor.py) so the site's Simulate Matchup
-# tool and the state predictions can never drift apart.
-_CAL_PATH = REPO_ROOT / "src" / "predictor_calibration.json"
-if _CAL_PATH.exists():
-    SIM_CAL_JSON = _CAL_PATH.read_text(encoding="utf-8").strip()
-else:
-    print(f"WARNING: {_CAL_PATH} not found -- Simulate Matchup will be disabled. "
-          f"Run scripts/calibrate_predictor.py.")
-    SIM_CAL_JSON = "null"
-
-# JS port of predict_state.py's engine (single braces on purpose: it is
-# injected into the f-string below as a value, so it isn't re-parsed).
+# JS port of predict_state.py's power-rating engine (single braces on purpose:
+# it is injected into the f-string below as a value, so it isn't re-parsed).
 SIM_ENGINE_JS = r'''// ---- Simulate Matchup ------------------------------------------------
-// JS port of predict_state.py, driven by the same calibration JSON.
-//   rating gap (games) -> P(win)                       logistic fit to results
-//   P(win of the winner) -> P(3rd set), P(7-6), P(7-5), straight-set line
-//                           distribution, 3-set line distribution (data-fit)
-// Printed score: the merged "3 sets" outcome competes with the single
-// likeliest straight-set line (order-free); a seeded pick then draws a line
-// from the winning group, favoring the likeliest lines. Same matchup ->
-// same score on every load, and identical to predict_state.py.
-const SIM_CAL = __SIM_CAL_JSON__;
+// JS port of predict_state.py's power-rating engine. A rating gap is the
+// expected game margin (capped at 12 = 6-0 6-0). The gap is inverted into a
+// per-POINT win probability, and the point -> game -> set -> best-of-3 match
+// distribution is then computed EXACTLY (no Monte Carlo, no randomness).
+// Averaging over day-to-day form (SIM_FORM_SD) keeps upsets possible.
+// Constants mirror predict_state.py -- if you change one there, change it here.
+const SIM_CAP = 12;
 const SIM_RIDGE = 0.5;                 // POWER_RIDGE (rating fit)
+const SIM_FORM_SD = 3.0;               // FORM_SD (games) -- fit to held-out data
+const SIM_SEED_PRIOR_ACCURACY = 0.950;
+const SIM_SEED_BLEND_WEIGHT = 0.05;    // backtested: 0.05 minimizes held-out log-loss
+// Shape multipliers fit to held-out matches (the exact model over-predicts competitive matches)
+const SIM_THREE_SET_SCALE = 0.60;
+const SIM_TIEBREAK_SCALE = 0.46;
+const SIM_SEVEN_FIVE_SCALE = 0.82;
+const SIM_MARGIN_SD = 0.75;            // MARGIN_SD: how tightly the printed line's game margin tracks the rating gap
 const SIM_SCORE_SEED = 2026;           // SCORE_SEED: change to reshuffle all predicted scorelines
+const SIM_TABLE_STEP = 0.25;
 const SIM_EPS = 1e-9;
 
-let SIM_ANCHORS = null;
-if (SIM_CAL) {
-  SIM_ANCHORS = SIM_CAL.anchors.map(a => ({
-    z: a.z, p3: a.p3, pTb: a.p_tb, p75: a.p_75,
-    straight: new Map(a.straight), three: new Map(a.three),
-  }));
-}
-
 function simLogit(p) { p = Math.min(Math.max(p, SIM_EPS), 1 - SIM_EPS); return Math.log(p / (1 - p)); }
-function simSe2(p) { return 1 / (SIM_RIDGE + Math.max(0, p.wins + p.losses)); }
+function simSigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+const SIM_SEED_PRIOR_LOGIT = simLogit(SIM_SEED_PRIOR_ACCURACY);
 
-// Games A is expected to beat B by: rating gap capped at +/-cap
+function simComb(n, k) {
+  let r = 1;
+  for (let i = 1; i <= k; i++) r = r * (n - k + i) / i;
+  return r;
+}
+
+// P(win a game) with point prob p (ad scoring)
+function simGameProb(p) {
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  const q = 1 - p;
+  return Math.pow(p, 4) * (1 + 4*q + 10*q*q) + 20 * Math.pow(p, 5) * Math.pow(q, 3) / (1 - 2*p*q);
+}
+
+// P(win) a first-to-n, win-by-2 points race (7-pt set TB, 10-pt match TB)
+function simRaceProb(p, n) {
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  const q = 1 - p;
+  let s = 0;
+  for (let k = 0; k < n - 1; k++) s += simComb(n - 1 + k, k) * Math.pow(p, n) * Math.pow(q, k);
+  s += simComb(2*(n-1), n-1) * Math.pow(p*q, n-1) * p*p / (p*p + q*q);
+  return s;
+}
+
+// One set's score distribution from A's side: {"6-4": prob, ...}
+function simSetDist(p) {
+  const g = simGameProb(p), h = 1 - g, t = simRaceProb(p, 7);
+  const reach = {'0,0': 1};
+  const out = {};
+  const add = (k, v) => { out[k] = (out[k] || 0) + v; };
+  for (let total = 0; total <= 12; total++) {
+    for (let ga = 0; ga <= total; ga++) {
+      const gb = total - ga;
+      const pr = reach[ga + ',' + gb] || 0;
+      if (!pr) continue;
+      if (ga === 6 && gb === 6) { add('7-6', pr * t); add('6-7', pr * (1 - t)); continue; }
+      const nexts = [[ga + 1, gb, g], [ga, gb + 1, h]];
+      for (const [na, nb, w] of nexts) {
+        if ((na >= 6 && na - nb >= 2) || (nb >= 6 && nb - na >= 2) || na === 7 || nb === 7) {
+          add(na + '-' + nb, pr * w);
+        } else {
+          reach[na + ',' + nb] = (reach[na + ',' + nb] || 0) + pr * w;
+        }
+      }
+    }
+  }
+  return out;
+}
+
+// 10-pt match tiebreak from A's side; deuce endings lumped into 10-8.
+function simSuperTbDist(p) {
+  const q = 1 - p;
+  const out = {};
+  let aExact = 0, bExact = 0;
+  for (let k = 0; k < 8; k++) {
+    out['10-' + k] = simComb(9 + k, k) * Math.pow(p, 10) * Math.pow(q, k);
+    out[k + '-10'] = simComb(9 + k, k) * Math.pow(q, 10) * Math.pow(p, k);
+    aExact += out['10-' + k]; bExact += out[k + '-10'];
+  }
+  const win = simRaceProb(p, 10);
+  out['10-8'] = Math.max(0, win - aExact);
+  out['8-10'] = Math.max(0, (1 - win) - bExact);
+  return out;
+}
+
+const simSplit = s => s.split('-').map(Number);
+const simFlip = s => { const x = simSplit(s); return x[1] + '-' + x[0]; };
+
+// E[signed game margin of A]; a match tiebreak counts as +/-1 (same
+// convention the power rating is fit on).
+function simExpMarginForP(p) {
+  const sd = simSetDist(p);
+  let sWin = 0, eSet = 0;
+  for (const k in sd) { const [a, b] = simSplit(k); if (a > b) sWin += sd[k]; eSet += sd[k] * (a - b); }
+  const t = simRaceProb(p, 10);
+  return 2 * eSet + 2 * sWin * (1 - sWin) * (2 * t - 1);
+}
+
+function simSolveP(d) {
+  if (d <= 0) return 0.5;
+  if (d >= SIM_CAP) return 1;
+  let lo = 0.5, hi = 1;
+  for (let i = 0; i < 60; i++) {
+    const mid = (lo + hi) / 2;
+    if (simExpMarginForP(mid) < d) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+// Straight-sets line, winner's side, order-free (merge (6-2,6-3) with (6-3,6-2)
+// so identical-set pairs no longer win by default); bigger win shown first.
+function simCanon2(s1, s2) {
+  const m = s => { const [a, b] = simSplit(s); return a - b; };
+  return m(s1) >= m(s2) ? s1 + ' ' + s2 : s2 + ' ' + s1;
+}
+// Three-set line, winner's side: the set lost, then the bigger win, then the
+// tighter deciding set. The two sets won are interchangeable draws, so their
+// orderings are merged (else an identical pair like 6-3 6-3 wins by default).
+function simCanon3(s1, s2, t3) {
+  const [a1, b1] = simSplit(s1);
+  const lost = a1 < b1 ? s1 : s2, won = a1 < b1 ? s2 : s1;
+  const m = s => { const [a, b] = simSplit(s); return a - b; };
+  const [wa, wb] = m(won) >= m(t3) ? [won, t3] : [t3, won];
+  return lost + ' ' + wa + ' ' + wb;
+}
+// Exact best-of-3 summary for favorite A at point prob p >= 0.5.
+function simMatchOutcomes(p) {
+  const sd = simSetDist(p), tb = sd;  // 3rd set is a real set
+  let pw2 = 0, pw3 = 0, pl2 = 0, pl3 = 0, pTb = 0, p75 = 0;
+  const aL = {2: {}, 3: {}}, bL = {2: {}, 3: {}};
+  const add = (o, k, v) => { o[k] = (o[k] || 0) + v; };
+  const isTb = s => s === '7-6' || s === '6-7';
+  const is75 = s => s === '7-5' || s === '5-7';
+  for (const s1 in sd) {
+    for (const s2 in sd) {
+      const joint = sd[s1] * sd[s2];
+      const [a1, b1] = simSplit(s1), [a2, b2] = simSplit(s2);
+      const w1 = a1 > b1, w2 = a2 > b2;
+      if (w1 === w2) { if (isTb(s1) || isTb(s2)) pTb += joint; if (is75(s1) || is75(s2)) p75 += joint; }
+      if (w1 === w2) {
+        if (w1) { pw2 += joint; add(aL[2], simCanon2(s1, s2), joint); }
+        else    { pl2 += joint; add(bL[2], simCanon2(simFlip(s1), simFlip(s2)), joint); }
+      } else {
+        for (const t3 in tb) {
+          const j3 = joint * tb[t3];
+          if (isTb(s1) || isTb(s2) || isTb(t3)) pTb += j3;
+          if (is75(s1) || is75(s2) || is75(t3)) p75 += j3;
+          const [x, y] = simSplit(t3);
+          if (x > y) { pw3 += j3; add(aL[3], simCanon3(s1, s2, t3), j3); }
+          else       { pl3 += j3; add(bL[3], simCanon3(simFlip(s1), simFlip(s2), simFlip(t3)), j3); }
+        }
+      }
+    }
+  }
+  const top = o => Object.entries(o).filter(e => e[1] > 0).sort((u, v) => v[1] - u[1]);
+  return {
+    stats: [pw2, pw3, pl2, pl3, pTb, p75],
+    aWins: {2: top(aL[2]), 3: top(aL[3])},
+    bWins: {2: top(bL[2]), 3: top(bL[3])},
+  };
+}
+
+let SIM_TABLE = null;
+function simTable() {
+  if (!SIM_TABLE) {
+    SIM_TABLE = [];
+    const n = Math.round(SIM_CAP / SIM_TABLE_STEP);
+    for (let i = 0; i <= n; i++) SIM_TABLE.push(simMatchOutcomes(simSolveP(i * SIM_TABLE_STEP)));
+  }
+  return SIM_TABLE;
+}
+
+// Interpolated [pw2, pw3, pl2, pl3, pTb, p75] for signed gap d (+ = A favored)
+function simStatsAt(d) {
+  const tab = simTable();
+  const x = Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP;
+  const i = Math.min(Math.floor(x), tab.length - 2);
+  const f = x - i;
+  const lo = tab[i].stats, hi = tab[i + 1].stats;
+  const s = lo.map((v, k) => v + f * (hi[k] - v));
+  return d < 0 ? [s[2], s[3], s[0], s[1], s[4], s[5]] : s;
+}
+
+// 7-point Gauss-Hermite rule for a standard normal
+const SIM_GH = (() => {
+  const xs = [0.0, 0.8162878828589647, 1.6735516287674714, 2.6519613568352334];
+  const ws = [0.8102646175568073, 0.4256072526101278, 0.05451558281912703, 0.0009717812450995];
+  const out = [];
+  xs.forEach((x, i) => {
+    const w = ws[i] / Math.sqrt(Math.PI);
+    if (x === 0) out.push([0, w]);
+    else { out.push([Math.SQRT2 * x, w]); out.push([-Math.SQRT2 * x, w]); }
+  });
+  return out;
+})();
+
+function simMixtureStats(d, tau) {
+  const acc = [0, 0, 0, 0, 0, 0];
+  for (const [z, w] of SIM_GH) {
+    const dd = Math.max(-SIM_CAP, Math.min(SIM_CAP, d + tau * z));
+    const s = simStatsAt(dd);
+    for (let k = 0; k < 6; k++) acc[k] += w * s[k];
+  }
+  return acc;
+}
+
+// Games A is expected to beat B by: rating gap capped at +/-12
 function simExpectedMargin(a, b) {
-  const cap = SIM_CAL.win.cap;
-  return Math.max(-cap, Math.min(cap, a.power - b.power));
+  return Math.max(-SIM_CAP, Math.min(SIM_CAP, a.power - b.power));
 }
-// P(the higher-rated side wins), fit to held-out results
-function simFavProb(a, b) {
-  const ad = Math.abs(simExpectedMargin(a, b));
-  const s2 = simSe2(a) + simSe2(b);
-  const z = SIM_CAL.win.k * ad / Math.sqrt(1 + SIM_CAL.win.lam * s2);
-  return 1 / (1 + Math.exp(-z));
+function simSe(p) { return 1 / Math.sqrt(SIM_RIDGE + Math.max(0, p.wins + p.losses)); }
+function simTau(a, b) { return Math.sqrt(SIM_FORM_SD * SIM_FORM_SD + simSe(a) ** 2 + simSe(b) ** 2); }
+
+function simApplySeedPrior(p, a, b) {
+  if (SIM_SEED_BLEND_WEIGHT <= 0 || !a.rank || !b.rank || a.rank === b.rank) return p;
+  const seedLogit = a.rank < b.rank ? SIM_SEED_PRIOR_LOGIT : -SIM_SEED_PRIOR_LOGIT;
+  return simSigmoid((1 - SIM_SEED_BLEND_WEIGHT) * simLogit(p) + SIM_SEED_BLEND_WEIGHT * seedLogit);
 }
+
 // P(a beats b) -- the "Win Prob." number shown in the results table.
 function matchWinProb(a, b) {
-  const pf = simFavProb(a, b), d = a.power - b.power;
-  return d > 0 ? pf : d < 0 ? 1 - pf : 0.5;
-}
-
-// Score-model tables for a winner whose win probability was pw
-function simStatsAt(pw) {
-  const A = SIM_ANCHORS;
-  const z = Math.min(Math.max(simLogit(pw), A[0].z), A[A.length - 1].z);
-  let hi = A.findIndex(a => a.z >= z);
-  if (hi < 0) hi = A.length - 1;
-  const lo = Math.max(hi - 1, 0);
-  const a0 = A[lo], a1 = A[hi];
-  const f = a1.z === a0.z ? 0 : (z - a0.z) / (a1.z - a0.z);
-  const lerp = (x, y) => x + f * (y - x);
-  const blend = key => {
-    const out = new Map();
-    for (const k of new Set([...a0[key].keys(), ...a1[key].keys()])) {
-      out.set(k, lerp(a0[key].get(k) || 0, a1[key].get(k) || 0));
-    }
-    return out;
-  };
-  return {
-    p3: lerp(a0.p3, a1.p3), pTb: lerp(a0.pTb, a1.pTb), p75: lerp(a0.p75, a1.p75),
-    straight: blend('straight'), three: blend('three'),
-  };
+  const s = simMixtureStats(simExpectedMargin(a, b), simTau(a, b));
+  return simApplySeedPrior(s[0] + s[1], a, b);
 }
 
 // FNV-1a 32-bit hash of the UTF-8 text; mirrors _hash32() in predict_state.py.
@@ -491,62 +637,75 @@ function simMatchupSeed(a, b, winnerIsA) {
   const ka = a.name + '|' + (a.school || ''), kb = b.name + '|' + (b.school || '');
   return simHash32(SIM_SCORE_SEED + '~' + [ka, kb].sort().join('~') + '~' + (winnerIsA ? ka : kb));
 }
-const simU = (seed, salt) => simUniform((seed + salt) >>> 0);
-function simGumbel(u) { u = Math.min(Math.max(u, 1e-12), 1 - 1e-12); return -Math.log(-Math.log(u)); }
-const simByProb = (x, y) => (y[1] - x[1]) || (x[0] < y[0] ? -1 : x[0] > y[0] ? 1 : 0);
 
-// Draw one key with probability proportional to p^(1/temp)
-function simPickWeighted(items, temp, u) {
-  const ws = items.filter(e => e[1] > 0).map(e => [e[0], Math.pow(e[1], 1 / temp)]);
-  let total = 0;
-  for (const e of ws) total += e[1];
-  const r = u * total;
-  let acc = 0, pick = ws[ws.length - 1][0];
-  for (const [k, w] of ws) { acc += w; if (r < acc) { pick = k; break; } }
-  return pick;
-}
-const simIsTb10 = tok => Number(tok.split('-')[0]) >= 10;
-
-// Stored line (winner's games first) -> a real set sequence.
-function simDealSets(line, seed) {
-  const toks = line.split(' ');
-  if (toks.length === 2) return simU(seed, 0x2545F491) < 0.5 ? toks : [toks[1], toks[0]];
-  let [lost, w1, w2] = toks;
-  if (!simIsTb10(w2) && simU(seed, 0x3C6EF372) < 0.5) [w1, w2] = [w2, w1];
-  return simU(seed, 0x9E3779B9) < 0.5 ? [lost, w1, w2] : [w1, lost, w2];
-}
-
-// Everything about one matchup. Mirrors predict_match_details() in predict_state.py.
+// Everything about one matchup, exact. Mirrors predict_match_details() in
+// predict_state.py: pick the more likely shape (straight sets vs three, using
+// the data-calibrated odds), then the most likely exact score in that shape,
+// oriented winner-first.
 function predictMatchDetails(a, b, winnerIsA) {
-  const d = a.power - b.power;
-  const pf = simFavProb(a, b);
-  const winnerIsFav = (winnerIsA === (d >= 0));
-  const pw = winnerIsFav ? pf : 1 - pf;
-  const st = simStatsAt(pw);
-  const p3 = st.p3;
+  const d = simExpectedMargin(a, b);
+  const s = simMixtureStats(d, simTau(a, b));
+  const w2 = winnerIsA ? s[0] : s[2], w3 = winnerIsA ? s[1] : s[3];
+  const shapeW = {2: w2 + (1 - SIM_THREE_SET_SCALE) * w3, 3: SIM_THREE_SET_SCALE * w3};
+  const tab = simTable();
+  const idx = Math.min(Math.round(Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP), tab.length - 1);
+  const winnerIsFavorite = (winnerIsA === (d >= 0));
+  const src = winnerIsFavorite ? tab[idx].aWins : tab[idx].bWins;
+  // Printed line's total game margin should track the expected margin (|d|),
+  // floored at 1.5; an underdog winner shows a narrow win.
+  const target = winnerIsFavorite ? Math.max(Math.abs(d), 1.5) : 1.5;
+  // Step 1: pick the SHAPE (straight sets vs three) with the data-calibrated
+  // odds so printed three-setters match real frequency; step 2: sample a line
+  // inside that shape, matching the target margin as well as the shape allows.
   const seed = simMatchupSeed(a, b, winnerIsA);
-  const pick = SIM_CAL.pick;
-
-  const straight = [...st.straight.entries()].map(e => [e[0], (1 - p3) * e[1]]).sort(simByProb);
-  const topStraight = straight.length ? straight[0][1] : 0;
-  const s3 = Math.log(Math.max(p3 * pick.three_set_bias, 1e-12)) + pick.shape_noise * simGumbel(simU(seed, 0x1B873593));
-  const s2 = Math.log(Math.max(topStraight, 1e-12)) + pick.shape_noise * simGumbel(simU(seed, 0x85EBCA6B));
-  const three = st.three.size > 0 && s3 > s2;
-
-  const line = three
-    ? simPickWeighted([...st.three.entries()].sort(simByProb), pick.line_temp, simU(seed, 0xC2B2AE35))
-    : simPickWeighted(straight, pick.line_temp, simU(seed, 0x27D4EB2F));
-  const score = simDealSets(line, seed);
-
-  const other = simStatsAt(1 - pw);
+  const p3 = (shapeW[2] + shapeW[3]) > 0 ? shapeW[3] / (shapeW[2] + shapeW[3]) : 0;
+  let shapePick = simUniform((seed + 0x1B873593) >>> 0) < p3 ? 3 : 2;
+  if (!src[shapePick].length) shapePick = 2;
+  const lines = src[shapePick];
+  // Straight-set wins are realistically never narrower than ~6-4 6-4 (+4).
+  const tgt = shapePick === 2 ? Math.max(target, 4) : target;
+  let tot = 0;
+  for (const e of lines) tot += e[1];
+  const cands = [];
+  let totalW = 0;
+  for (const [key, p] of lines) {
+    const sets = key.split(' ');
+    let margin = 0, damp = 1;
+    for (const x of sets) {
+      const [a1, b1] = simSplit(x);
+      margin += a1 - b1;
+      if (x === '7-6' || x === '6-7') damp *= SIM_TIEBREAK_SCALE;
+      else if (x === '7-5' || x === '5-7') damp *= SIM_SEVEN_FIVE_SCALE;
+    }
+    const wgt = p / tot * damp * Math.exp(-((margin - tgt) ** 2) / (2 * SIM_MARGIN_SD ** 2));
+    cands.push([sets, wgt]);
+    totalW += wgt;
+  }
+  // Replicable draw: same matchup -> same line; different matchups vary.
+  let best = null;
+  if (totalW > 0) {
+    const r = simUniform(seed) * totalW;
+    let acc = 0;
+    for (const [sets, w] of cands) { acc += w; best = sets; if (r < acc) break; }
+  }
+  let score = best || ['6-4', '6-4'];
+  if (score.length === 3) {
+    // Stored as (set lost, won, won) with no order; deal it out in a real
+    // sequence: winner loses set 1 or set 2 (real data 51% / 49%), ALWAYS
+    // wins the last set, and the two sets won can come in either order.
+    let [lost, w1, w2] = score;
+    const lostFirst = simUniform((seed + 0x9E3779B9) >>> 0) < 0.5;
+    if (simUniform((seed + 0x3C6EF372) >>> 0) < 0.5) [w1, w2] = [w2, w1];
+    score = lostFirst ? [lost, w1, w2] : [w1, lost, w2];
+  }
   return {
     score: score,
-    expMargin: Math.abs(Math.max(-SIM_CAL.win.cap, Math.min(SIM_CAL.win.cap, d))),
-    prob3rd: pw * st.p3 + (1 - pw) * other.p3,
+    expMargin: Math.abs(d),
+    prob3rd: SIM_THREE_SET_SCALE * (s[1] + s[3]),
   };
 }
 
-'''.replace('__SIM_CAL_JSON__', SIM_CAL_JSON)
+'''
 
 html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -842,8 +1001,8 @@ html = f"""<!DOCTYPE html>
   <div class="section-header"><h2>Simulate Matchup</h2></div>
   <p style="font-size:.82rem;color:#555;margin-bottom:.75rem;">
     Picks each school's best-ranked player/pair in every flight where both
-    schools have one, and predicts each flight using the same data-fit
-    win-probability and scoreline model as the state tournament predictions.
+    schools have one, and predicts each flight using the same win-probability
+    and scoreline model as the state tournament predictions.
   </p>
   <div class="compare-inputs">
     <div class="search-box">
@@ -863,7 +1022,7 @@ html = f"""<!DOCTYPE html>
 {tables_html}
 {general_tables_html}
 </main>
-<footer>Individual rankings computed using TrueSkill + Graph Reachability (TGRS); matchup and state predictions use the game-margin Power Rating (also used to bucket the vs Weaker / Mid / Top Opp records: bottom 50% / middle 25% / top 25% of the flight by power rating). Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
+<footer>Individual rankings computed using TrueSkill + Graph Reachability (TGRS); matchup and state predictions use the game-margin Power Rating. Team scores use MHSAA flight-finish point system. Data from TennisReporting.com.</footer>
 
 <script>
 const SCHOOLS = {schools_json};
@@ -1339,7 +1498,6 @@ function simBuildPlayer(entry, schoolLabel) {{
 }}
 
 function runSimulate() {{
-  if (!SIM_CAL) {{ alert('Prediction model file is missing (run scripts/calibrate_predictor.py).'); return; }}
   const a = (simSelectedA || document.getElementById('sim-input-a').value).trim();
   const b = (simSelectedB || document.getElementById('sim-input-b').value).trim();
   if (!a || !b) {{ alert('Enter two school names to simulate.'); return; }}
@@ -1417,9 +1575,9 @@ function runSimulate() {{
     '<p class="sim-note">Based on ' + (winsA + winsB) + ' flight' + ((winsA + winsB) === 1 ? '' : 's') +
     ' where both schools have a ranked player/pair. Same-division flights are compared using that ' +
     'division\\'s own ranking; flights where the schools are in different divisions use each school\\'s ' +
-    'cross-division General Ranking entry instead. Everything comes from the power rating, fit to real ' +
-    'match results: the rating gap sets the win probability, and the win probability sets the score ' +
-    '(closer matches are likelier to go three sets; lopsided ones to be 6-0 6-0 / 6-0 6-1). ' +
+    'cross-division General Ranking entry instead. Everything comes from the power rating: the gap between two ' +
+    'ratings is how many games the better player is expected to win by (12 = 6-0 6-0), converted into exact ' +
+    'win, score and third-set odds (form noise and a small seed-history blend were fit to held-out matches). ' +
     'Numbers in parentheses are the expected (decimal) ' +
     'flight total, summing each flight\\'s win probability instead of just the predicted winner.</p>';
 
