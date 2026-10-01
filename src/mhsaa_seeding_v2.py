@@ -93,6 +93,7 @@ RANKING-EXCLUDED MATCHES
   anyone's ranking but should still be visible in win/loss records:
     - matches that end after only ONE set (e.g. a retirement: the score
       string contains exactly one "W-L" set token),
+    - matches containing an unfinished set (e.g. "6-2 3-2"),
     - matches whose score is literally "2-0 2-0", "0-2 0-2", "0-2 2-0" or "2-0 0-2" (a placeholder/forfeit-
       style short-set score, not a real two real sets played to a normal
       conclusion), and
@@ -404,6 +405,8 @@ def _parse_set_tokens(score_str: str) -> list[tuple[int, int]]:
     """
     sets: list[tuple[int, int]] = []
     for part in score_str.split():
+        # Drop tiebreak-points annotations: "7-6(5)" is just the 7-6 set.
+        part = re.sub(r"\(.*?\)", "", part)
         halves = part.split("-")
         if len(halves) == 2:
             try:
@@ -456,6 +459,23 @@ def _player_game_margin_normalized(match: dict, player: str) -> float:
     return float(loser_games - winner_games)
 
 
+def _set_is_complete(a: int, b: int) -> bool:
+    """
+    True if one parsed set token is a finished set (either orientation):
+      - normal set: winner has 6+ games and leads by 2 (6-0..6-4, 7-5,
+        8-6 ...), or the 7-6 tiebreak set;
+      - match / super tiebreak recorded as raw points: winner has 10+
+        and leads by 2 (10-8, 10-3, 11-9 ...).
+    Anything else (e.g. 3-2, 6-5, 5-4, 2-0) is an unfinished set.
+    """
+    hi, lo = max(a, b), min(a, b)
+    if hi >= 10:
+        return hi - lo >= 2
+    if hi >= 6 and hi - lo >= 2:
+        return True
+    return hi == 7 and lo == 6
+
+
 def is_ranking_excluded_score(score_str: str) -> bool:
     """
     True for matches that should be KEPT in win/loss records but EXCLUDED
@@ -470,6 +490,9 @@ def is_ranking_excluded_score(score_str: str) -> bool:
          a short-set placeholder pattern rather than a normally completed
          match.
 
+      3. Any set is unfinished (e.g. "6-2 3-2": the second set was
+         stopped at 3-2) — see _set_is_complete.
+
     Matches with no parseable sets at all (empty/garbage score strings)
     are left alone here — that's a separate data-quality issue, not what
     was asked for.
@@ -483,6 +506,12 @@ def is_ranking_excluded_score(score_str: str) -> bool:
     # (lopsided) loss in common-opponent win counts and margins.
     # Also covers the mixed forms "0-2 2-0" and "2-0 0-2".
     if len(sets) == 2 and all(t in ((2, 0), (0, 2)) for t in sets):
+        return True
+    # 3. Unfinished match: any set that wasn't played to completion
+    #    (e.g. "6-2 3-2", "6-4 5-4"). The 2-0 placeholder sets above are
+    #    also incomplete, so this subsumes them, but they're kept
+    #    explicit for clarity.
+    if any(not _set_is_complete(w, l) for w, l in sets):
         return True
     return False
 
