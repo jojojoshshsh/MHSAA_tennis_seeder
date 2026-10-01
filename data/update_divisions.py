@@ -4,13 +4,13 @@ Update MHSAA boys-tennis (Lower Peninsula) divisions.
 
 Scrapes the school -> division assignments for a school year from mhsaa.com,
 matches the website's school names to the names in ``correct_divisions.csv``,
-and writes ``correct_divisions_<year>.csv`` (e.g. ``correct_divisions_2026-27.csv``)
+and writes ``correct_divisions_<year>.csv`` (e.g. ``correct_divisions_2026.csv``)
 plus a human-readable report of everything that changed or could not be matched.
 
 Usage (from the repo root or from inside ``data/``):
 
-    python data/update_divisions.py                  # year is inferred from today's date
-    python data/update_divisions.py --year 2026-27
+    python data/update_divisions.py                  # year comes from YEAR in config.py
+    python data/update_divisions.py --year 2026-27   # overrides config.YEAR
     python data/update_divisions.py --html-file saved_page.html   # parse a saved page, no network
 
 Dependencies:  pip install requests beautifulsoup4 lxml
@@ -66,23 +66,46 @@ API_URL = "https://my.mhsaa.com/DesktopModules/MHSAA-Endpoint/API/Tournament/Ear
 UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 VALID_DIVISIONS = {1, 2, 3, 4}
 
-# Short names that are just another name for a school already in the CSV.
-# These rows are dropped so each school is matched only once.
-ALIASES = {
-    "Bridgman": "New Buffalo / Bridgman / Lake Michigan Catholic (LMC)",
-    "Lake Fenton": "Lake Fenton/Linden",
-}
-
 
 # --------------------------------------------------------------------------- #
 # Year handling
 # --------------------------------------------------------------------------- #
+def _load_config_year() -> int | None:
+    """YEAR from the repo's config.py (looked up in ../src, then next to this script, then one level up)."""
+    for folder in (SCRIPT_DIR.parent / "src", SCRIPT_DIR, SCRIPT_DIR.parent):
+        if (folder / "config.py").exists():
+            if str(folder) not in sys.path:
+                sys.path.insert(0, str(folder))
+            try:
+                import config  # type: ignore
+                return int(config.YEAR)
+            except (ImportError, AttributeError, ValueError):
+                return None
+    return None
+
+
+def season_to_school_year(start: int) -> str:
+    """2026 -> '2026-27'."""
+    return f"{start}-{(start + 1) % 100:02d}"
+
+
+def normalize_school_year(value: str) -> str:
+    """Accept '2026' or '2026-27' and return '2026-27'."""
+    value = value.strip()
+    if re.fullmatch(r"\d{4}", value):
+        return season_to_school_year(int(value))
+    return value
+
+
 def default_school_year(today: dt.date | None = None) -> str:
-    """MHSAA announces next year's classifications in April, so from April on we
-    target the school year that starts in the current calendar year."""
+    """The season YEAR in config.py drives the school year (YEAR=2026 -> '2026-27').
+    Falls back to a date-based guess only if config.py can't be found."""
+    config_year = _load_config_year()
+    if config_year is not None:
+        return season_to_school_year(config_year)
     today = today or dt.date.today()
     start = today.year if today.month >= 4 else today.year - 1
-    return f"{start}-{(start + 1) % 100:02d}"
+    return season_to_school_year(start)
 
 
 # --------------------------------------------------------------------------- #
@@ -644,11 +667,11 @@ def build_report(year, source, n_web, n_csv, matches, changes, unmatched_csv, un
 # --------------------------------------------------------------------------- #
 def parse_args(argv=None):
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--year", help="School year like 2026-27 (default: inferred from today's date)")
+    p.add_argument("--year", help="School year like 2026-27 or 2026 (default: YEAR from config.py)")
     p.add_argument("--input", type=Path, default=SCRIPT_DIR / "correct_divisions.csv",
                    help="CSV with columns school,division (default: correct_divisions.csv next to this script)")
-    p.add_argument("--output", type=Path, help="default: correct_divisions_<year>.csv next to this script")
-    p.add_argument("--report", type=Path, help="default: division_update_report_<year>.md next to this script")
+    p.add_argument("--output", type=Path, help="default: correct_divisions_<YEAR>.csv next to this script")
+    p.add_argument("--report", type=Path, help="default: division_update_report_<YEAR>.md next to this script")
     p.add_argument("--html-file", type=Path, help="parse a saved HTML page instead of fetching (for testing)")
     p.add_argument("--min-schools", type=int, default=200,
                    help="abort without writing if fewer schools than this are scraped (default 200)")
@@ -663,15 +686,15 @@ def parse_args(argv=None):
 
 def main(argv=None) -> int:
     args = parse_args(argv)
-    year = args.year or default_school_year()
-    output = args.output or SCRIPT_DIR / f"correct_divisions_{year}.csv"
-    report_path = args.report or SCRIPT_DIR / f"division_update_report_{year}.md"
+    year = normalize_school_year(args.year) if args.year else default_school_year()
+    file_year = year[:4]  # '2026-27' -> '2026' for file names
+    output = args.output or SCRIPT_DIR / f"correct_divisions_{file_year}.csv"
+    report_path = args.report or SCRIPT_DIR / f"division_update_report_{file_year}.md"
 
     if not args.input.exists():
         print(f"ERROR: input CSV not found: {args.input}", file=sys.stderr)
         return 1
     rows, newline = read_csv(args.input)
-    rows = [r for r in rows if r["school"] not in ALIASES]
 
     if args.html_file:
         web, conflicts = extract_any(args.html_file.read_text(encoding="utf-8"))
