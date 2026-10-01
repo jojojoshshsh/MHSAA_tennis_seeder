@@ -5,18 +5,35 @@
 #   - run_ranking.py ranks this season's matches
 #   - scripts/build_site.py labels the published site with this season
 #
-# Change YEAR, push, and re-run the "Rank + Publish" workflow (or the
-# full "Fetch + Rank + Publish" workflow if you need fresh data) to
-# regenerate everything for that season.
+# YEAR is chosen in this order:
+#   1. The YEAR_OVERRIDE environment variable, if set and non-blank
+#      (the "Fetch + Rank + Publish" and "Rank + Publish" workflows set it
+#      from their optional "year" input).
+#   2. Otherwise, inferred from today's date (see below).
+#
+# So you can either run a workflow with a year typed in, or leave it blank
+# to use the default.
 
 import datetime
+import os
 
 today = datetime.date.today()
-# Stay on the previous year until April 1 (adjust month as needed)
+# Stay on the previous year until August 1 (adjust month as needed)
 if today.month < 8:
-    YEAR = today.year - 1
+    _DEFAULT_YEAR = today.year - 1
 else:
-    YEAR = today.year
+    _DEFAULT_YEAR = today.year
+
+_year_override = os.environ.get("YEAR_OVERRIDE", "").strip()
+if _year_override:
+    try:
+        YEAR = int(_year_override)
+    except ValueError:
+        raise SystemExit(
+            f"YEAR_OVERRIDE must be a 4-digit year like 2025, got {_year_override!r}"
+        )
+else:
+    YEAR = _DEFAULT_YEAR
 
 IS_NOT_VARSITY = 0           # 0 = varsity only
 TARGET_STATE   = "MI"        # or None for no filter
