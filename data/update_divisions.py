@@ -25,8 +25,11 @@ How the data is found
    follows that link (falling back to the standard URL pattern if it is missing).
 2. The page is parsed with several layout strategies (table with a Division column,
    tables/lists grouped under "Division N" headings, one column per division, ...).
-3. If the static HTML has no usable data, iframes are followed, and finally the page is
-   rendered in a headless browser (if Playwright is installed).
+3. The division data is actually loaded by the page from an MHSAA API
+   (my.mhsaa.com/DesktopModules/MHSAA-Endpoint/API/Tournament/EarlyRound?InstanceId=...), so if
+   the static HTML has no usable data the script tries any InstanceIds found in the HTML, follows
+   iframes, and finally renders the pages in headless Chromium (Playwright) while capturing the
+   API responses. JSON and HTML responses are both understood.
 
 Nothing is written unless at least ``--min-schools`` schools were scraped, so a layout
 change on the website makes the run fail loudly instead of silently producing a bad CSV.
@@ -37,6 +40,7 @@ import argparse
 import csv
 import datetime as dt
 import difflib
+import json
 import os
 import re
 import sys
@@ -58,6 +62,8 @@ USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/124.0 Safari/537.36"
 )
+API_URL = "https://my.mhsaa.com/DesktopModules/MHSAA-Endpoint/API/Tournament/EarlyRound?InstanceId={uuid}"
+UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 VALID_DIVISIONS = {1, 2, 3, 4}
 
 
@@ -95,16 +101,33 @@ def fetch(session: requests.Session, url: str) -> str:
     return resp.text
 
 
-def fetch_rendered(url: str, timeout_ms: int = 60_000) -> list[str]:
-    """Render ``url`` in headless Chromium; returns the HTML of the page and every frame."""
+def fetch_rendered(url: str, timeout_ms: int = 60_000) -> tuple[list[str], list[tuple[str, str]]]:
+    """Render ``url`` in headless Chromium.
+
+    Returns (html of the page and every frame, [(url, body)] of every API/JSON response the
+    page triggered). The division data is loaded by the page from an MHSAA API endpoint, so
+    capturing those responses is the most reliable way to get it.
+    """
     from playwright.sync_api import sync_playwright  # imported lazily: optional dependency
 
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         try:
             page = browser.new_page(user_agent=USER_AGENT)
+            responses = []
+            page.on("response", lambda r: responses.append(r))
             page.goto(url, wait_until="networkidle", timeout=timeout_ms)
-            return [frame.content() for frame in page.frames]
+            page.wait_for_timeout(2000)
+            htmls = [frame.content() for frame in page.frames]
+            captured = []
+            for r in responses:
+                ctype = r.headers.get("content-type", "")
+                if "/API/" in r.url or "json" in ctype:
+                    try:
+                        captured.append((r.url, r.text()))
+                    except Exception:  # noqa: BLE001 - body may be unavailable (redirects etc.)
+                        pass
+            return htmls, captured
         finally:
             browser.close()
 
@@ -267,39 +290,137 @@ def extract_pairs(html: str) -> tuple[dict[str, int], list[str]]:
     return best, best_conflicts
 
 
+_DIV_TEXT_RE = re.compile(r"division\s*([1-4])\b", re.I)
+_SCHOOL_KEY_RE = re.compile(r"school(?:_?name)?|team(?:_?name)?", re.I)
+_GENERIC_NAME_KEYS = ("SchoolName", "Name", "DisplayName", "Title")
+
+
+def _json_division(node: dict) -> int | None:
+    """Division declared by a JSON object: {'Division': 2}, {'Division': 'Division 2'},
+    or any short string such as 'Division 2 Regional 5'."""
+    for key, value in node.items():
+        if isinstance(value, bool):
+            continue
+        if re.search(r"division|^div$", key, re.I):
+            m = re.search(r"\b([1-4])\b", str(value))
+            if m:
+                return int(m.group(1))
+        elif isinstance(value, str) and len(value) <= 80:
+            m = _DIV_TEXT_RE.search(value)
+            if m:
+                return int(m.group(1))
+    return None
+
+
+def _name_from(value) -> str | None:
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        for key in _GENERIC_NAME_KEYS:
+            if isinstance(value.get(key), str):
+                return value[key]
+    return None
+
+
+def _walk_json(node, division: int | None, out: list[tuple[str, int]]) -> None:
+    if isinstance(node, list):
+        for item in node:
+            _walk_json(item, division, out)
+        return
+    if not isinstance(node, dict):
+        return
+    own = _json_division(node)
+    division = own or division
+    school = None
+    for key, value in node.items():
+        if _SCHOOL_KEY_RE.fullmatch(key) and _name_from(value):
+            school = _name_from(value)
+    if not school and own and any(re.search(r"division|^div$", k, re.I) for k in node):
+        # {"Name": "Allen Park", "Division": 2}
+        name = _name_from(node)
+        if name and not re.match(r"(?i)\s*(regional|district|division|early)", name):
+            school = name
+    if school and division:
+        out.append((school, division))
+    for key, value in node.items():
+        if isinstance(value, list) and _SCHOOL_KEY_RE.search(key) and value \
+                and all(isinstance(x, str) for x in value):
+            if division:
+                out += [(x, division) for x in value]
+        elif isinstance(value, (dict, list)):
+            _walk_json(value, division, out)
+        elif isinstance(value, str) and "<" in value and ("<table" in value or "<li" in value):
+            html_found, _ = extract_pairs(value)  # HTML fragment embedded in JSON
+            out += [(k, v) for k, v in html_found.items()]
+
+
+def extract_any(text: str) -> tuple[dict[str, int], list[str]]:
+    """Parse an API response / page body that may be JSON or HTML."""
+    stripped = text.lstrip()
+    if stripped[:1] in "{[":
+        try:
+            data = json.loads(stripped)
+        except ValueError:
+            data = None
+        if data is not None:
+            pairs: list[tuple[str, int]] = []
+            _walk_json(data, None, pairs)
+            return dedupe(pairs)
+    return extract_pairs(text)
+
+
 def iframe_urls(html: str, base_url: str) -> list[str]:
     soup = BeautifulSoup(html, "html.parser")
-    return [urljoin(base_url, f["src"]) for f in soup.find_all("iframe", src=True)]
+    urls = [urljoin(base_url, f["src"]) for f in soup.find_all("iframe", src=True)]
+    return [u for u in urls if "googletagmanager" not in u]
 
 
 # --------------------------------------------------------------------------- #
 # Scraping orchestration
 # --------------------------------------------------------------------------- #
 def scrape(year: str, min_schools: int, use_browser: bool, debug_dir: Path | None):
-    """Returns ({website school name: division}, source url, conflicts)."""
+    """Returns ({website school name: division}, source description, conflicts)."""
     session = make_session()
+    best: dict[str, int] = {}
+    best_conflicts: list[str] = []
+    best_source = ""
+
+    def consider(found, conflicts, source) -> bool:
+        nonlocal best, best_conflicts, best_source
+        if len(found) > len(best):
+            best, best_conflicts, best_source = found, conflicts, source
+        return len(best) >= min_schools
 
     regional_url = f"{REGIONAL_URL}?uplpcode=lp&year={year}"
     print(f"Fetching {regional_url}")
     regional_html = fetch(session, regional_url)
     save_debug(debug_dir, "regional.html", regional_html)
-    found, conflicts = extract_pairs(regional_html)
-    if len(found) >= min_schools:
-        return found, regional_url, conflicts
+    if consider(*extract_pairs(regional_html), regional_url):
+        return best, best_source, best_conflicts
 
-    list_url = find_division_list_link(regional_html, regional_url, year)
-    if not list_url:
-        list_url = DIVISION_LIST_URL.format(year=year)
-        print(f"  No 'Division List (LP)' link found; falling back to {list_url}")
+    # The page loads its data from an API keyed by an InstanceId; try any ids embedded in the HTML.
+    uuids = list(dict.fromkeys(u.lower() for u in UUID_RE.findall(regional_html)))
+    for n, uuid in enumerate(uuids):
+        api_url = API_URL.format(uuid=uuid)
+        print(f"Trying API {api_url}")
+        try:
+            resp = session.get(api_url, timeout=30,
+                               headers={"Origin": "https://www.mhsaa.com", "Referer": "https://www.mhsaa.com/",
+                                        "Accept": "*/*"})
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            print(f"  failed: {exc}")
+            continue
+        save_debug(debug_dir, f"api_{n}.txt", resp.text)
+        if consider(*extract_any(resp.text), api_url):
+            return best, best_source, best_conflicts
+
+    list_url = find_division_list_link(regional_html, regional_url, year) or DIVISION_LIST_URL.format(year=year)
     print(f"Fetching {list_url}")
     list_html = fetch(session, list_url)
     save_debug(debug_dir, "division_list.html", list_html)
-    candidate, cand_conflicts = extract_pairs(list_html)
-    if len(candidate) > len(found):
-        found, conflicts = candidate, cand_conflicts
-    source = list_url
-    if len(found) >= min_schools:
-        return found, source, conflicts
+    if consider(*extract_pairs(list_html), list_url):
+        return best, best_source, best_conflicts
 
     for i, frame_url in enumerate(iframe_urls(list_html, list_url)):
         print(f"  Trying iframe {frame_url}")
@@ -309,25 +430,36 @@ def scrape(year: str, min_schools: int, use_browser: bool, debug_dir: Path | Non
             print(f"    failed: {exc}")
             continue
         save_debug(debug_dir, f"division_list_iframe{i}.html", frame_html)
-        frame_found, frame_conflicts = extract_pairs(frame_html)
-        if len(frame_found) > len(found):
-            found, source, conflicts = frame_found, frame_url, frame_conflicts
-    if len(found) >= min_schools:
-        return found, source, conflicts
+        if consider(*extract_pairs(frame_html), frame_url):
+            return best, best_source, best_conflicts
 
     if use_browser:
-        print("Static HTML had no usable data; rendering the page in a headless browser...")
-        try:
-            for i, html in enumerate(fetch_rendered(list_url)):
-                save_debug(debug_dir, f"division_list_rendered{i}.html", html)
-                rendered, rendered_conflicts = extract_pairs(html)
-                if len(rendered) > len(found):
-                    found, source, conflicts = rendered, f"{list_url} (browser-rendered)", rendered_conflicts
-        except ImportError:
-            print("  Playwright is not installed; skipping browser rendering.")
-        except Exception as exc:  # noqa: BLE001 - report and carry on to the error below
-            print(f"  Browser rendering failed: {exc}")
-    return found, source, conflicts
+        for label, url in (("regional", regional_url), ("division_list", list_url)):
+            print(f"Rendering {url} in a headless browser and capturing API responses...")
+            try:
+                htmls, captured = fetch_rendered(url)
+            except ImportError:
+                print("  Playwright is not installed; skipping browser rendering.")
+                break
+            except Exception as exc:  # noqa: BLE001 - report and keep trying
+                print(f"  Browser rendering failed: {exc}")
+                continue
+            merged: dict[str, int] = {}
+            merged_conflicts: list[str] = []
+            for i, (api_url, body) in enumerate(captured):
+                save_debug(debug_dir, f"{label}_api{i}.txt", f"{api_url}\n\n{body}")
+                found, conflicts = extract_any(body)
+                print(f"  API response {api_url}: {len(found)} schools")
+                for school, division in found.items():
+                    merged.setdefault(school, division)
+                merged_conflicts += conflicts
+            if consider(merged, merged_conflicts, f"{url} (captured API responses)"):
+                return best, best_source, best_conflicts
+            for i, html in enumerate(htmls):
+                save_debug(debug_dir, f"{label}_rendered{i}.html", html)
+                if consider(*extract_pairs(html), f"{url} (browser-rendered)"):
+                    return best, best_source, best_conflicts
+    return best, best_source, best_conflicts
 
 
 # --------------------------------------------------------------------------- #
@@ -534,7 +666,7 @@ def main(argv=None) -> int:
     rows, newline = read_csv(args.input)
 
     if args.html_file:
-        web, conflicts = extract_pairs(args.html_file.read_text(encoding="utf-8"))
+        web, conflicts = extract_any(args.html_file.read_text(encoding="utf-8"))
         source = str(args.html_file)
     else:
         try:
