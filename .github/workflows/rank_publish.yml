@@ -8,11 +8,19 @@ name: Rank + Publish
 # fetch workflow.
 #
 # Requires historical/{YEAR}/all_matches_excluding_state.csv (and
-# school_meta.json) to already exist for the season set in
-# src/config.py. Run "Fetch + Rank + Publish" first if it doesn't.
+# school_meta.json) to already exist for the season. Run
+# "Fetch + Rank + Publish" first if it doesn't.
+#
+# Optional "year" input overrides config.YEAR for this run only.
+# Leave it blank to use whatever src/config.py computes.
 
 on:
   workflow_dispatch:
+    inputs:
+      year:
+        description: "Season year, e.g. 2025 (leave blank to use YEAR from src/config.py)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -20,6 +28,9 @@ permissions:
 jobs:
   rank-publish:
     runs-on: ubuntu-latest
+    # Read by src/config.py; empty string means "use the default".
+    env:
+      YEAR_OVERRIDE: ${{ inputs.year }}
 
     steps:
       - name: Check out repo
@@ -55,5 +66,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/ historical/ src/rankings_by_division_flight/
           git diff --staged --quiet || \
-            git commit -m "Re-rank + publish $(TZ='America/Detroit' date +'%Y-%m-%d %I:%M %p EDT')"
+            git commit -m "Re-rank + publish ${YEAR_OVERRIDE:+($YEAR_OVERRIDE) }$(TZ='America/Detroit' date +'%Y-%m-%d %I:%M %p EDT')"
           git push
