@@ -22,7 +22,7 @@ Division changes: 0 | CSV schools not found on website: 6 | website schools not 
 - Wyoming
 - Ypsilanti
 
-## On website but not in CSV (not added; use --add-new) (5)
+## On website but not in CSV (added) (5)
 
 - Waterford Mott: Division 1
 - Southfield Arts & Technology: Division 2
