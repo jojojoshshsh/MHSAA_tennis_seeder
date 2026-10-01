@@ -333,21 +333,30 @@ def load_school_meta(csv_path: str) -> dict:
 def load_correct_divisions(csv_path: str) -> dict[str, str]:
     """
     Optional override table: a tab- or comma-separated file named
-    "correct_divisions.csv" with two columns, "school" and "division",
-    living next to the input CSV (or next to this script). When a match's
-    winner_school or loser_school name is found in this table, that
-    division WINS over anything inferred from the raw CSV division column
-    or school_meta.json — this is the authoritative source of truth.
+    "correct_divisions_<YEAR>.csv" (YEAR from config.py, e.g.
+    "correct_divisions_2026.csv") with two columns, "school" and "division",
+    living next to the input CSV, next to this script, or in <repo>/data.
+    If no year-specific file exists, falls back to the legacy
+    "correct_divisions.csv" with a warning. When a match's winner_school or
+    loser_school name is found in this table, that division WINS over
+    anything inferred from the raw CSV division column or school_meta.json
+    — this is the authoritative source of truth.
     """
     script_dir = Path(__file__).parent.resolve()
     csv_dir = Path(csv_path).parent.resolve()
     repo_root = script_dir.parent.resolve()
-    for candidate in [
-        csv_dir / "correct_divisions.csv",
-        script_dir / "correct_divisions.csv",
-        repo_root / "data" / "correct_divisions.csv",
-    ]:
+    year = getattr(_config, "YEAR", None)
+    search_dirs = [csv_dir, script_dir, repo_root / "data"]
+    names = []
+    if year is not None:
+        names.append(f"correct_divisions_{year}.csv")
+    names.append("correct_divisions.csv")  # legacy fallback
+    candidates = [d / n for n in names for d in search_dirs]
+    for candidate in candidates:
         if candidate.exists():
+            if year is not None and candidate.name == "correct_divisions.csv":
+                print(f"  WARNING: correct_divisions_{year}.csv not found; "
+                      f"falling back to {candidate} (may be out of date)")
             overrides: dict[str, str] = {}
             with open(candidate, newline="", encoding="utf-8") as f:
                 sample = f.read(2048)
@@ -569,7 +578,7 @@ def load_matches(filepath: str, school_meta: dict | None = None,
                 """
                 Resolve a single player's division using ONLY that
                 player's own school — never the opponent's. Priority:
-                  1. correct_divisions.csv (by this player's school name)
+                  1. correct_divisions_<YEAR>.csv (by this player's school name)
                   2. the raw CSV "division" column
                   3. school_meta.json (by this player's school id)
                 """
