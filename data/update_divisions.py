@@ -66,6 +66,13 @@ API_URL = "https://my.mhsaa.com/DesktopModules/MHSAA-Endpoint/API/Tournament/Ear
 UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 VALID_DIVISIONS = {1, 2, 3, 4}
 
+# Short names that are just another name for a school already in the CSV.
+# These rows are dropped so each school is matched only once.
+ALIASES = {
+    "Bridgman": "New Buffalo / Bridgman / Lake Michigan Catholic (LMC)",
+    "Lake Fenton": "Lake Fenton/Linden",
+}
+
 
 # --------------------------------------------------------------------------- #
 # Year handling
@@ -664,6 +671,7 @@ def main(argv=None) -> int:
         print(f"ERROR: input CSV not found: {args.input}", file=sys.stderr)
         return 1
     rows, newline = read_csv(args.input)
+    rows = [r for r in rows if r["school"] not in ALIASES]
 
     if args.html_file:
         web, conflicts = extract_any(args.html_file.read_text(encoding="utf-8"))
