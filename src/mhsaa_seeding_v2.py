@@ -92,7 +92,8 @@ RANKING-EXCLUDED MATCHES
   Some matches are short-circuited results that shouldn't influence
   anyone's ranking but should still be visible in win/loss records:
     - matches that end after only ONE set (e.g. a retirement: the score
-      string contains exactly one "W-L" set token),
+      string contains exactly one "W-L" set token) — unless that set is
+      a completed 8-game pro set (e.g. "8-5"), which counts,
     - matches containing an unfinished set (e.g. "6-2 3-2"),
     - matches whose score is literally "2-0 2-0", "0-2 0-2", "0-2 2-0" or "2-0 0-2" (a placeholder/forfeit-
       style short-set score, not a real two real sets played to a normal
@@ -473,7 +474,8 @@ def _set_is_complete(a: int, b: int) -> bool:
         return hi - lo >= 2
     if hi >= 6 and hi - lo >= 2:
         return True
-    return hi == 7 and lo == 6
+    # 7-6 tiebreak set; 9-8 is the tiebreak finish of an 8-game pro set.
+    return (hi, lo) in ((7, 6), (9, 8))
 
 
 def is_ranking_excluded_score(score_str: str) -> bool:
@@ -499,7 +501,10 @@ def is_ranking_excluded_score(score_str: str) -> bool:
     """
     sets = _parse_set_tokens(score_str)
     if len(sets) == 1:
-        return True
+        # A single set is a retirement/short result EXCEPT a completed
+        # 8-game pro set (8-0..8-6, 9-7, 9-8 ...), which is a real match.
+        w, l = sets[0]
+        return not (max(w, l) >= 8 and _set_is_complete(w, l))
     # "2-0 2-0" placeholder/default score. Accept BOTH orientations: the
     # data sometimes records a default from the loser's side as "0-2 0-2",
     # which previously slipped through and was counted as a real
@@ -511,8 +516,13 @@ def is_ranking_excluded_score(score_str: str) -> bool:
     #    (e.g. "6-2 3-2", "6-4 5-4"). The 2-0 placeholder sets above are
     #    also incomplete, so this subsumes them, but they're kept
     #    explicit for clarity.
-    if any(not _set_is_complete(w, l) for w, l in sets):
-        return True
+    #    Exception: a 10-point match tiebreak recorded as "1-0" (or
+    #    "0-1") in the THIRD set slot is a finished deciding set.
+    for i, (w, l) in enumerate(sets):
+        if i == 2 and {w, l} == {0, 1}:
+            continue
+        if not _set_is_complete(w, l):
+            return True
     return False
 
 
