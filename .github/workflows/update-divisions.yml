@@ -1,0 +1,71 @@
+name: Update boys tennis divisions
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "School year, e.g. 2026-27 (leave blank to infer from today's date)"
+        required: false
+        default: ""
+      add_new:
+        description: "Also append website schools that are not in correct_divisions.csv"
+        type: boolean
+        default: false
+  schedule:
+    # 1st of every month at 12:00 UTC. The MHSAA publishes the next year's division lists
+    # in April, and schools can opt up later, so a monthly check keeps the CSV current.
+    - cron: "0 12 1 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-divisions
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 lxml playwright
+          # Browser is only used if the division list is rendered by JavaScript.
+          playwright install --with-deps chromium
+
+      - name: Scrape divisions and write correct_divisions_<year>.csv
+        env:
+          YEAR_INPUT: ${{ inputs.year }}
+          ADD_NEW: ${{ inputs.add_new }}
+        run: |
+          args=(--debug-dir data/debug)
+          if [ -n "$YEAR_INPUT" ]; then args+=(--year "$YEAR_INPUT"); fi
+          if [ "$ADD_NEW" = "true" ]; then args+=(--add-new); fi
+          python data/update_divisions.py "${args[@]}"
+
+      - name: Commit updated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/correct_divisions_*.csv data/division_update_report_*.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update boys tennis divisions"
+            git push
+          fi
+
+      - name: Upload fetched HTML for troubleshooting
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-html
+          path: data/debug/
+          if-no-files-found: ignore
