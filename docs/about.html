@@ -76,14 +76,20 @@
     </p>
     <p>
       Rankings are computed separately for <strong>Singles</strong> and <strong>Doubles</strong>,
-      across all four MHSAA divisions and all four flights. The algorithm runs in two layers:
-      a graph-based seed ordering pipeline that determines the final ranked order, and a composite
-      display score (TGRS) that gives each player a single at-a-glance number.
+      for Boys and Girls, across Flights 1–4. Each gender + match type + flight is ranked as one
+      cross-division pool, then published two ways: split into the four MHSAA divisions, and as a
+      single cross-division <strong>General Ranking</strong> for that flight.
+    </p>
+    <p>
+      Two ideas do the work. A <strong>graph-based seed ordering</strong> (who beat whom, directly
+      or through a chain of wins) decides the ranked order. A capped game-margin
+      <strong>Power Rating</strong> breaks the ties the graph can't settle and also drives the
+      strength-of-schedule stats, the matchup simulator and the state tournament predictions.
     </p>
     <div class="note">
-      <strong>Important:</strong> TGRS is a display score only — it does <em>not</em> determine
-      the ranked order. The actual seed positions come entirely from the pipeline described in
-      Steps 1–4 below. TGRS is computed afterward so the site has something easy to sort by.
+      <strong>Important:</strong> the ranked order comes from the pipeline described in Steps 1–4
+      below. The Power Rating only decides a pair of neighbors when head-to-head, common
+      opponents and transitive wins all fail to separate them.
     </div>
   </section>
 
@@ -91,7 +97,8 @@
     <h2>The Ranking Pipeline</h2>
     <p>
       Each gender + match type + flight combination is ranked as one cross-division group, then
-      split into divisions afterward. The pipeline runs four steps.
+      split into divisions afterward. The pipeline runs four steps, plus a fifth that builds the
+      General Ranking.
     </p>
 
     <h3><span class="step-badge">1</span> Cycle Removal</h3>
@@ -104,12 +111,14 @@
       The engine finds every cycle (of any length, including simple head-to-head upsets) and
       removes the <strong>oldest match</strong> on each cycle. This preserves the most recent
       competitive evidence and discards results that have been superseded by more recent play.
-      This process repeats until the graph is fully acyclic (a DAG).
+      If several matches on the cycle share the oldest date, the one with the narrowest margin of
+      victory is removed. This repeats until the graph is fully acyclic (a DAG).
     </p>
     <p>
-      Matches that ended after only one set, or with a score of exactly "2-0 2-0" (a short-set
-      placeholder), are excluded from the ranking graph entirely — they still count toward
-      win/loss records but are not used for ordering.
+      Some matches never enter the ranking graph at all: matches that ended after only one set,
+      matches with a score of exactly "2-0 2-0" (a short-set placeholder), and matches where
+      either side's name contains "default" (a walkover recorded against a stand-in name). They
+      still count toward win/loss records, but not toward ordering.
     </p>
 
     <h3><span class="step-badge">2</span> Transitive Closure &amp; Initial Order</h3>
@@ -125,10 +134,10 @@
       graph), ties fall back in this order:
     </p>
     <ol>
-      <li>More recent match activity (recency-weighted win/loss score)</li>
+      <li>More recent match activity (each win counts 1 ÷ days ago, each loss counts −0.5 ÷ days ago)</li>
       <li>Better average score margin across all matches</li>
-      <li>Higher TrueSkill conservative rating (μ − 3σ)</li>
-      <li>A fixed random tiebreak (for full determinism within a run)</li>
+      <li>Higher TrueSkill rating (μ)</li>
+      <li>Alphabetical by name — only so the same input always produces the same order</li>
     </ol>
 
     <h3><span class="step-badge">3</span> Division Split</h3>
@@ -142,7 +151,7 @@
     <p>
       Within each division, the engine walks adjacent pairs top-to-bottom and checks whether
       the lower-ranked player should actually outrank the one above them. Four criteria are
-      checked in strict priority order:
+      checked in strict priority order, and the first one that separates the pair decides it:
     </p>
     <table class="component-table">
       <thead><tr><th>Priority</th><th>Criterion</th><th>How it's decided</th></tr></thead>
@@ -158,19 +167,19 @@
           <td>Who won more matches against shared opponents</td>
         </tr>
         <tr>
-          <td>3</td>
+          <td>2b</td>
           <td>Common opponents — margin</td>
-          <td>If tied on wins: cumulative score margin against shared opponents</td>
+          <td>If tied on wins: cumulative game margin against shared opponents. A match (10-point) tiebreak counts as an ordinary 7-6 set so it can't skew the total.</td>
         </tr>
         <tr>
-          <td>4</td>
+          <td>3</td>
           <td>Transitive dominance</td>
           <td>Does one player's transitive win set contain the other?</td>
         </tr>
         <tr>
-          <td>5</td>
-          <td>TrueSkill rating</td>
-          <td>Higher conservative TrueSkill rating (μ − 3σ) as a last resort</td>
+          <td>4</td>
+          <td>Power Rating</td>
+          <td>Higher Power Rating, as a last resort</td>
         </tr>
       </tbody>
     </table>
@@ -179,6 +188,15 @@
       from the top until a full pass produces zero swaps (the order is fully stable). The
       <strong>"Why ranked below"</strong> column shown on the site reflects whichever criterion
       decided each adjacent pair in the final stable order.
+    </p>
+
+    <h3><span class="step-badge">5</span> General Ranking (all divisions)</h3>
+    <p>
+      The same Step 2 order is also run through the Step 4 fix-up pass against the
+      <em>entire</em> cross-division roster for the flight, with no division split. The result is
+      one flight-wide ranking (for example, Boys Singles Flight 2 with every division combined),
+      published under General Rankings alongside the per-division lists. It uses exactly the same
+      four criteria.
     </p>
   </section>
 
@@ -201,119 +219,107 @@
         </tr>
         <tr>
           <td>Worse score margin vs common opponents</td>
-          <td>Wins against common opponents were equal, but the player above had a better cumulative score margin (games won minus games lost) against those opponents.</td>
+          <td>Wins against common opponents were equal, but the player above had a better cumulative game margin against those opponents.</td>
         </tr>
         <tr>
           <td>Transitively beaten by player above</td>
           <td>The player above can reach this player through a chain of wins in the match graph — e.g. A beat B who beat C, so A transitively beats C.</td>
         </tr>
         <tr>
-          <td>Lower TrueSkill rating</td>
-          <td>No head-to-head, common-opponent, or dominance data separated the two. The player above has a higher TrueSkill conservative rating (μ − 3σ).</td>
+          <td>Lower power rating</td>
+          <td>No head-to-head, common-opponent, or dominance data separated the two. The player above has a higher Power Rating.</td>
         </tr>
         <tr>
           <td>Tied — no deciding criterion found</td>
-          <td>All five criteria were inconclusive. Order was determined by the initial transitive closure sort (reachability, recency, margin) with a random tiebreak for full determinism.</td>
+          <td>All four criteria were inconclusive. Order was determined by the initial sort from Step 2 (reachability, recency, margin, TrueSkill μ, then name).</td>
         </tr>
       </tbody>
     </table>
   </section>
 
   <section>
-    <h2>TrueSkill Rating</h2>
+    <h2>Power Rating</h2>
     <p>
-      TrueSkill (Herbrich et al., 2007) is a Bayesian skill rating system originally developed at
-      Microsoft Research. Each player is modelled as a Gaussian: <strong>μ (mu)</strong> is the
-      estimated skill mean and <strong>σ (sigma)</strong> is the uncertainty. After every match
-      both players' ratings are updated — the winner's μ rises and the loser's μ falls, with
-      larger updates when the outcome was surprising given the current ratings.
+      The Power Rating is a game-margin rating fit to every ranking-eligible match in a pool
+      (gender + match type + flight). Its meaning is deliberately concrete: the gap between two
+      players' ratings is how many <strong>games</strong> the better player is expected to win by,
+      capped at 12.
     </p>
+    <div class="formula-box">
+expected margin of A over B = min( rating_A − rating_B , 12 )
+    </div>
+    <table class="component-table">
+      <thead><tr><th>Rating gap</th><th>Typical result</th></tr></thead>
+      <tbody>
+        <tr><td>12</td><td>6-0 6-0</td></tr>
+        <tr><td>~6</td><td>Something like 6-3 6-3 or 6-2 6-4</td></tr>
+        <tr><td>2</td><td>7-6 7-6</td></tr>
+        <tr><td>1</td><td>A three-set toss-up (e.g. 6-7 7-6 10-2)</td></tr>
+        <tr><td>0</td><td>Coin flip</td></tr>
+      </tbody>
+    </table>
     <p>
-      σ starts high and shrinks as more matches are played. The <strong>conservative rating</strong>
-      used for ranking and display is <strong>μ − 3σ</strong>, which is a lower-confidence bound —
-      players with few matches are penalised for uncertainty rather than rewarded for it.
+      Each match contributes its game margin (a match tiebreak counts as an ordinary 7-6, so
+      6-7 7-6 10-2 is worth +1 game). A win is always worth at least 1 game and at most 12. A light
+      ridge penalty pulls players with very few matches toward the pool average so a handful of
+      results can't produce an extreme rating; its strength was tuned by fitting on the earlier part
+      of each flight's season and checking predictions on the most recent matches.
     </p>
+    <div class="caveat">
+      <strong>Note:</strong> rating gaps only mean something <em>within</em> a pool. Boys singles
+      Flight 1 and Girls doubles Flight 3 are fit separately, so don't subtract ratings across
+      pools.
+    </div>
+
+    <h3>TrueSkill</h3>
     <p>
-      TrueSkill ratings are computed from the ranking-eligible match set (the same matches used
-      in the win graph, after excluding single-set and "2-0 2-0" scores). They serve as a
-      last-resort tiebreaker in the seed ordering, and as components of the TGRS display score.
+      The engine also fits a TrueSkill rating (Herbrich et al., 2007) to each pool. It is
+      margin-aware — a 6-0 6-0 win moves ratings more than a 7-6 7-6 win, and a match tiebreak is
+      treated as a bare win — and it tracks a volatility signal inspired by Glicko-2. TrueSkill's
+      <strong>μ</strong> is used in one place in the ranking: as the third tiebreaker when the
+      initial order in Step 2 is otherwise tied. It is also shown in the tables as <code>ts_mu</code>.
+      It no longer breaks ties in the fix-up pass (the Power Rating does) and no longer feeds any
+      composite score.
     </p>
   </section>
 
   <section>
-    <h2>TGRS — Display Score</h2>
-    <p>
-      TGRS ("Group Ranking Score") is a composite number computed after the seed order is
-      finalised. It is not used for ranking — it exists purely so the site has a single
-      sortable number per player. Because it blends reach, rating, schedule strength, quality
-      wins, and win percentage into one figure, it also doubles as a solid at-a-glance read on a
-      player's overall skill level. The formula is:
-    </p>
-    <div class="formula-box">
-TGRS = (2.0 × reach_size)
-     + (5.0 × ts_conservative)
-     + (0.5 × sos)
-     + (1.5 × quality_wins)
-     + (0.1 × win_pct)
-    </div>
+    <h2>Table Columns</h2>
     <table class="component-table">
-      <thead><tr><th>Component</th><th>Weight</th><th>What it measures</th></tr></thead>
+      <thead><tr><th>Column</th><th></th><th>What it measures</th></tr></thead>
       <tbody>
         <tr>
-          <td>reach_size</td>
-          <td>2.0</td>
-          <td>Number of players reachable through chains of wins in the cross-division match graph</td>
+          <td>reachability</td>
+          <td></td>
+          <td>Number of players reachable through chains of wins in the cross-division win graph (the Step 2 transitive win set)</td>
         </tr>
         <tr>
-          <td>ts_conservative</td>
-          <td>5.0</td>
-          <td>TrueSkill conservative rating (μ − 3σ) from the full cross-division model</td>
+          <td>power_rating</td>
+          <td></td>
+          <td>The capped game-margin rating described above</td>
         </tr>
         <tr>
           <td>sos</td>
-          <td>0.5</td>
-          <td>Average TrueSkill μ of all opponents faced (strength of schedule)</td>
+          <td></td>
+          <td>Strength of schedule: the average Power Rating of every opponent faced in ranking-eligible matches, across the whole cross-division pool. Ratings center near 0, so above 0 is an above-average schedule.</td>
+        </tr>
+        <tr>
+          <td>local_sos</td>
+          <td></td>
+          <td>The same average, but counting only opponents within the player's own division and flight</td>
         </tr>
         <tr>
           <td>quality_wins</td>
-          <td>1.5</td>
-          <td>Count of wins against opponents whose TrueSkill μ is at or above the starting value (25.0) — i.e. "at least average" opponents</td>
+          <td></td>
+          <td>Wins over opponents rated at or above the pool's <em>median</em> Power Rating</td>
         </tr>
         <tr>
-          <td>win_pct</td>
-          <td>0.1</td>
-          <td>Wins ÷ total matches played in this group</td>
+          <td>wins / losses</td>
+          <td></td>
+          <td>Full record in the gender + match type + flight bucket, including every division, matches against opponents who didn't meet the match minimum, and matches excluded from ranking</td>
         </tr>
       </tbody>
     </table>
-    <p>
-      With <code>ts_conservative</code> carrying the heaviest weight, TGRS leans on the same
-      Bayesian rating used for tiebreaks elsewhere in the pipeline, topped up with reach, schedule
-      strength, and quality wins — which is why it holds up well as a general skill rating even
-      though it isn't what drives the actual seed order.
-    </p>
-
-    <h3>TGRS Scaled</h3>
-    <p>
-      The raw TGRS is min-max scaled to a 0–100 band within each division+flight group,
-      so the top player scores 100 and the bottom player scores 0. This makes it easy to
-      compare players within the same bracket without worrying about the absolute numbers.
-    </p>
-    <div class="caveat">
-      <strong>Note:</strong> Because TGRS is a display score and not the ranking criterion,
-      a player's TGRS rank and their seed rank may differ slightly — especially for adjacent
-      pairs that were separated by head-to-head or common-opponent results rather than
-      the composite score.
-    </div>
-  </section>
-
-  <section>
-    <h2>Additional Player Stats</h2>
-    <p>
-      Beyond the seed ranking itself, the individual tables include two extra descriptive stats.
-      Neither one feeds into the ranking pipeline or the TGRS score — they're shown purely as
-      additional context about how a player has actually performed.
-    </p>
 
     <h3>Won After Set 1 Loss</h3>
     <p>
@@ -326,23 +332,22 @@ TGRS = (2.0 × reach_size)
     </p>
     <p>
       This stat is drawn from every match on record for that player, including matches against
-      opponents in other divisions and matches that were later excluded from the ranking graph
-      (single-set or "2-0 2-0" scores) — the same broad match history used for the win/loss record
-      shown elsewhere on the site.
+      opponents in other divisions and matches that were excluded from the ranking graph — the same
+      broad match history used for the win/loss record. It does not feed into the ranking.
     </p>
 
     <h3>Record vs Weaker / Mid / Top Opponents</h3>
     <p>
-      Rather than bucket opponents by their raw win percentage — which doesn't account for who
-      those wins came against — this stat groups opponents by <strong>TrueSkill conservative
-      rating</strong> (μ − 3σ), the same rating used elsewhere in the pipeline. This means a
-      player's schedule strength is measured by how good their opponents actually are, not just
-      how often those opponents happened to win.
+      This stat groups opponents by their <strong>Power Rating</strong>, so a player's schedule is
+      measured by how strong their opponents are expected to be, not just how often those
+      opponents happened to win. It uses the same rating as the matchup simulator and state
+      predictions.
     </p>
     <p>
-      The two dividing lines (the 50th and 75th percentile of TrueSkill rating) are calculated
-      once per division/flight group, using only the ratings of players seeded in that specific
-      group. A player's record is then measured against those thresholds:
+      The two dividing lines (the 50th and 75th percentile of Power Rating) are calculated once
+      for each gender + match type + flight, using everyone rated in that cross-division pool, so
+      every division is judged against the same bar. A player's record is then measured against
+      those thresholds:
     </p>
     <table class="component-table">
       <thead><tr><th>Column</th><th>Opponent rating</th><th>What it means</th></tr></thead>
@@ -350,32 +355,27 @@ TGRS = (2.0 × reach_size)
         <tr>
           <td>vs Weaker Opp</td>
           <td>Below the 50th percentile</td>
-          <td>Record against opponents in the bottom half of this division/flight's rating spread</td>
+          <td>Record against opponents in the bottom half of the pool</td>
         </tr>
         <tr>
           <td>vs Mid Opp</td>
           <td>50th–75th percentile</td>
-          <td>Record against opponents in the upper-middle of the spread</td>
+          <td>Record against opponents in the upper-middle of the pool</td>
         </tr>
         <tr>
           <td>vs Top Opp</td>
           <td>75th percentile and above</td>
-          <td>Record against the top quarter of the spread — the toughest opponents in this group</td>
+          <td>Record against the top quarter of the pool — the toughest opponents</td>
         </tr>
       </tbody>
     </table>
     <p>
-      Once those thresholds are set, a player's record against them counts every opponent they've
-      played — including opponents from other divisions or flights, not just opponents from the
-      player's own group. Each column is formatted as <strong>wins-losses (win %)</strong>, e.g.
+      A player's record counts every opponent they've played, including opponents from other
+      divisions. Each column is formatted as <strong>wins-losses (win %)</strong>, e.g.
       <code>5-2 (71%)</code>, and is left blank if the player has no recorded matches in that
-      bucket.
+      bucket. Like the Power Rating itself, these buckets shift as more matches are played, so treat
+      them as a current snapshot rather than a fixed classification.
     </p>
-    <div class="caveat">
-      <strong>Note:</strong> a player's TrueSkill rating reflects results across an entire season,
-      so early-season opponent-strength buckets can shift as more matches are played and ratings
-      settle. Treat this as a current snapshot rather than a fixed classification.
-    </div>
   </section>
 
   <section>
@@ -383,7 +383,7 @@ TGRS = (2.0 × reach_size)
     <p>
       Team scores blend two independent 0–100 scores into a single <strong>combined score</strong>,
       weighted 50/50. Both are built from the same eight lineup slots — Singles flights 1–4 and
-      Doubles flights 1–4 — using only one entry per school per slot: the highest-seeded player or
+      Doubles flights 1–4 — using only one entry per school per slot: the highest-ranked player or
       pair from that school in that flight.
     </p>
     <div class="formula-box">
@@ -392,7 +392,8 @@ combined_score = (0.5 × total_points) + (0.5 × depth_score)
 
     <h3>Legacy Flight-Finish Points</h3>
     <p>
-      Each slot awards points to a school based on where its best entrant in that flight finished:
+      Each slot awards points to a school based on where its best entrant in that flight finished
+      in the division's ranking:
     </p>
     <table class="component-table">
       <thead><tr><th>Finish</th><th>Points</th></tr></thead>
@@ -410,6 +411,25 @@ combined_score = (0.5 × total_points) + (0.5 × depth_score)
       <strong>total_points</strong> is the sum across all eight slots, for a maximum of 100
       (12.5 × 8). A school with no ranked entrant in a slot scores 0 for that slot.
     </p>
+    <p>
+      The cross-division <strong>General Ranking</strong> for teams uses a wider scale, since a
+      flight has far more players when every division is combined. Its points are a 50/50 blend of
+      the table above and the same table with every cutoff multiplied by four:
+    </p>
+    <table class="component-table">
+      <thead><tr><th>Finish (all divisions)</th><th>Points</th></tr></thead>
+      <tbody>
+        <tr><td>1st</td><td>12.5</td></tr>
+        <tr><td>2nd</td><td>11.25</td></tr>
+        <tr><td>3rd – 4th</td><td>10.0</td></tr>
+        <tr><td>5th – 8th</td><td>7.5</td></tr>
+        <tr><td>9th – 16th</td><td>5.0</td></tr>
+        <tr><td>17th – 32nd</td><td>3.0</td></tr>
+        <tr><td>33rd – 64th</td><td>1.25</td></tr>
+        <tr><td>65th – 128th</td><td>0.5</td></tr>
+        <tr><td>129th+</td><td>0</td></tr>
+      </tbody>
+    </table>
 
     <h3>Depth Score</h3>
     <p>
@@ -427,7 +447,7 @@ depth_score  = average(flight_score across all 8 flights)
       If a school has <strong>no entrant</strong> in a given flight, that flight isn't left out of
       the average — it's scored as if the school finished in rank N + 1, worse than every other
       school in the league. This keeps a school that only fielded a handful of flights from posting
-      an inflated depth score by having weak flights excluded rather than counted against it.
+      an inflated depth score.
     </p>
     <div class="note">
       <strong>Why two scores?</strong> Legacy points reward marquee finishes — a flight winner is
@@ -436,12 +456,22 @@ depth_score  = average(flight_score across all 8 flights)
       Blending them 50/50 keeps either effect from dominating the team table on its own.
     </div>
 
+    <h3>Team Strength of Schedule</h3>
     <p>
-      The team table shows the top 10 schools per gender+division combination, ranked by combined
-      score (ties are broken first by total_points, then by depth_score). Each row also lists the
-      finishing position of that school's best entrant in every flight it filled, as a quick summary
-      of where its points came from — this is a recap of that team's own results, not a
-      comparison against the team ranked directly above it.
+      <strong>team_sos</strong> and <strong>team_local_sos</strong> average the <code>sos</code>
+      and <code>local_sos</code> of the best entrant in each slot the school actually filled. Empty
+      slots are skipped rather than penalized, since strength of schedule only describes matches
+      that were actually played. These columns are informational and don't affect the team rank.
+    </p>
+
+    <p>
+      Teams are ranked by combined score (ties are broken first by total_points, then by
+      depth_score). The page shows the top 10 schools per gender and division, with a
+      <strong>Show All Teams</strong> button to expand the full list. The <strong>Slots</strong>
+      column counts the slots that earned points, and the last column lists the finishing position
+      of that school's best entrant in every flight it filled, as a quick summary of where its
+      points came from — this is a recap of that team's own results, not a comparison against the
+      team ranked directly above it.
     </p>
     <div class="caveat">
       <strong>Note:</strong> team rankings are experimental. Because individual rankings require
@@ -452,26 +482,56 @@ depth_score  = average(flight_score across all 8 flights)
   </section>
 
   <section>
+    <h2>Predictions &amp; Tools</h2>
+    <p>
+      The <strong>State Tournament Prediction</strong> page and the <strong>Simulate Matchup</strong>
+      tool are both driven by the Power Rating. The rating gap is turned into a point-by-point
+      win probability, then into exact game, set and match-score odds for a best-of-three match.
+      Because players have good and bad days and ratings carry estimation error, the gap is
+      treated as a range rather than a fixed number (a 3-game day-to-day spread plus each
+      rating's own uncertainty), which keeps upsets possible. A small blend (5%) of the historical
+      tendency for the higher seed to win is mixed in, and the weights were chosen by testing on
+      held-out matches. The state projection plays out real 32-player single-elimination brackets
+      (1 vs 32, 16 vs 17, and so on).
+    </p>
+    <p>
+      <strong>Simulate Matchup</strong> compares two schools flight by flight. When both schools
+      are in the same division it uses that division's ranking; otherwise it falls back to each
+      school's General Ranking entry so both ranks are on the same scale.
+      <strong>Team Compare</strong> scores a hand-picked set of teams using either descending
+      points per flight or a per-match bracket format.
+    </p>
+  </section>
+
+  <section>
     <h2>Eligibility &amp; Filtering</h2>
-    <p>Before any player enters the ranking pipeline, two filters are applied:</p>
+    <p>Several filters shape who is ranked and which matches count:</p>
     <ul>
       <li>
-        <strong>Minimum matches:</strong> a player must have at least 5 recorded matches in a given
-        gender + match type + flight group to appear in rankings for that group. This is counted
-        from all matches including excluded scores, so a player is not unfairly dropped just because
-        some of their results were single-set or forfeit-style.
+        <strong>Per-school deduplication:</strong> if a school has more than one player (or doubles
+        pair) in the same flight, only one is kept. Among those with at least 5 matches, the one
+        with the most recent match date is kept (an exact date tie goes to whoever has played more).
+        If nobody at the school has 5 matches, the choice is made by recency among all of them. The
+        others' matches are removed from the ranking entirely to avoid contaminating head-to-head
+        and common-opponent data.
       </li>
       <li>
-        <strong>Per-school deduplication:</strong> if a school has two players surviving the match
-        minimum in the same flight slot, only the one with the most recent match date is kept.
-        The other's matches are removed entirely to avoid contaminating head-to-head and
-        common-opponent data.
+        <strong>Minimum matches:</strong> a player must have at least 5 recorded matches in a given
+        gender + match type + flight group to be <em>shown</em> in the published rankings. This is
+        counted from all matches including excluded scores, so a player isn't dropped just because
+        some of their results were single-set or defaults. Players below the minimum are still part
+        of the win graph and the rating fits; they simply don't appear in the tables, and don't
+        count toward team scores.
+      </li>
+      <li>
+        <strong>Flights:</strong> only Flights 1–4 are ranked.
       </li>
     </ul>
-    <p>The following match scores are excluded from all ranking calculations (but still counted in win/loss records):</p>
+    <p>The following matches are excluded from all ranking calculations (but still counted in win/loss records):</p>
     <ul>
       <li>Matches that ended after only one set (e.g. a retirement mid-match)</li>
       <li>Matches with a score of exactly "2-0 2-0" (a short-set placeholder used for walkovers)</li>
+      <li>Matches where either side's name contains "default" (a walkover recorded against a placeholder name)</li>
     </ul>
   </section>
 
@@ -518,8 +578,8 @@ depth_score  = average(flight_score across all 8 flights)
     <p>Known limitations:</p>
     <ul>
       <li>The minimum match requirement means players early in the season or with few recorded matches may not appear.</li>
-      <li>Division assignments come from TennisReporting school metadata. Schools with unusual or missing labels are normalised where possible; some may land in Division 4 when they shouldn't. Corrections can be submitted via <code>correct_divisions.csv</code> in the GitHub repository.</li>
-      <li>Doubles pairs are treated as single entities. Different pair combinations from the same school are ranked separately.</li>
+      <li>Division assignments come from <code>correct_divisions.csv</code> first, then the division label in the match data, then TennisReporting school metadata. Schools with unusual or missing labels are normalised where possible, and some may land in Division 4 when they shouldn't. Corrections can be submitted via <code>correct_divisions.csv</code> in the GitHub repository.</li>
+      <li>Doubles pairs are treated as single entities, and only one pair per school is ranked in each flight (see per-school deduplication above).</li>
       <li>Regular season and tournament bracket matches are both included. Where deduplication is possible it is applied, but some double-reporting may remain.</li>
       <li>Rankings cover a single season only — no carry-over from prior years.</li>
       <li>Because the ranking order is determined by graph structure and pairwise comparisons rather than a single score, adjacent players near the boundary of any seed bracket may legitimately swap from day to day as new match data arrives.</li>
@@ -527,6 +587,6 @@ depth_score  = average(flight_score across all 8 flights)
   </section>
 
 </main>
-<footer>Michigan High School Tennis Rankings · Rankings computed using graph transitivity + TrueSkill · Data from TennisReporting.com</footer>
+<footer>Michigan High School Tennis Rankings · Rankings computed using Power Rating + graph reachability · Data from TennisReporting.com</footer>
 </body>
 </html>
