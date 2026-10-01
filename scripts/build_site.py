@@ -115,12 +115,25 @@ for entry in team_data:
         if has_more else ""
     )
 
+    if is_overall_team:
+        _tiers = [("1st", "12.5"), ("2nd", "11.25"), ("3rd – 4th", "10.0"),
+                  ("5th – 8th", "7.5"), ("9th – 16th", "5.0"), ("17th – 32nd", "3.0"),
+                  ("33rd – 64th", "1.25"), ("65th – 128th", "0.5"), ("129th+", "0")]
+        _rows = "".join(f"<tr><td>{a}</td><td>{b}</td></tr>" for a, b in _tiers)
+        scoring_note_html = (
+            '<details class="scoring-note scoring-dist"><summary>Score distribution</summary>'
+            '<table><thead><tr><th>Place</th><th>Points</th></tr></thead>'
+            f'<tbody>{_rows}</tbody></table></details>'
+        )
+    else:
+        scoring_note_html = '<span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>'
+
     div_attr_html = ' class="general-section"' if is_overall_team else f' data-division="{_html_escape_py(div_attr)}"'
     team_html += f"""
     <section id="{anchor}"{div_attr_html}>
       <div class="section-header">
         <h2>{_html_escape_py(label)}</h2>
-        <span class="scoring-note">Points: 1st=12.5 · 2nd=10 · 3rd–4th=7.5 · 5th–8th=5 · 9th–16th=2.5 · 17th–32nd=1</span>
+        {scoring_note_html}
         {show_all_btn}
       </div>
       <div class="table-wrap"><table class="rankings-table team-table"><thead><tr>{"".join(
@@ -734,6 +747,9 @@ html = f"""<!DOCTYPE html>
   section {{ background: white; border-radius: 10px; padding: 1rem; margin: 0 auto 1rem; max-width: 1600px; box-shadow: 0 1px 4px rgba(0,0,0,.07); }}
   .section-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: .75rem; flex-wrap: wrap; gap: .5rem; }}
   h2 {{ font-size: 1.05rem; font-weight: 600; color: #1a3a5c; }}
+  .scoring-dist summary {{ cursor: pointer; }}
+  .scoring-dist table {{ margin-top: .4rem; border-collapse: collapse; }}
+  .scoring-dist th, .scoring-dist td {{ padding: .1rem .6rem; text-align: left; font-size: .72rem; }}
   .scoring-note {{ font-size: .72rem; color: #5a7a9a; background: #eef4fb; border: 1px solid #c0d4e8; border-radius: 5px; padding: .25rem .6rem; white-space: nowrap; }}
   .dl-btn {{ font-size: .8rem; color: #1a3a5c; text-decoration: none; border: 1px solid #c0d4e8; border-radius: 6px; padding: .3rem .7rem; background: #f8fafc; cursor: pointer; font-family: inherit; }}
   .dl-btn:hover {{ background: #e8f0f8; }}
@@ -1381,7 +1397,7 @@ function runCompare(scoring) {{
     const suffix = scoring === 'match' ? ` (${{n}}-team bracket)` : '';
     flightsHtml += `<div class="compare-flight"><h3>${{escapeHtml(key + suffix)}}</h3>`;
     flightsHtml += '<div class="table-wrap"><table class="rankings-table"><thead><tr>' +
-      '<th>Place</th><th>Rank</th><th>School</th><th>Name</th><th>Record</th><th>SOS</th><th>Last Match</th>' +
+      '<th>Place</th><th>Rank</th><th>School</th><th>Name</th><th>Record</th><th>SOS</th><th>Power Rating</th>' +
       (scoring ? `<th>${{ptsHeader}}</th>` : '') +
       '</tr></thead><tbody>';
     entries.forEach((e, idx) => {{
@@ -1391,7 +1407,7 @@ function runCompare(scoring) {{
       const losses  = statVal(e.cols, e.row, 'losses');
       const record  = (wins !== null && losses !== null && wins !== '' && losses !== '') ? `${{wins}}-${{losses}}` : '';
       const sos     = statVal(e.cols, e.row, 'sos') ?? '';
-      const lastM   = statVal(e.cols, e.row, 'last_match_date') ?? '';
+      const pr      = statVal(e.cols, e.row, 'power_rating') ?? '';
       let ptsCell = '';
       if (scoring) {{
         const pts = scoring === 'desc' ? pointsDescending(pos) : pointsPerMatch(pos, n);
@@ -1405,7 +1421,7 @@ function runCompare(scoring) {{
         `<td>${{escapeHtml(name)}}</td>` +
         `<td>${{escapeHtml(record)}}</td>` +
         `<td>${{escapeHtml(sos)}}</td>` +
-        `<td>${{escapeHtml(lastM)}}</td>` +
+        `<td>${{escapeHtml(pr)}}</td>` +
         ptsCell + '</tr>';
     }});
     flightsHtml += '</tbody></table></div></div>';
