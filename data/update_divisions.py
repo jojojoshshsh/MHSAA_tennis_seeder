@@ -65,6 +65,24 @@ USER_AGENT = (
 API_URL = "https://my.mhsaa.com/DesktopModules/MHSAA-Endpoint/API/Tournament/EarlyRound?InstanceId={uuid}"
 UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 VALID_DIVISIONS = {1, 2, 3, 4}
+# Regionals are numbered consecutively by division: 1-6 -> Division 1, 7-12 -> Division 2,
+# 13-18 -> Division 3, 19-24 -> Division 4. Used as a fallback (and sanity check) whenever a
+# page/API gives a "Regional N" but no explicit division. Change if MHSAA ever re-sizes the bracket.
+REGIONALS_PER_DIVISION = 6
+
+
+def regional_division(number) -> int | None:
+    """Division implied by a regional number (e.g. 19 -> 4), or None if out of range."""
+    try:
+        n = int(number)
+    except (TypeError, ValueError):
+        return None
+    if n < 1:
+        return None
+    division = (n - 1) // REGIONALS_PER_DIVISION + 1
+    return division if division in VALID_DIVISIONS else None
+
+
 # InstanceId of the "Division List (LP)" widget on my.mhsaa.com. The API returns
 # Divisions -> Levels -> Tournaments -> Teams for the current season. Tried first, before
 # any HTML scraping; the older discovery methods remain as fallbacks if the id ever changes.
@@ -196,16 +214,22 @@ def find_division_list_link(html: str, base_url: str, year: str) -> str | None:
 # Parsing: HTML -> [(school, division)]
 # --------------------------------------------------------------------------- #
 _HEADING_RE = re.compile(r"^(?:lp\s+)?division\s*([1-4])\b", re.I)
+_REGIONAL_HEADING_RE = re.compile(r"^(?:boys\s+tennis\s+)?regional\s*#?\s*(\d{1,2})\b", re.I)
+_REGIONAL_ANY_RE = re.compile(r"\bregional\s*#?\s*(\d{1,2})\b", re.I)
 _SKIP_CELLS = {"school", "schools", "team", "teams", "name", "member school", "enrollment"}
 
 
 def _heading_division(text: str) -> int | None:
-    """'Division 2', 'LP Division 2 (72 schools)' -> 2.  Long text is never a heading."""
+    """'Division 2', 'LP Division 2 (72 schools)' -> 2; 'Boys Tennis Regional 19' -> 4 (by regional
+    number).  Long text is never a heading."""
     text = " ".join(text.split())
     if len(text) > 40:
         return None
     m = _HEADING_RE.match(text)
-    return int(m.group(1)) if m else None
+    if m:
+        return int(m.group(1))
+    m = _REGIONAL_HEADING_RE.match(text)  # "Boys Tennis Regional 19" -> Division 4
+    return regional_division(m.group(1)) if m else None
 
 
 def _cell_division(text: str) -> int | None:
@@ -352,6 +376,11 @@ def _json_division(node: dict) -> int | None:
             m = _DIV_TEXT_RE.search(value)
             if m:
                 return int(m.group(1))
+    for value in node.values():  # no explicit division: infer from "Regional N"
+        if isinstance(value, str) and len(value) <= 80:
+            m = _REGIONAL_ANY_RE.search(value)
+            if m and regional_division(m.group(1)):
+                return regional_division(m.group(1))
     return None
 
 
@@ -400,21 +429,35 @@ def _walk_json(node, division: int | None, out: list[tuple[str, int]]) -> None:
 def _from_early_round(data) -> list[tuple[str, int]] | None:
     """Exact parser for the EarlyRound API:
     {"Divisions": [{"DivisionNumber": 1, "Levels": [{"Tournaments": [{"Teams": [{"TeamName": ...}]}]}]}]}
-    Returns None if the JSON isn't in that shape (the generic walker is used instead)."""
+    If DivisionNumber is missing, the division is inferred from the regional number
+    (TournamentNumber / "Boys Tennis Regional N"). Returns None if the JSON isn't in that shape."""
     if not isinstance(data, dict) or not isinstance(data.get("Divisions"), list):
         return None
     out: list[tuple[str, int]] = []
     for div in data["Divisions"]:
+        if not isinstance(div, dict):
+            continue
         try:
             number = int(div.get("DivisionNumber"))
-        except (AttributeError, TypeError, ValueError):
-            continue
+        except (TypeError, ValueError):
+            number = None
         for level in div.get("Levels") or []:
             for tournament in level.get("Tournaments") or []:
+                regional = tournament.get("TournamentNumber")
+                if regional is None:
+                    m = _REGIONAL_ANY_RE.search(str(tournament.get("TournamentName", "")))
+                    regional = m.group(1) if m else None
+                inferred = regional_division(regional)
+                if number and inferred and number != inferred:
+                    print(f"  note: Regional {regional} is listed under Division {number} "
+                          f"(regional numbers imply Division {inferred}); using Division {number}")
+                division = number or inferred
+                if not division:
+                    continue
                 for team in tournament.get("Teams") or []:
                     name = team.get("TeamName") if isinstance(team, dict) else None
                     if name:
-                        out.append((name, number))
+                        out.append((name, division))
     return out
 
 
