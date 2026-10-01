@@ -65,6 +65,19 @@ USER_AGENT = (
 API_URL = "https://my.mhsaa.com/DesktopModules/MHSAA-Endpoint/API/Tournament/EarlyRound?InstanceId={uuid}"
 UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", re.I)
 VALID_DIVISIONS = {1, 2, 3, 4}
+# InstanceId of the "Division List (LP)" widget on my.mhsaa.com. The API returns
+# Divisions -> Levels -> Tournaments -> Teams for the current season. Tried first, before
+# any HTML scraping; the older discovery methods remain as fallbacks if the id ever changes.
+KNOWN_INSTANCE_IDS = ["05b17ee7-b5d2-5cda-82cc-ca89370193ac"]
+
+# The Division List page (my.mhsaa.com/Sports/Boys-Tennis/School-Division-List-<year>-LP) loads its
+# data with a POST to this handler (Method=getdivisionlist). It is the authoritative enrollment-based
+# list and also includes schools that opted out of the tournament, so it is the primary source.
+ENROLLMENT_URL = "https://my.mhsaa.com/DesktopModules/MHSAA-Endpoint/handlers/Enrollment.ashx"
+KNOWN_SPORT_SEASON_IDS = [449759]   # boys tennis LP 2026-27 (changes every season)
+KNOWN_MODULE_IDS = [7620]
+_SEASON_ID_RE = re.compile(r"SportSeasonId\W{1,8}(\d{4,})", re.I)
+_MODULE_ID_RE = re.compile(r"\bModuleId\W{1,8}(\d{2,})", re.I)
 
 
 # --------------------------------------------------------------------------- #
@@ -384,6 +397,69 @@ def _walk_json(node, division: int | None, out: list[tuple[str, int]]) -> None:
             out += [(k, v) for k, v in html_found.items()]
 
 
+def _from_early_round(data) -> list[tuple[str, int]] | None:
+    """Exact parser for the EarlyRound API:
+    {"Divisions": [{"DivisionNumber": 1, "Levels": [{"Tournaments": [{"Teams": [{"TeamName": ...}]}]}]}]}
+    Returns None if the JSON isn't in that shape (the generic walker is used instead)."""
+    if not isinstance(data, dict) or not isinstance(data.get("Divisions"), list):
+        return None
+    out: list[tuple[str, int]] = []
+    for div in data["Divisions"]:
+        try:
+            number = int(div.get("DivisionNumber"))
+        except (AttributeError, TypeError, ValueError):
+            continue
+        for level in div.get("Levels") or []:
+            for tournament in level.get("Tournaments") or []:
+                for team in tournament.get("Teams") or []:
+                    name = team.get("TeamName") if isinstance(team, dict) else None
+                    if name:
+                        out.append((name, number))
+    return out
+
+
+def _from_enrollment(data) -> list[tuple[str, int]] | None:
+    """Parser for Enrollment.ashx?Method=getdivisionlist:
+    {"DivisionInformation": [{"Division": 1, "SchoolInfo": [{"DisplayName": ..., "Division": "1"}]}]}
+    Returns None if the JSON isn't in that shape."""
+    if not isinstance(data, dict) or not isinstance(data.get("DivisionInformation"), list):
+        return None
+    out: list[tuple[str, int]] = []
+    for group in data["DivisionInformation"]:
+        if not isinstance(group, dict):
+            continue
+        for school in group.get("SchoolInfo") or []:
+            if not isinstance(school, dict) or not school.get("DisplayName"):
+                continue
+            try:
+                out.append((school["DisplayName"], int(school.get("Division", group.get("Division")))))
+            except (TypeError, ValueError):
+                continue
+    return out
+
+
+_TEAM_URL_YEAR_RE = re.compile(r"/boys/varsity/tennis/(\d{4})")
+_FULL_SPORT_RE = re.compile(r'"FullSportName"\s*:\s*"([^"]*)"')
+
+
+def season_mismatch(text: str, year: str) -> str | None:
+    """The APIs return whatever season they are pointed at. Check it is ``year`` (e.g. 2026-27):
+    FullSportName looks like '2026-2027 Boys Tennis - Lower Peninsula' and team URLs end in the
+    season (.../boys/varsity/tennis/2026). Returns a message if the data is for something else."""
+    m = _FULL_SPORT_RE.search(text)
+    if m:
+        name = m.group(1)
+        start = re.match(r"\s*(\d{4})", name)
+        if start and start.group(1) != year[:4]:
+            return f"API data is for '{name}', not season {year}"
+        if "boys tennis" not in name.lower():
+            return f"API data is for '{name}', not boys tennis"
+    found = set(_TEAM_URL_YEAR_RE.findall(text))
+    if found and year[:4] not in found:
+        return f"API data is for season {', '.join(sorted(found))}, not {year[:4]}"
+    return None
+
+
 def extract_any(text: str) -> tuple[dict[str, int], list[str]]:
     """Parse an API response / page body that may be JSON or HTML."""
     stripped = text.lstrip()
@@ -393,8 +469,12 @@ def extract_any(text: str) -> tuple[dict[str, int], list[str]]:
         except ValueError:
             data = None
         if data is not None:
-            pairs: list[tuple[str, int]] = []
-            _walk_json(data, None, pairs)
+            pairs = _from_enrollment(data)
+            if pairs is None:
+                pairs = _from_early_round(data)
+            if pairs is None:
+                pairs = []
+                _walk_json(data, None, pairs)
             return dedupe(pairs)
     return extract_pairs(text)
 
@@ -421,6 +501,67 @@ def scrape(year: str, min_schools: int, use_browser: bool, debug_dir: Path | Non
             best, best_conflicts, best_source = found, conflicts, source
         return len(best) >= min_schools
 
+    def try_api(uuid: str, tag: str) -> bool:
+        api_url = API_URL.format(uuid=uuid)
+        print(f"Trying API {api_url}")
+        try:
+            resp = session.get(api_url, timeout=30,
+                               headers={"Origin": "https://www.mhsaa.com", "Referer": "https://www.mhsaa.com/",
+                                        "Accept": "*/*"})
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            print(f"  failed: {exc}")
+            return False
+        save_debug(debug_dir, f"api_{tag}.txt", resp.text)
+        problem = season_mismatch(resp.text, year)
+        if problem:
+            print(f"  skipped: {problem}")
+            return False
+        return consider(*extract_any(resp.text), api_url)
+
+    # 1. Division List page: load it (cookies + ids), then POST to the enrollment handler.
+    division_page = DIVISION_LIST_URL.format(year=year)
+    page_html = ""
+    print(f"Fetching {division_page}")
+    try:
+        page_html = fetch(session, division_page)
+        save_debug(debug_dir, "division_list_page.html", page_html)
+    except requests.RequestException as exc:
+        print(f"  failed: {exc} (continuing with known ids)")
+    season_ids = list(dict.fromkeys(_SEASON_ID_RE.findall(page_html) + [str(i) for i in KNOWN_SPORT_SEASON_IDS]))
+    module_ids = list(dict.fromkeys(_MODULE_ID_RE.findall(page_html) + [str(i) for i in KNOWN_MODULE_IDS]))
+    combos = [(sid, mid) for sid in season_ids[:3] for mid in module_ids[:4]][:8]
+    for n, (sid, mid) in enumerate(combos):
+        print(f"Trying Enrollment.ashx getdivisionlist (SportSeasonId={sid}, ModuleId={mid})")
+        try:
+            resp = session.post(
+                ENROLLMENT_URL,
+                data={"Method": "getdivisionlist", "SportSeasonId": sid, "ModuleId": mid,
+                      "ShowInitialData": "false"},
+                headers={"Accept": "application/json, text/javascript, */*; q=0.01",
+                         "Origin": "https://my.mhsaa.com", "Referer": division_page,
+                         "X-Requested-With": "XMLHttpRequest"},
+                timeout=30,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            print(f"  failed: {exc}")
+            continue
+        save_debug(debug_dir, f"enrollment_{n}.txt", resp.text)
+        problem = season_mismatch(resp.text, year)
+        if problem:
+            print(f"  skipped: {problem}")
+            continue
+        if consider(*extract_any(resp.text), f"{ENROLLMENT_URL} (SportSeasonId={sid})"):
+            return best, best_source, best_conflicts
+
+    # 2. Fallbacks: regional-assignments API, regional page, other discovery methods.
+    tried: set[str] = set()
+    for n, uuid in enumerate(KNOWN_INSTANCE_IDS):
+        tried.add(uuid)
+        if try_api(uuid, f"known{n}"):
+            return best, best_source, best_conflicts
+
     regional_url = f"{REGIONAL_URL}?uplpcode=lp&year={year}"
     print(f"Fetching {regional_url}")
     regional_html = fetch(session, regional_url)
@@ -431,18 +572,9 @@ def scrape(year: str, min_schools: int, use_browser: bool, debug_dir: Path | Non
     # The page loads its data from an API keyed by an InstanceId; try any ids embedded in the HTML.
     uuids = list(dict.fromkeys(u.lower() for u in UUID_RE.findall(regional_html)))
     for n, uuid in enumerate(uuids):
-        api_url = API_URL.format(uuid=uuid)
-        print(f"Trying API {api_url}")
-        try:
-            resp = session.get(api_url, timeout=30,
-                               headers={"Origin": "https://www.mhsaa.com", "Referer": "https://www.mhsaa.com/",
-                                        "Accept": "*/*"})
-            resp.raise_for_status()
-        except requests.RequestException as exc:
-            print(f"  failed: {exc}")
+        if uuid in tried:
             continue
-        save_debug(debug_dir, f"api_{n}.txt", resp.text)
-        if consider(*extract_any(resp.text), api_url):
+        if try_api(uuid, str(n)):
             return best, best_source, best_conflicts
 
     list_url = find_division_list_link(regional_html, regional_url, year) or DIVISION_LIST_URL.format(year=year)
