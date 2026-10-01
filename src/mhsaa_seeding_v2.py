@@ -93,7 +93,7 @@ RANKING-EXCLUDED MATCHES
   anyone's ranking but should still be visible in win/loss records:
     - matches that end after only ONE set (e.g. a retirement: the score
       string contains exactly one "W-L" set token),
-    - matches whose score is literally "2-0 2-0" (a placeholder/forfeit-
+    - matches whose score is literally "2-0 2-0", "0-2 0-2", "0-2 2-0" or "2-0 0-2" (a placeholder/forfeit-
       style short-set score, not a real two real sets played to a normal
       conclusion), and
     - matches where either side's name contains the word "default"
@@ -477,7 +477,12 @@ def is_ranking_excluded_score(score_str: str) -> bool:
     sets = _parse_set_tokens(score_str)
     if len(sets) == 1:
         return True
-    if len(sets) == 2 and sets[0] == (2, 0) and sets[1] == (2, 0):
+    # "2-0 2-0" placeholder/default score. Accept BOTH orientations: the
+    # data sometimes records a default from the loser's side as "0-2 0-2",
+    # which previously slipped through and was counted as a real
+    # (lopsided) loss in common-opponent win counts and margins.
+    # Also covers the mixed forms "0-2 2-0" and "2-0 0-2".
+    if len(sets) == 2 and all(t in ((2, 0), (0, 2)) for t in sets):
         return True
     return False
 
