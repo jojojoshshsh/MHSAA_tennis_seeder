@@ -37,11 +37,11 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
              tiebreak "set" — total games 14+, or either side reaching
              10 on its own, e.g. 10-8 or a blowout 10-3 — is normalized
              to an ordinary 7-6 first, so it doesn't skew the margin)
-          3. dominance — multi-hop reachability in the same DAG used in
-             step 2 (does one of them transitively beat the other?)
-          4. Power rating (capped game-margin rating; last resort before random)
+          3. Power rating (capped game-margin rating; last resort before random)
+      (The former "dominance" / transitively-beaten rule was removed from
+      this fix-up; transitivity still drives the STEP 2 seed order.)
       If the lower-ranked player should outrank the one above them by
-      any of these four checks, swap them. Re-run full top-to-bottom
+      any of these three checks, swap them. Re-run full top-to-bottom
       passes until one entire pass produces zero swaps (fully stable).
 
   STEP 4 — Division split
@@ -56,7 +56,7 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
       adjacent fix-up pass against the FULL cross-division roster (no
       division split at all). This produces one flight-wide ranking
       (e.g. "Boys Singles Flight 2, every division combined") using the
-      exact same head-to-head / common-opponents / dominance / power-rating
+      exact same head-to-head / common-opponents / power-rating
       rules as the per-division fix-up. It's published as its own
       pseudo-division named "overall", on top of (not replacing) the
       normal per-division output.
@@ -1374,7 +1374,7 @@ def transitivity_seed_order(
     average margin, then TrueSkill conservative rating, then — as an
     absolute last resort, purely to force a single deterministic
     ordering — alphabetically by player name. These ties get a real
-    chance to be fixed by h2h / common opponents / dominance in the
+    chance to be fixed by h2h / common opponents / power rating in the
     per-division fix-up pass; the name tiebreak just guarantees the sort
     itself is fully deterministic, run after run, for identical input.
     """
@@ -1446,23 +1446,6 @@ def common_opponent_comparison(
     return None, None
 
 
-def dominance_comparison(
-    a: str, b: str,
-    reach: dict[str, set[str]],
-) -> str | None:
-    """
-    Multi-hop dominance using the same transitive closure built in step 2.
-    Since the underlying beats graph is now a true DAG, "a transitively
-    beats b" and "b transitively beats a" can never both be true, so this
-    is unambiguous.
-    """
-    if b in reach.get(a, set()):
-        return "a"
-    if a in reach.get(b, set()):
-        return "b"
-    return None
-
-
 def compare_adjacent(
     a: str, b: str,
     h2h: dict,
@@ -1471,11 +1454,15 @@ def compare_adjacent(
     power_ratings: dict,
 ) -> tuple[str | None, str]:
     """
-    The four-rule fix-up comparator, run strictly in this order:
+    The three-rule fix-up comparator, run strictly in this order:
       1. head-to-head
       2. common opponents (win count, then margin — see common_opponent_comparison)
-      3. dominance (multi-hop transitive beats)
-      4. Power rating (capped game-margin rating; last resort)
+      3. Power rating (capped game-margin rating; last resort)
+
+    NOTE: the old "dominance" (multi-hop transitive beats) rule has been
+    removed from the fix-up. `reach` is still accepted (and still drives the
+    STEP 2 seed order and the reachability/TGRS output columns) but is no
+    longer consulted here.
     """
     r = head_to_head_result(a, b, h2h)
     if r is not None:
@@ -1485,11 +1472,7 @@ def compare_adjacent(
     if r is not None:
         return r, f"common-opponents-{sub}"
 
-    r = dominance_comparison(a, b, reach)
-    if r is not None:
-        return r, "dominance"
-
-    # ── Rule 4: Power rating (last resort) ──
+    # ── Rule 3: Power rating (last resort) ──
     ra = power_ratings.get(a)
     rb = power_ratings.get(b)
     if ra is not None and rb is not None:
@@ -2127,7 +2110,6 @@ _REASON_LABELS: dict[str, str] = {
     "head-to-head":              "Lost head-to-head vs player above",
     "common-opponents-wins":     "Fewer wins vs common opponents",
     "common-opponents-margin":   "Worse score margin vs common opponents",
-    "dominance":                 "Transitively beaten by player above",
     "power_rating":              "Lower power rating",
     "trueskill":                 "Lower TrueSkill rating",  # legacy
     "tied":                      "Tied — no deciding criterion found",
@@ -2370,7 +2352,7 @@ def print_results(results: list[dict]) -> None:
             _print_seed_table(unified, school_map, unified_expls,
                                "Transitivity-only order, pre fix-up (cross-division, "
                                "before the per-division head-to-head/common-opponents/"
-                               "dominance pass)")
+                               "power-rating pass)")
 
         print()
         print("  ── Per-division seeds (fixed up only within each division/flight) ──")
