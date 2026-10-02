@@ -444,6 +444,26 @@ def _normalize_set_token(w: int, l: int) -> tuple[int, int]:
     return (w, l)
 
 
+# An 8-game pro set is a whole match played as ONE set to 8 games. Its raw
+# game margin (max 8-0 = 8) is on a smaller scale than a best-of-3 / two-set
+# match, whose max margin is 12 (6-0 6-0). To keep the two comparable, a
+# pro-set margin is scaled up by 12/8 = 1.5 -- so an 8-0 pro set counts as a
+# 12-game margin, 8-4 counts as 6, and so on.
+PRO_SET_MARGIN_SCALE = 12.0 / 8.0
+
+
+def _is_pro_set_tokens(tokens: list[tuple[int, int]]) -> bool:
+    """
+    True if these parsed set tokens are a completed 8-game pro set: exactly
+    one set, the winner reached 8+ games, and the set was finished (8-0..8-6,
+    9-7, 9-8 ...). Mirrors the exemption in is_ranking_excluded_score.
+    """
+    if len(tokens) != 1:
+        return False
+    w, l = tokens[0]
+    return max(w, l) >= 8 and _set_is_complete(w, l)
+
+
 def _player_game_margin_normalized(match: dict, player: str) -> float:
     """
     Signed cumulative game margin for `player` in this single match,
@@ -452,7 +472,15 @@ def _player_game_margin_normalized(match: dict, player: str) -> float:
     "set" contributes an ordinary set's worth of margin instead of
     dominating the total.
     """
-    tokens = [_normalize_set_token(w, l) for w, l in _parse_set_tokens(match["score"])]
+    raw_tokens = _parse_set_tokens(match["score"])
+    if _is_pro_set_tokens(raw_tokens):
+        # 8-game pro set: do NOT run _normalize_set_token (it would turn
+        # 8-6 / 9-7 / 9-8 into a 7-6 "breaker"), and scale 12/8 so 8-0
+        # carries a 12-game margin like a 6-0 6-0 win.
+        w, l = raw_tokens[0]
+        margin = (w - l) * PRO_SET_MARGIN_SCALE
+        return margin if match["winner"] == player else -margin
+    tokens = [_normalize_set_token(w, l) for w, l in raw_tokens]
     winner_games = sum(w for w, l in tokens)
     loser_games = sum(l for w, l in tokens)
     if match["winner"] == player:
@@ -1105,6 +1133,13 @@ def parse_score_margin(score_str: str) -> float:
     cached = _MARGIN_CACHE.get(score_str)
     if cached is not None:
         return cached
+    pro_tokens = _parse_set_tokens(score_str)
+    if _is_pro_set_tokens(pro_tokens):
+        # 8-game pro set: scale 12/8 so 8-0 counts as a 12-game margin.
+        w, l = pro_tokens[0]
+        result = (w - l) * PRO_SET_MARGIN_SCALE
+        _MARGIN_CACHE[score_str] = result
+        return result
     won = lost = 0
     for part in score_str.split():
         halves = part.split("-")
