@@ -1648,6 +1648,12 @@ function sortTable(th) {{
 </script>
 </html>"""
 
-(out_dir / "index.html").write_text(html, encoding="utf-8")
-print(f"Built docs/index.html with {len(all_data)} division section(s), "
+# Output filename: only when a custom year was typed into the workflow
+# (YEAR_OVERRIDE is set and non-blank) do we write {year}.html instead of
+# index.html, so the main index page is left untouched by one-off year runs.
+_year_override = os.environ.get("YEAR_OVERRIDE", "").strip()
+output_name = f"{SEASON_YEAR}.html" if _year_override and SEASON_YEAR else "index.html"
+
+(out_dir / output_name).write_text(html, encoding="utf-8")
+print(f"Built docs/{output_name} with {len(all_data)} division section(s), "
       f"{len(general_data)} general-ranking section(s) (season: {SEASON_YEAR})")
