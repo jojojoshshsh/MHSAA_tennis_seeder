@@ -684,13 +684,11 @@ function simMatchupSeed(a, b, winnerIsA) {
 // Everything about one matchup, exact. Mirrors predict_match_details() in
 // predict_state.py: the printed line's total game margin EQUALS the
 // seed-adjusted expected margin rounded to whole games (7-5 = 1.5, 7-6 = 1,
-// others plain); the shape (straight sets vs three) comes from the
-// data-calibrated odds, then a line is drawn among those hitting the margin.
+// others plain); straight sets unless none can hit the margin, then a line
+// is drawn among those hitting the margin.
 function predictMatchDetails(a, b, winnerIsA) {
   const d = simEffectiveMargin(a, b);
   const s = simMixtureStats(d, simTau(a, b));
-  const w2 = winnerIsA ? s[0] : s[2], w3 = winnerIsA ? s[1] : s[3];
-  const shapeW = {2: w2 + (1 - SIM_THREE_SET_SCALE) * w3, 3: SIM_THREE_SET_SCALE * w3};
   const tab = simTable();
   const idx = Math.min(Math.round(Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP), tab.length - 1);
   const winnerIsFavorite = (winnerIsA === (d >= 0));
@@ -711,9 +709,9 @@ function predictMatchDetails(a, b, winnerIsA) {
     });
   }
 
-  const p3 = (shapeW[2] + shapeW[3]) > 0 ? shapeW[3] / (shapeW[2] + shapeW[3]) : 0;
-  const preferred = simUniform((seed + 0x1B873593) >>> 0) < p3 ? 3 : 2;
-  const order = [preferred, 5 - preferred];
+  // Straight sets always come first; three sets only when no straight-set
+  // line can hit the target margin exactly.
+  const order = [2, 3];
 
   let pool = [];
   for (const shp of order) {
