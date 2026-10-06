@@ -687,9 +687,10 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
         game margin EXACTLY equals exp_margin rounded to whole games (7-5
         counts as 1.5, 7-6 as 1, everything else is the plain game
         difference), e.g. a 4.6-game favorite prints a +5 line like 6-3 6-4
-        or 6-4 6-3. The shape (straight sets vs three) is picked with the
-        data-calibrated odds (THREE_SET_SCALE); then one line is DRAWN,
-        weighted by likelihood, from the lines that hit the margin, with a
+        or 6-4 6-3. It is always a straight-set win when any straight-set
+        line can hit that margin (three sets only when none can); then one
+        line is DRAWN, weighted
+        by likelihood, from the lines that hit the margin, with a
         seed built from the two players (see SCORE_SEED), so scores vary
         between matchups but are identical on every rebuild.
       - "prob_three_sets" / "prob_tiebreak" / "prob_75": chance the match
@@ -703,13 +704,6 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     # the higher seed, so the margin the scoreline must reflect does too.
     d = effective_margin(a, b)
     pw2, pw3, pl2, pl3, p_tb, p_75 = _mixture_stats(d, _tau(a, b))
-
-    w2, w3 = (pw2, pw3) if winner_is_a else (pl2, pl3)
-
-    # Shape weights: same straight-sets vs three-sets odds as before (the
-    # calibrated THREE_SET_SCALE moves the over-predicted three-set mass back
-    # onto straight sets).
-    shape_w = {2: w2 + (1.0 - THREE_SET_SCALE) * w3, 3: THREE_SET_SCALE * w3}
 
     tab = _table()
     idx = min(int(round(min(abs(d), POWER_CAP) / TABLE_STEP)), len(tab) - 1)
@@ -741,14 +735,11 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
             cands.append((sets, p * damp, abs(_line_margin(sets) - target)))
         by_shape[shp] = cands
 
-    # Step 1 -- pick the SHAPE (straight sets vs three sets) with the
-    # data-calibrated odds, so the share of printed three-setters matches
-    # real matches (see THREE_SET_SCALE). If the preferred shape has no line
-    # that hits the target margin exactly (a straight-set win can't be +1; a
-    # three-setter can't be +11), fall to the other shape.
-    p3 = shape_w[3] / (shape_w[2] + shape_w[3]) if (shape_w[2] + shape_w[3]) > 0.0 else 0.0
-    preferred = 3 if _uniform_from_seed((seed + 0x1B873593) & 0xFFFFFFFF) < p3 else 2
-    order = (preferred, 5 - preferred)
+    # Step 1 -- SHAPE: straight sets always come first. A three-set line is
+    # printed ONLY when no straight-set line can hit the target margin
+    # exactly (in practice a +1 win, which needs a lost set). The calibrated
+    # THREE_SET_SCALE still drives the reported "Goes to 3rd Set" odds.
+    order = (2, 3)
 
     pool: list[tuple[list, float]] = []
     for shp in order:
