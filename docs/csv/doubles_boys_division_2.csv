@@ -1,235 +1,243 @@
 rank,pair_name,school,division,flight,wins,losses,TGRS,TGRS_scaled,ts_rating,ts_mu,local_ts_mu,ts_sigma,reachability,local_reachability,sos,local_sos,quality_wins,won_after_set1_loss,vs_weaker_opp,vs_mid_opp,vs_top_opp,last_match_date,reason_below,power_rating
-1,Matthew McGaugh/Nathan Song,Midland Dow,2,1,29,2,691.63,100.0,33.15,55.68,55.68,7.51,244,244,6.55,8.19,23,2/3 (67%),3-0 (100%),8-0 (100%),15-2 (88%),2025-10-08,,15.85
-2,Alex Ting/Britton Leo,Birmingham Seaholm,2,1,17,9,638.33,93.2,27.69,45.8,45.8,6.04,235,235,11.59,9.09,16,2/11 (18%),,4-0 (100%),12-9 (57%),2025-10-08,Lost head-to-head vs player above,14.07
-3,Casey Schans/Rylan Vandenberge,Byron Center,2,1,24,6,663.21,96.4,30.13,48.43,48.43,6.1,243,243,7.94,8.04,15,1/3 (33%),4-0 (100%),3-0 (100%),14-5 (74%),2025-10-08,Lost head-to-head vs player above,15.0
-4,Austin Rowland/Hayden Tanner,Grand Rapids Forest Hills Central,2,1,19,9,627.26,91.8,23.46,42.55,42.55,6.36,242,242,9.81,9.83,14,2/9 (22%),3-0 (100%),3-0 (100%),11-8 (58%),2025-10-08,Lost head-to-head vs player above,15.54
-5,Ishaan Paul/Liam Goodwin,Portage Central,2,1,22,9,628.12,91.9,25.28,41.73,41.73,5.48,238,238,6.3,6.27,15,2/9 (22%),6-0 (100%),6-0 (100%),9-9 (50%),2025-10-08,Lost head-to-head vs player above,10.84
-6,Breck Suvedi/Thano Bird,Grand Rapids Forest Hills Northern,2,1,12,6,576.65,85.4,21.64,41.37,41.37,6.58,226,226,8.76,9.15,8,2/8 (25%),2-0 (100%),2-0 (100%),6-5 (55%),2025-10-08,Worse score margin vs common opponents,10.86
-7,Henry Logan/Max Prather,Grosse Pointe South,2,1,17,10,598.29,88.2,24.3,40.19,40.19,5.29,226,226,7.42,5.89,14,2/9 (22%),2-0 (100%),7-0 (100%),7-8 (47%),2025-10-15,Lost head-to-head vs player above,11.23
-8,Alex Tian/Yuvaroshan Shanmugarajan,South Lyon East,2,1,15,4,428.44,66.6,18.13,34.57,34.57,5.48,162,162,3.43,1.2,8,2/6 (33%),5-0 (100%),6-0 (100%),2-4 (33%),2025-10-15,Lost head-to-head vs player above,7.49
-9,Ari Blank/Dylan Brand,Birmingham Groves,2,1,12,13,548.8,81.9,16.27,33.58,33.58,5.77,225,225,10.77,8.44,8,2/11 (18%),2-0 (100%),4-0 (100%),4-12 (25%),2025-10-08,Worse score margin vs common opponents,10.25
-10,Helly Taylor/Oliver Christensen,Traverse City Central,2,1,18,15,509.07,76.8,21.34,38.99,38.99,5.88,189,189,6.6,5.68,14,3/17 (18%),3-0 (100%),7-0 (100%),7-15 (32%),2025-10-08,Fewer wins vs common opponents,7.29
-11,Gavin McCain/Matt Engel,Mattawan,2,1,18,8,593.67,87.6,20.45,36.88,36.88,5.48,237,237,4.72,4.9,10,4/9 (44%),7-0 (100%),6-0 (100%),4-7 (36%),2025-10-08,Lost head-to-head vs player above,8.08
-12,Bodhi Alwin/Donald Harley,East Lansing,2,1,8,7,352.81,57.0,12.82,33.04,33.04,6.74,139,139,6.3,7.76,5,1/8 (12%),2-0 (100%),4-0 (100%),1-7 (12%),2025-10-08,Worse score margin vs common opponents,7.2
-13,Carter Meeuwsen/Trey Meeuwsen,Zeeland West,2,1,10,12,401.6,63.2,7.98,25.82,25.82,5.95,177,177,6.33,7.84,3,2/13 (15%),4-0 (100%),2-1 (67%),1-10 (9%),2025-10-08,Fewer wins vs common opponents,5.16
-14,Griffin Jones/Josh Geister,Flushing,2,1,22,3,413.66,64.7,15.06,33.66,33.66,6.2,164,164,-0.4,5.51,7,1/4 (25%),12-0 (100%),5-0 (100%),2-3 (40%),2025-10-08,Worse score margin vs common opponents,6.98
-15,ben vantol/grant reder,Bay City Western,2,1,24,4,416.98,65.1,15.8,39.62,39.62,7.94,162,162,0.77,7.26,9,0/4 (0%),11-0 (100%),8-0 (100%),1-4 (20%),2025-10-08,Lost head-to-head vs player above,7.23
-16,Brady Oxley/Charlie Forman,Battle Creek Lakeview,2,1,13,13,364.83,58.5,15.12,32.25,32.25,5.71,140,140,3.4,3.22,5,1/14 (7%),6-0 (100%),5-1 (83%),0-10 (0%),2025-10-08,Fewer wins vs common opponents,1.97
-17,Asa Somers/Wesley MacDonald,Berkley,2,1,10,12,243.66,43.2,8.77,25.47,25.47,5.57,96,96,6.57,2.3,3,0/10 (0%),3-0 (100%),3-1 (75%),0-10 (0%),2025-10-08,Worse score margin vs common opponents,4.49
-18,Luke Rottinghaus/Malachai Swaggerty,South Lyon,2,1,8,4,163.56,33.0,12.68,29.41,29.41,5.57,48,48,2.15,1.0,2,1/4 (25%),4-0 (100%),2-0 (100%),0-4 (0%),2025-10-08,Worse score margin vs common opponents,3.0
-19,Berkley Drummond/Joey Ortiz,Jackson,2,1,8,4,201.36,37.8,8.8,25.47,25.47,5.56,78,78,-0.45,-1.03,1,1/5 (20%),6-0 (100%),1-3 (25%),0-1 (0%),2025-10-08,Lower power rating,2.35
-20,Chase Moore/Grayson Moll,Gibraltar Carlson,2,1,15,8,273.4,46.9,17.29,35.09,35.09,5.93,91,91,0.74,1.28,3,2/10 (20%),7-0 (100%),3-3 (50%),0-4 (0%),2025-10-08,Lower power rating,0.09
-21,Caleb Katzinger/Zach Webb,Midland,2,1,14,10,186.66,35.9,6.51,23.55,23.55,5.68,76,76,1.07,5.2,1,1/11 (9%),7-0 (100%),2-4 (33%),0-6 (0%),2025-10-08,Lost head-to-head vs player above,0.26
-22,Cam Witgen/Ryan Maycroft,Grand Rapids Northview,2,1,13,10,237.57,42.4,7.25,25.88,25.88,6.21,99,99,0.53,0.11,2,2/10 (20%),8-2 (80%),3-5 (38%),0-3 (0%),2025-10-08,Lower power rating,-0.95
-23,Nick Rokos/Rowen Eldred,Lowell,2,1,3,13,192.31,36.6,0.11,16.41,16.41,5.43,96,96,-0.53,-1.92,0,2/15 (13%),3-4 (43%),0-8 (0%),0-1 (0%),2025-10-08,Lost head-to-head vs player above,-5.28
-24,Slade Coleman/Trevor Thompson,Greenville,2,1,10,14,195.54,37.0,1.14,17.04,17.04,5.3,95,95,-0.37,-1.36,0,1/13 (8%),7-3 (70%),0-7 (0%),0-3 (0%),2025-10-08,Lost head-to-head vs player above,-2.41
-25,Andrew Mills/Brennen Reister,Muskegon Mona Shores,2,1,8,18,209.75,38.9,4.06,25.07,25.07,7.0,94,94,2.8,2.88,0,1/17 (6%),6-4 (60%),0-5 (0%),0-9 (0%),2025-10-08,Lost head-to-head vs player above,-0.46
-26,Colin Pruyne/Omar Elghawy,Portage Northern,2,1,9,16,159.82,32.5,-2.15,18.47,18.47,6.87,84,84,2.09,4.36,1,2/17 (12%),5-2 (71%),1-5 (17%),0-7 (0%),2025-10-08,Worse score margin vs common opponents,-2.38
-27,Emerson Hiliker/Stephen Listman,Grosse Pointe North,2,1,10,13,179.68,35.0,11.8,30.14,30.14,6.11,55,55,6.27,7.06,5,1/13 (8%),2-0 (100%),5-0 (100%),0-12 (0%),2025-10-08,Worse score margin vs common opponents,3.97
-28,Dallas Suave/Mickey Gross,Walled Lake Western,2,1,8,4,140.63,30.1,8.75,24.01,24.01,5.09,47,47,2.62,1.9,1,0/4 (0%),2-0 (100%),1-2 (33%),0-2 (0%),2025-10-08,Worse score margin vs common opponents,1.78
-29,Carson Brandt/Owen Wiese,Dexter,2,1,5,8,132.9,29.1,2.57,20.41,20.41,5.95,59,59,4.07,1.78,0,0/8 (0%),4-0 (100%),0-3 (0%),0-5 (0%),2025-10-08,Lower power rating,0.23
-30,Jackson Moul/Joshua Bedard,Southgate Anderson,2,1,18,6,106.37,25.7,3.33,23.55,23.55,6.74,45,45,-3.72,-4.0,1,4/10 (40%),14-0 (100%),1-4 (20%),0-2 (0%),2025-10-08,Worse score margin vs common opponents,0.01
-31,Evan Femminineo/Paul Thacker,Warren De La Salle Collegiate,2,1,11,6,132.87,29.1,8.22,26.43,26.43,6.07,45,45,0.36,-0.86,1,0/6 (0%),7-0 (100%),1-2 (33%),0-4 (0%),2025-10-08,Worse score margin vs common opponents,0.56
-32,Braylon Bruegger/Jack Hilliard,Milford,2,1,10,8,115.22,26.9,4.45,22.56,22.56,6.04,46,46,1.81,0.64,0,0/8 (0%),5-0 (100%),0-2 (0%),0-5 (0%),2025-10-08,Worse score margin vs common opponents,-0.42
-33,Nilesh Gullipalli/joshua Adams,Ypsilanti,2,1,5,7,69.23,21.0,4.67,23.49,23.49,6.27,23,23,-0.33,-1.03,0,0/7 (0%),5-0 (100%),0-3 (0%),0-2 (0%),2025-10-30,Lower power rating,-0.64
-34,Kyle Burger/Malakai Gorzyca,Temperance Bedford,2,1,7,12,64.23,20.4,-4.02,12.96,12.96,5.66,42,42,0.64,-1.02,0,1/10 (10%),4-0 (100%),0-5 (0%),0-3 (0%),2025-10-08,Lower power rating,-1.91
-35,Andrew Aubin/David Imasa,Royal Oak,2,1,6,7,93.76,24.1,7.21,23.56,23.56,5.45,29,29,-0.63,-1.18,0,1/6 (17%),5-1 (83%),0-4 (0%),0-2 (0%),2025-10-08,Fewer wins vs common opponents,-0.8
-36,Caleb Dise/Tate Wager,Mount Pleasant,2,1,8,9,17.78,14.5,-3.53,14.78,14.78,6.1,17,17,-0.24,6.11,1,1/8 (12%),5-2 (71%),1-3 (25%),0-4 (0%),2025-10-08,Lower power rating,-2.24
-37,Nolan Bildeaux/Trey Stewart,Traverse City West,2,1,1,19,-56.5,5.1,-12.21,10.17,10.17,7.46,1,1,5.07,4.64,0,0/17 (0%),1-0 (100%),0-5 (0%),0-12 (0%),2025-10-08,Worse score margin vs common opponents,-1.72
-38,Andrew Masingill/Josh Cuppari,Wyandotte Roosevelt,2,1,11,11,33.68,16.5,-1.79,17.73,17.73,6.51,22,22,-2.79,-4.08,0,0/10 (0%),7-0 (100%),0-7 (0%),0-1 (0%),2025-10-08,Lower power rating,-2.35
-39,Connor Ptak/Jonah Baretto,Riverview Gabriel Richard,2,1,7,9,30.34,16.1,-0.71,16.44,16.44,5.72,17,17,-0.34,-1.23,0,1/10 (10%),3-2 (60%),0-6 (0%),0-1 (0%),2025-10-08,Lost head-to-head vs player above,-5.32
-40,Boston Davis/Zack Kryzaniwskyj,St Clair Shores Lakeview,2,1,8,7,39.98,17.3,1.32,17.66,17.66,5.45,18,18,-5.31,-7.92,0,1/8 (12%),7-1 (88%),0-6 (0%),,2025-10-08,Worse score margin vs common opponents,-5.61
-41,Jack Yonkman/Roman Ponce,Muskegon Reeths-Puffer,2,1,2,9,157.1,32.2,-5.12,15.12,15.12,6.74,91,91,1.35,1.29,0,1/10 (10%),2-4 (33%),0-1 (0%),0-4 (0%),2025-10-08,Lower power rating,-6.28
-42,Maruf Siddique/Syed Massod,Warren Mott,2,1,3,9,5.55,12.9,-4.39,11.95,11.95,5.45,15,15,-5.08,-7.99,0,0/9 (0%),3-5 (38%),0-4 (0%),,2025-10-08,Lower power rating,-8.72
-43,Colin Miller/Rhett Cicotte,Dearborn Divine Child,2,1,13,10,58.29,19.6,6.85,22.18,22.18,5.11,13,13,-4.08,-5.6,0,0/10 (0%),8-2 (80%),0-5 (0%),0-2 (0%),2025-10-08,Worse score margin vs common opponents,-3.56
-44,Justin Jensen/Nathan Ronald,Walled Lake Central,2,1,5,10,13.48,13.9,-1.93,17.24,17.24,6.39,11,11,2.25,2.7,0,0/9 (0%),3-1 (75%),0-4 (0%),0-4 (0%),2025-10-08,Worse score margin vs common opponents,-2.45
-45,Hanif Miah/MD Arif Ahmed,Hamtramck,2,1,6,2,41.9,17.6,3.81,21.3,21.3,5.83,14,14,-10.48,-10.0,0,0/2 (0%),5-2 (71%),,,2025-10-08,Lower power rating,-6.18
-46,Aldwin Swincicki/David Bui,Sterling Heights,2,1,4,6,10.14,13.5,-2.03,17.49,17.49,6.51,11,11,-3.51,-5.12,0,1/7 (14%),3-3 (50%),0-2 (0%),0-1 (0%),2025-10-08,Lost head-to-head vs player above,-8.36
-47,Alex Barbat/Euan Corp,Livonia Churchill,2,1,3,9,-17.47,10.0,-6.8,10.88,10.88,5.89,8,8,0.98,-4.69,0,0/9 (0%),2-2 (50%),0-5 (0%),0-2 (0%),2025-10-08,Fewer wins vs common opponents,-5.81
-48,Liam MacLeod/Ryan Pares,Livonia Franklin,2,1,5,10,26.02,15.5,2.85,19.45,19.45,5.53,7,7,-4.5,-6.88,0,0/10 (0%),5-4 (56%),0-4 (0%),,2025-10-08,Lost head-to-head vs player above,-5.81
-49,Ethan West/Martin Farbitnyk,White Lake Lakeland,2,1,1,8,-1.09,12.1,-1.47,16.25,16.25,5.91,3,3,0.46,-0.8,0,0/8 (0%),1-3 (25%),0-1 (0%),0-2 (0%),2025-10-08,Worse score margin vs common opponents,-5.23
-50,Jacob Draheim/Nick Draheim,North Farmington,2,1,2,12,-9.1,11.1,-3.07,13.71,13.71,5.59,2,2,4.48,-3.32,0,0/11 (0%),1-2 (33%),0-5 (0%),0-4 (0%),2025-10-08,Worse score margin vs common opponents,-3.43
-51,Ronen Beltran/Stefano Marino,Ypsilanti Lincoln,2,1,0,9,-58.61,4.8,-11.94,10.36,10.36,7.44,0,0,2.21,1.97,0,0/8 (0%),0-3 (0%),0-3 (0%),0-2 (0%),2025-10-08,Lower power rating,-5.65
-52,Allan Barrientos/Khamari Vela,Wyoming,2,1,1,4,-19.58,9.7,-4.94,12.4,12.4,5.78,3,3,-1.81,-0.46,0,0/4 (0%),1-2 (33%),0-2 (0%),,2025-10-08,Lower power rating,-7.1
-53,Austin DeRosia/Oliver McConnell,Alpena,2,1,0,7,-58.88,4.8,-12.33,9.48,9.48,7.27,0,0,5.55,5.02,0,0/7 (0%),0-1 (0%),,0-5 (0%),2025-10-08,Lower power rating,-7.15
-54,Ivo Jungmann/Reese O'Berry,Ferndale,2,1,6,6,3.55,12.7,-0.13,18.33,18.33,6.15,4,4,-7.67,-7.88,0,0/6 (0%),4-4 (50%),0-1 (0%),,2025-10-08,Lower power rating,-8.47
-55,Jackson Lore/Nathan Gwozdz,Allen Park,2,1,5,6,3.24,12.6,-0.2,16.84,16.84,5.68,3,3,-3.63,-0.62,0,0/6 (0%),2-3 (40%),0-3 (0%),,2025-10-08,Lower power rating,-8.74
-56,Carter Lewis/David Lett Jr.,Redford Thurston,2,1,4,6,-27.78,8.7,-5.6,10.44,10.44,5.35,2,2,-7.63,-5.77,0,0/6 (0%),2-4 (33%),0-1 (0%),,2025-10-08,Lower power rating,-11.64
-57,Ahmad Hijazi/Youssef Omara,Dearborn Heights Crestwood,2,1,3,5,-23.12,9.3,-4.02,11.79,11.79,5.27,1,1,-10.12,-4.62,0,0/5 (0%),2-3 (40%),,,2025-10-08,Worse score margin vs common opponents,-11.02
-58,isaac weckerle/noah saberon,Warren Cousino,2,1,0,4,-49.56,5.9,-9.43,9.29,9.29,6.24,0,0,-4.78,-6.84,0,0/4 (0%),0-3 (0%),0-1 (0%),,2025-10-08,Lower power rating,-14.43
-59,Jacob Bacon/Seth Lassiter,Carleton Airport,2,1,2,18,-87.35,1.2,-17.44,2.99,2.99,6.81,1,1,-4.27,-1.58,0,0/18 (0%),1-8 (11%),0-5 (0%),,2025-10-08,Lower power rating,-14.78
-60,Cesar Gonzalez/Derek Chen,Grand Rapids Ottawa Hills,2,1,0,8,-83.47,1.6,-16.24,1.62,1.62,5.95,0,0,-4.52,-6.28,0,0/8 (0%),0-5 (0%),0-1 (0%),0-1 (0%),2025-10-08,Lower power rating,-16.26
-61,Ian Mansour/Patrick Winninger,Warren Woods Tower,2,1,1,8,-79.53,2.1,-15.06,4.17,4.17,6.41,0,0,-8.51,-7.93,0,0/8 (0%),0-6 (0%),,,2025-10-08,Lower power rating,-16.32
-62,Javari Cantrell/Samson Green,Battle Creek Central,2,1,0,15,-96.41,0.0,-19.4,1.91,1.91,7.1,0,0,1.16,3.48,0,0/15 (0%),0-4 (0%),0-4 (0%),0-2 (0%),2025-10-08,Lower power rating,-16.44
-1,Brayden Slot/Nolan Booth,Byron Center,2,2,30,0,684.24,100.0,35.78,58.33,58.33,7.52,238,238,7.51,7.17,17,,3-0 (100%),1-0 (100%),16-0 (100%),2025-10-08,,19.12
-2,Aaryan Senthilvanan/Jad Abdo,Birmingham Seaholm,2,2,19,5,669.2,98.1,33.47,53.89,53.89,6.81,237,237,10.54,8.83,15,2/7 (29%),2-0 (100%),2-0 (100%),13-5 (72%),2025-10-08,Lost head-to-head vs player above,15.85
-3,James Notarnicola/Joseph Song,Grand Rapids Forest Hills Central,2,2,18,8,627.59,92.8,26.48,46.08,46.08,6.53,235,235,11.19,9.8,13,3/11 (27%),3-0 (100%),1-0 (100%),12-8 (60%),2025-10-08,Lost head-to-head vs player above,14.63
-4,JJ Bastani/Saajan Mahadevan,Birmingham Groves,2,2,14,8,594.95,88.6,22.05,42.18,42.18,6.71,234,234,9.27,6.17,8,1/9 (11%),3-0 (100%),2-0 (100%),6-7 (46%),2025-10-08,Lost head-to-head vs player above,12.56
-5,David Sutts/Nate Yeamans,Grosse Pointe South,2,2,20,9,553.84,83.3,16.37,33.99,33.99,5.88,225,225,7.87,7.36,12,2/9 (22%),3-0 (100%),5-0 (100%),7-8 (47%),2025-10-15,Lost head-to-head vs player above,10.91
-6,Ian Koh/Jack Elwell,Midland Dow,2,2,25,6,631.58,93.3,31.54,49.98,49.98,6.15,224,224,6.6,6.73,15,1/6 (17%),6-0 (100%),3-0 (100%),12-6 (67%),2025-10-08,Lost head-to-head vs player above,13.38
-7,Nolan Rozankovich/Ryan VanDerSloot,Portage Central,2,2,22,9,539.45,81.5,20.64,40.65,40.65,6.67,207,207,5.39,4.51,13,2/9 (22%),5-0 (100%),6-0 (100%),7-6 (54%),2025-10-08,Lost head-to-head vs player above,10.72
-8,Brady Miller/Ethan Han,Grand Rapids Forest Hills Northern,2,2,8,9,445.77,69.5,10.73,30.73,30.73,6.67,189,189,10.14,11.5,6,0/9 (0%),1-0 (100%),,7-8 (47%),2025-10-08,Lost head-to-head vs player above,8.85
-9,Chris Girrbach/Nate Brewer,Traverse City Central,2,2,19,14,500.75,76.5,22.06,38.94,38.94,5.62,184,184,5.77,4.78,13,1/13 (8%),5-0 (100%),6-0 (100%),7-11 (39%),2025-10-08,Fewer wins vs common opponents,8.64
-10,Owen Jongekrijg/Patrick Milne,Traverse City West,2,2,13,8,451.59,70.3,16.4,31.9,31.9,5.17,178,178,3.09,0.31,8,4/12 (33%),4-0 (100%),5-1 (83%),3-5 (38%),2025-10-08,Lost head-to-head vs player above,3.77
-11,Caleb Levandoski/Jackson Zeedyk,Zeeland West,2,2,17,5,441.37,69.0,16.09,35.5,35.5,6.47,171,171,4.67,7.56,11,3/8 (38%),3-0 (100%),4-0 (100%),7-4 (64%),2025-10-08,Fewer wins vs common opponents,8.67
-12,Isaac Jones/Nathaniel Wenzell,Midland,2,2,16,5,294.99,50.2,13.06,32.48,32.48,6.48,110,110,1.27,3.34,6,4/8 (50%),8-0 (100%),4-0 (100%),2-5 (29%),2025-10-08,Worse score margin vs common opponents,5.89
-13,Alden Ritter/Owen Church,Berkley,2,2,11,13,262.37,46.1,6.48,24.61,24.61,6.04,108,108,6.89,4.47,7,0/11 (0%),2-0 (100%),6-0 (100%),1-12 (8%),2025-10-08,Lost head-to-head vs player above,6.25
-14,Brady Stinnett/David Fifelski,Dexter,2,2,9,7,257.12,45.4,13.24,32.77,32.77,6.51,93,93,0.71,-2.13,3,0/5 (0%),6-0 (100%),3-1 (75%),0-3 (0%),2025-10-08,Worse score margin vs common opponents,4.28
-15,Corbin Barker/Parker Gale,Greenville,2,2,18,6,231.12,42.1,17.71,37.86,37.86,6.72,69,69,0.01,1.78,3,1/7 (14%),12-0 (100%),3-0 (100%),0-5 (0%),2025-10-08,Lower power rating,4.07
-16,Micah Nofsinger/Thomas Blind,Portage Northern,2,2,8,4,236.44,42.8,4.98,24.33,24.33,6.45,104,104,3.9,3.9,1,0/4 (0%),2-0 (100%),2-0 (100%),0-4 (0%),2025-10-08,Lower power rating,3.91
-17,Glenn Acre/Thomas White,Warren De La Salle Collegiate,2,2,12,4,320.41,53.5,17.51,36.56,36.56,6.35,113,113,1.57,0.72,4,0/4 (0%),4-0 (100%),4-0 (100%),0-3 (0%),2025-10-08,Lower power rating,2.72
-18,Connor Bray/Kyle Bell,North Farmington,2,2,7,9,270.43,47.1,17.12,31.69,31.69,4.85,90,90,3.52,1.79,2,1/9 (11%),3-0 (100%),2-3 (40%),0-6 (0%),2025-10-08,Lower power rating,1.12
-19,Cain Cole/Grant Armstrong,Temperance Bedford,2,2,11,8,226.79,41.5,9.8,27.25,27.25,5.81,88,88,0.43,0.64,1,0/8 (0%),5-1 (83%),1-2 (33%),0-2 (0%),2025-10-08,Lower power rating,1.11
-20,Carson Wortham/Josh Heerlyn,Mattawan,2,2,2,15,178.65,35.4,-6.38,14.81,14.81,7.06,103,103,6.07,5.74,1,0/15 (0%),1-0 (100%),1-5 (17%),0-8 (0%),2025-10-08,Lower power rating,-0.16
-21,Ethan Shank/Keith Salisbury,Gibraltar Carlson,2,2,16,8,261.75,46.0,17.0,36.09,36.09,6.36,86,86,0.36,0.57,3,0/8 (0%),9-0 (100%),3-3 (50%),0-5 (0%),2025-10-08,Worse score margin vs common opponents,2.27
-22,Dylien Morgen/Roman Gehring,Mount Pleasant,2,2,9,5,236.8,42.8,12.28,27.56,27.56,5.1,87,87,-0.32,4.83,1,0/4 (0%),6-0 (100%),1-1 (50%),0-4 (0%),2025-10-08,Worse score margin vs common opponents,0.53
-23,Logan Gillis/merrick young,Bay City Western,2,2,18,8,222.93,41.0,11.73,31.76,31.76,6.68,81,81,-1.56,3.25,2,0/7 (0%),12-0 (100%),2-2 (50%),0-5 (0%),2025-10-08,Fewer wins vs common opponents,2.08
-24,Ansh Patil/Vishroth Avvula,South Lyon East,2,2,12,10,176.77,35.1,5.2,21.59,21.59,5.46,73,73,3.44,0.5,2,0/9 (0%),6-0 (100%),2-3 (40%),0-5 (0%),2025-10-15,Worse score margin vs common opponents,3.19
-25,Kripal Thoppae/Rohan Richmond,Ypsilanti,2,2,7,4,78.36,22.6,8.55,24.86,24.86,5.43,18,18,-0.93,-1.86,0,0/3 (0%),4-0 (100%),0-3 (0%),0-1 (0%),2025-10-30,Lower power rating,1.25
-26,Augustine Carlesimo/Liam Fischer,Dearborn Divine Child,2,2,13,5,211.15,39.5,11.59,27.32,27.32,5.24,76,76,-3.78,-2.58,2,1/6 (17%),8-0 (100%),2-3 (40%),,2025-10-08,Lower power rating,1.24
-27,Cade Schilling/Sam Milliman,Flushing,2,2,9,14,83.51,23.2,2.67,21.05,21.05,6.13,35,35,0.22,5.68,0,1/13 (8%),7-3 (70%),0-5 (0%),0-6 (0%),2025-10-08,Lower power rating,-2.53
-28,Carson Haley/Peiton Handschug,Wyandotte Roosevelt,2,2,14,9,189.86,36.8,8.42,26.41,26.41,6.0,74,74,-0.61,-1.09,0,2/10 (20%),9-1 (90%),0-5 (0%),0-2 (0%),2025-10-08,Worse score margin vs common opponents,-0.8
-29,Lewis Wuerker/Weicong Huang,Southgate Anderson,2,2,11,9,187.58,36.5,8.55,26.56,26.56,6.0,72,72,-1.5,-0.94,1,1/10 (10%),6-2 (75%),1-5 (17%),0-1 (0%),2025-10-08,Lost head-to-head vs player above,-2.42
-30,Anderson Heggie/Evan Zaker,Riverview Gabriel Richard,2,2,10,8,138.77,30.3,4.61,20.71,20.71,5.37,58,58,-0.65,-1.41,0,1/7 (14%),7-1 (88%),0-4 (0%),0-2 (0%),2025-10-08,Lost head-to-head vs player above,-0.22
-31,Jackson Chuchavara/Sam Schmidt,Grand Rapids Northview,2,2,10,11,34.3,16.9,1.12,20.53,20.53,6.47,14,14,1.31,0.91,0,0/10 (0%),7-1 (88%),0-6 (0%),0-3 (0%),2025-10-08,Lower power rating,-0.47
-32,Isaac Imasa/Mason L,Royal Oak,2,2,5,8,61.01,20.3,0.77,17.5,17.5,5.58,29,29,-1.72,-4.62,0,0/5 (0%),3-2 (60%),0-2 (0%),0-2 (0%),2025-10-08,Lower power rating,-1.2
-33,Ethan Trombley/Gino Gisevan,St Clair Shores Lakeview,2,2,6,4,64.46,20.8,6.11,24.17,24.17,6.02,18,18,-4.25,-5.69,0,1/4 (25%),5-1 (83%),0-3 (0%),,2025-10-08,Lower power rating,-1.3
-34,Connor Knop/Dylan Lyonnais,Muskegon Mona Shores,2,2,6,13,72.35,21.8,1.18,20.4,20.4,6.41,31,31,2.83,9.2,2,0/13 (0%),3-2 (60%),2-4 (33%),0-6 (0%),2025-10-08,Lower power rating,-1.78
-35,Joe Walraven/Peter Skyes,Jackson,2,2,4,7,27.45,16.0,-0.93,17.65,17.65,6.19,16,16,0.07,1.07,0,1/7 (14%),2-3 (40%),0-3 (0%),0-1 (0%),2025-10-08,Lower power rating,-4.35
-36,Hunter LaFuente/Jack Johnson,Ypsilanti Lincoln,2,2,3,8,27.15,16.0,0.36,17.58,17.58,5.74,13,13,-1.33,-0.74,0,0/8 (0%),2-1 (67%),0-4 (0%),,2025-10-08,Lost head-to-head vs player above,-5.51
-37,Easton Jacobson/Hayden House,Milford,2,2,8,6,52.76,19.3,5.74,22.93,22.93,5.73,12,12,-2.97,-4.13,1,1/6 (17%),5-1 (83%),1-3 (25%),,2025-10-08,Lost head-to-head vs player above,-2.83
-38,Cruz Hewlett/Will Karcynski,South Lyon,2,2,3,3,53.23,19.3,6.52,23.78,23.78,5.76,11,11,-2.79,-2.79,0,1/3 (33%),2-1 (67%),0-1 (0%),,2025-10-08,Lost head-to-head vs player above,0.41
-39,Kyle Nhan/Tanim Chowdhury,Warren Mott,2,2,6,6,54.78,19.5,7.27,24.29,24.29,5.68,10,10,-3.18,-5.32,0,1/6 (17%),5-2 (71%),0-4 (0%),,2025-10-08,Lower power rating,-3.13
-40,Hunter McDonald/Kaden James,Sterling Heights,2,2,6,5,48.04,18.7,7.25,25.43,25.43,6.06,7,7,-4.49,-5.68,0,0/3 (0%),5-1 (83%),0-2 (0%),0-1 (0%),2025-10-08,Lost head-to-head vs player above,-2.14
-41,Graham Holden/Ryker Alwin,East Lansing,2,2,2,9,8.39,13.6,-1.44,16.47,16.47,5.97,7,7,3.12,4.42,0,0/9 (0%),2-0 (100%),0-3 (0%),0-4 (0%),2025-10-08,Lower power rating,-2.39
-42,Henrik Ketner/Landon VanderKooi,Muskegon Reeths-Puffer,2,2,1,4,26.08,15.9,2.91,18.03,18.03,5.04,6,6,-0.97,-0.47,0,0/3 (0%),1-2 (33%),0-2 (0%),,2025-09-27,Lower power rating,-2.7
-43,Noah Cobb/Riley Haynes,Lowell,2,2,6,9,-0.05,12.5,-1.15,16.94,16.94,6.03,2,2,0.33,6.46,1,1/9 (11%),4-2 (67%),1-4 (20%),0-3 (0%),2025-10-08,Lower power rating,-2.98
-44,Benson Hilliker/Michael Goloweyco,Grosse Pointe North,2,2,3,21,-90.38,1.0,-19.22,6.83,6.83,8.68,0,0,8.38,9.49,1,2/23 (9%),0-1 (0%),1-5 (17%),0-11 (0%),2025-10-08,Lower power rating,-3.67
-45,Brennan Hillard/Merrick Hedrich,Livonia Franklin,2,2,7,5,20.03,15.1,1.85,18.47,18.47,5.54,7,7,-6.51,-9.06,0,1/6 (17%),7-2 (78%),0-2 (0%),,2025-10-08,Lower power rating,-3.79
-46,Nate Robertson/Peyton Sherk,Battle Creek Lakeview,2,2,4,19,-30.02,8.7,-6.82,12.34,12.34,6.39,1,1,4.13,6.57,0,1/20 (5%),2-1 (67%),0-7 (0%),0-8 (0%),2025-10-08,Lower power rating,-4.31
-47,Gus Hufnagel/Jack Woods,Allen Park,2,2,5,6,-13.67,10.8,-4.4,13.15,13.15,5.85,5,5,-3.39,-1.54,0,1/7 (14%),3-3 (50%),0-1 (0%),0-1 (0%),2025-10-08,Lower power rating,-5.19
-48,Suhan Hussain/Tamjid Akram,Hamtramck,2,2,6,4,1.88,12.8,-0.13,16.69,16.69,5.61,3,3,-7.1,-6.27,0,0/4 (0%),3-2 (60%),0-1 (0%),,2025-10-08,Worse score margin vs common opponents,-5.47
-49,Aithan Simmons/Liam Woodman,Walled Lake Western,2,2,2,10,-2.51,12.2,-1.64,14.29,14.29,5.31,3,3,-0.66,-2.23,0,0/8 (0%),2-1 (67%),0-5 (0%),,2025-10-08,Lower power rating,-5.8
-50,Gabriel Ramos/Raja Zaid,Walled Lake Central,2,2,2,11,-22.68,9.6,-5.35,11.89,11.89,5.75,2,2,0.12,-1.12,0,0/11 (0%),2-2 (50%),0-3 (0%),0-3 (0%),2025-10-08,Lost head-to-head vs player above,-5.7
-51,Liam Kieliszewski/Sam Hainstock,Alpena,2,2,1,9,-61.88,4.6,-12.87,12.76,12.76,8.54,0,0,4.89,4.42,0,0/9 (0%),0-1 (0%),0-3 (0%),0-5 (0%),2025-10-08,Lower power rating,-8.21
-52,Cesar Silva/Zyon Barry,Wyoming,2,2,3,5,-29.21,8.8,-6.38,12.74,12.74,6.37,1,1,1.25,4.24,0,1/6 (17%),1-2 (33%),0-2 (0%),0-1 (0%),2025-10-08,Lower power rating,-9.56
-53,Alex Hotra/Sarthak Bhandiwad,White Lake Lakeland,2,2,2,7,-39.53,7.5,-7.96,10.5,10.5,6.15,1,1,-3.51,-5.16,0,0/7 (0%),1-5 (17%),0-2 (0%),,2025-10-08,Lower power rating,-9.58
-54,daniel pollack/elliot craig,Warren Cousino,2,2,1,4,-22.7,9.6,-4.5,13.47,13.47,5.99,1,1,-4.49,-4.49,0,0/4 (0%),1-4 (20%),,,2025-10-08,Lower power rating,-11.17
-55,Jan Hartzer/Ledell Griffin III,Ferndale,2,2,3,6,-1.79,12.3,-0.46,16.7,16.7,5.72,2,2,-7.09,-7.84,0,0/6 (0%),2-3 (40%),,,2025-10-08,Worse score margin vs common opponents,-10.63
-56,Luke Majetic/Pranav Magesh,Livonia Churchill,2,2,2,12,-37.0,7.8,-7.89,11.45,11.45,6.44,1,1,0.84,-5.97,0,0/12 (0%),1-6 (14%),0-2 (0%),0-4 (0%),2025-10-08,Lower power rating,-11.26
-57,Bradley Barnhart/Mannix Pena,Carleton Airport,2,2,2,22,-98.12,0.0,-19.51,3.65,3.65,7.72,0,0,-1.18,-1.19,0,0/21 (0%),1-8 (11%),0-7 (0%),0-2 (0%),2025-10-08,Lower power rating,-11.27
-58,Adam Komis/Mahdi Sbeity,Dearborn Heights Crestwood,2,2,4,5,-69.99,3.6,-13.25,3.85,3.85,5.7,0,0,-7.55,-6.69,0,0/5 (0%),0-5 (0%),,,2025-10-08,Lower power rating,-14.14
-59,Caleb Yang/Ian Goode,Warren Woods Tower,2,2,0,8,-63.22,4.5,-11.96,7.35,7.35,6.44,0,0,-6.89,-6.51,0,0/8 (0%),0-6 (0%),,,2025-10-02,Lower power rating,-14.58
-60,Demere Moses/Jayden Jackson,Redford Thurston,2,2,2,5,-62.29,4.6,-11.82,6.29,6.29,6.03,0,0,-6.46,-6.88,0,0/5 (0%),0-3 (0%),0-1 (0%),,2025-10-08,Worse score margin vs common opponents,-13.46
-1,Jashwanth Thamminana/Sullivan Ladd,Midland Dow,2,3,27,1,644.58,100.0,30.38,53.2,53.2,7.61,236,236,5.12,4.92,12,0/1 (0%),6-0 (100%),3-0 (100%),9-1 (90%),2025-10-08,,15.44
-2,Aidan Banchoff/Ben Vander Stelt,Byron Center,2,3,21,3,641.09,99.5,31.35,51.02,51.02,6.56,230,230,6.52,4.12,14,1/4 (25%),4-0 (100%),6-0 (100%),8-3 (73%),2025-10-08,Lost head-to-head vs player above,14.7
-3,Kalil Wahab/Roger Harris,Birmingham Seaholm,2,3,20,7,629.44,98.0,28.54,47.93,47.93,6.46,229,229,9.29,6.36,16,2/7 (29%),3-0 (100%),5-0 (100%),11-7 (61%),2025-10-08,Lost head-to-head vs player above,14.38
-4,Drew Decker/Marcus Bernard,Grand Rapids Forest Hills Northern,2,3,9,3,571.31,90.3,20.94,40.28,40.28,6.45,226,226,8.11,7.65,7,0/3 (0%),1-0 (100%),3-0 (100%),4-3 (57%),2025-10-08,Lost head-to-head vs player above,11.44
-5,Myles Rontal/Ryan Brand,Birmingham Groves,2,3,12,10,564.18,89.3,22.32,40.08,40.08,5.92,217,217,10.07,6.29,9,0/9 (0%),1-0 (100%),4-0 (100%),5-8 (38%),2025-10-08,Lost head-to-head vs player above,12.4
-6,Joseph Guthat/Matthew Hamilton,Grosse Pointe South,2,3,18,10,511.48,82.3,24.64,40.52,40.52,5.29,185,185,6.43,3.93,10,2/12 (17%),3-0 (100%),6-0 (100%),4-6 (40%),2025-10-15,Lost head-to-head vs player above,9.96
-7,Josh Poulson/Pip Bauer,Portage Central,2,3,17,13,486.32,79.0,21.52,39.47,39.47,5.98,181,181,6.32,6.21,9,1/14 (7%),5-0 (100%),5-0 (100%),4-12 (25%),2025-10-08,Lost head-to-head vs player above,7.62
-8,Bennett Smith/Reave Smith,Midland,2,3,18,5,415.51,69.6,20.67,38.94,38.94,6.09,149,149,1.13,2.28,9,0/5 (0%),7-0 (100%),8-1 (89%),1-3 (25%),2025-10-08,Worse score margin vs common opponents,7.95
-9,Alex Fieck-Losh/Henry Hebbes,Dexter,2,3,9,7,349.16,60.8,10.84,28.39,28.39,5.85,144,144,1.77,0.35,4,1/7 (14%),4-0 (100%),4-1 (80%),1-3 (25%),2025-10-08,Lower power rating,3.83
-10,Oliver Robinson/Sam Tursman,Traverse City Central,2,3,13,17,392.94,66.6,16.56,32.8,32.8,5.42,147,147,5.23,3.73,9,1/18 (6%),3-0 (100%),9-3 (75%),0-14 (0%),2025-10-08,Worse score margin vs common opponents,5.31
-11,Drew Abbomonte/Sohan Patil,South Lyon East,2,3,15,4,158.34,35.4,18.13,34.22,34.22,5.36,30,30,3.18,1.39,4,0/4 (0%),4-0 (100%),3-0 (100%),1-4 (20%),2025-10-15,Worse score margin vs common opponents,5.61
-12,Christopher Stott/Owen Schmidt,Traverse City West,2,3,13,10,306.35,55.1,7.15,26.27,26.27,6.37,129,129,4.09,3.01,7,0/10 (0%),2-0 (100%),6-1 (86%),1-5 (17%),2025-10-08,Lower power rating,4.08
-13,Ian Ruhrup/Toby Caldwell,Mattawan,2,3,3,10,274.05,50.8,2.7,21.02,21.02,6.11,128,128,6.04,3.0,1,0/9 (0%),2-0 (100%),1-3 (25%),0-6 (0%),2025-10-08,Lost head-to-head vs player above,1.76
-14,Jack Kowalkowski/Michael Kosanke,Warren De La Salle Collegiate,2,3,11,5,152.7,34.7,9.58,28.41,28.41,6.28,51,51,2.46,0.61,1,0/5 (0%),4-0 (100%),1-1 (50%),0-4 (0%),2025-10-08,Worse score margin vs common opponents,3.68
-15,Liam DeHaan/Roman Lundsford,Zeeland West,2,3,13,9,322.11,57.2,13.74,30.48,30.48,5.58,122,122,3.66,4.65,5,0/9 (0%),5-1 (83%),1-1 (50%),4-7 (36%),2025-10-08,Worse score margin vs common opponents,3.99
-16,Jackson Clemence/Sneh Patel,Portage Northern,2,3,16,8,299.13,54.1,8.36,26.26,26.26,5.97,126,126,1.55,3.24,3,0/7 (0%),5-0 (100%),3-2 (60%),0-5 (0%),2025-10-08,Fewer wins vs common opponents,2.78
-17,Ari Schindler/Jake Ingber,Berkley,2,3,9,14,269.17,50.2,4.57,23.36,23.36,6.26,119,119,7.54,5.49,3,0/12 (0%),2-0 (100%),1-2 (33%),2-9 (18%),2025-10-08,Lower power rating,2.66
-18,Lukas Kazmierczak/Noah Rajasekaran,Grand Rapids Forest Hills Central,2,3,4,9,250.88,47.7,9.58,27.79,27.79,6.07,99,99,6.86,7.05,1,0/8 (0%),3-0 (100%),1-0 (100%),0-8 (0%),2025-10-08,Worse score margin vs common opponents,3.17
-19,Bronson Schroeder/Ethan Dekraker,Greenville,2,3,14,3,270.84,50.4,14.47,33.27,33.27,6.27,98,98,-1.15,5.33,2,3/6 (50%),9-0 (100%),2-2 (50%),0-1 (0%),2025-10-08,Worse score margin vs common opponents,2.1
-20,Jacob Chiles/Matthew Hillock,Riverview Gabriel Richard,2,3,5,8,154.82,35.0,11.27,28.75,28.75,5.83,47,47,2.9,2.16,2,0/5 (0%),2-0 (100%),2-2 (50%),0-3 (0%),2025-10-08,Lower power rating,0.43
-21,Lucas Moul/Tyler Nusser,Southgate Anderson,2,3,14,5,126.44,31.2,6.01,25.67,25.67,6.55,46,46,-0.4,-1.72,3,2/7 (29%),6-0 (100%),3-1 (75%),0-3 (0%),2025-10-08,Lost head-to-head vs player above,2.8
-22,Lloyd Bray/Nolan Jacks,South Lyon,2,3,5,3,122.82,30.7,13.31,29.97,29.97,5.55,27,27,1.41,0.57,1,2/4 (50%),3-0 (100%),1-0 (100%),0-3 (0%),2025-10-08,Worse score margin vs common opponents,1.98
-23,Christian Ellison/Cody Kohls,North Farmington,2,3,1,9,31.97,18.7,0.71,17.67,17.67,5.65,13,13,4.82,-1.46,0,0/7 (0%),1-0 (100%),0-1 (0%),0-6 (0%),2025-10-08,Lost head-to-head vs player above,1.3
-24,Jack Ryan/Jackson Zapp,Temperance Bedford,2,3,11,7,89.55,26.3,1.21,18.67,18.67,5.82,41,41,-0.07,-0.29,1,1/7 (14%),5-0 (100%),1-3 (25%),0-3 (0%),2025-10-08,Lower power rating,1.21
-25,Ankith Madireddi/Hassir Ahmed,Ypsilanti,2,3,6,7,70.58,23.8,9.22,26.48,26.48,5.75,12,12,0.83,-7.1,0,0/6 (0%),5-0 (100%),0-1 (0%),0-4 (0%),2025-10-30,Worse score margin vs common opponents,1.59
-26,Jakoby Schwab/Lucca Giorgi,Gibraltar Carlson,2,3,10,10,81.34,25.2,0.36,17.69,17.69,5.77,38,38,0.95,-0.07,2,2/12 (17%),4-0 (100%),2-5 (29%),0-3 (0%),2025-10-08,Lower power rating,0.71
-27,Jaxon Bishop/Xander O'Keefe,Battle Creek Lakeview,2,3,6,20,53.76,21.5,-6.35,12.93,12.93,6.43,42,42,2.98,3.6,0,0/19 (0%),3-1 (75%),0-8 (0%),0-6 (0%),2025-10-08,Lower power rating,-2.59
-28,Brady Douglas/jack holman,Bay City Western,2,3,16,10,112.53,29.4,7.79,25.0,25.0,5.74,36,36,0.06,1.86,1,2/12 (17%),8-1 (89%),1-4 (20%),0-5 (0%),2025-10-08,Worse score margin vs common opponents,0.4
-29,Liam Godin/Sam Grezlik,Dearborn Divine Child,2,3,8,2,90.08,26.4,8.22,25.5,25.5,5.76,25,25,-2.21,-2.55,0,0/2 (0%),3-0 (100%),0-2 (0%),,2025-10-08,Lower power rating,-0.19
-30,Varun Tangirala/Woobeen Kim,Walled Lake Western,2,3,6,5,70.18,23.7,4.82,22.32,22.32,5.83,22,22,1.04,1.58,1,0/5 (0%),3-1 (75%),1-1 (50%),0-3 (0%),2025-10-08,Fewer wins vs common opponents,-0.9
-31,Lukas Board/Tommy Zumstein,Milford,2,3,8,4,54.25,21.6,8.27,26.12,26.12,5.95,7,7,-2.33,-5.83,0,1/5 (20%),4-1 (80%),,0-2 (0%),2025-10-03,Lost head-to-head vs player above,0.49
-32,Caleb McCumber/Miles O'Brien,Muskegon Mona Shores,2,3,9,12,25.4,17.8,0.34,19.14,19.14,6.27,11,11,0.33,0.75,1,0/11 (0%),6-0 (100%),1-7 (12%),0-4 (0%),2025-10-08,Lower power rating,-1.89
-33,Evan Kortes/John Kazmirski,Wyandotte Roosevelt,2,3,10,10,39.1,19.6,1.78,20.54,20.54,6.25,15,15,0.32,0.64,0,0/8 (0%),4-1 (80%),0-3 (0%),0-3 (0%),2025-10-08,Lower power rating,-2.46
-34,Alex Steiger/Tommy Klatt,Grosse Pointe North,2,3,4,13,16.11,16.6,1.01,19.37,19.37,6.12,4,4,6.03,6.82,0,0/13 (0%),2-0 (100%),0-3 (0%),0-7 (0%),2025-10-08,Worse score margin vs common opponents,-3.0
-35,Athiya Maheswaren/Travis Vansetters,Grand Rapids Northview,2,3,6,14,49.12,20.9,1.25,18.25,18.25,5.67,21,21,-1.32,-5.72,1,1/14 (7%),4-3 (57%),1-9 (10%),0-1 (0%),2025-10-08,Lower power rating,-4.04
-36,Owen Krueger/Tristan Spong,Royal Oak,2,3,3,7,-10.64,13.0,-8.24,11.53,11.53,6.59,15,15,1.03,2.73,0,0/7 (0%),1-0 (100%),0-6 (0%),0-1 (0%),2025-10-08,Lower power rating,-4.21
-37,Jason Yuan/Tristan Williams,Livonia Churchill,2,3,1,9,13.84,16.2,-2.59,15.04,15.04,5.88,13,13,1.56,-2.9,0,0/8 (0%),1-2 (33%),,0-3 (0%),2025-10-08,Worse score margin vs common opponents,-5.81
-38,Alex Jagielski/Andrew Wilson,Livonia Franklin,2,3,4,6,-8.83,13.2,-6.36,10.72,10.72,5.69,12,12,-2.11,-4.93,0,1/7 (14%),2-2 (50%),0-3 (0%),,2025-10-08,Lost head-to-head vs player above,-4.9
-39,Ahmad Chowdhury/Pravanjan Dhar,Hamtramck,2,3,5,3,52.87,21.4,7.28,25.0,25.0,5.91,9,9,-3.19,-3.61,0,1/4 (25%),4-1 (80%),,0-1 (0%),2025-10-08,Fewer wins vs common opponents,-1.81
-40,Brandon Ulrich/Madhav Nair,Walled Lake Central,2,3,1,7,-5.7,13.7,-1.72,17.09,17.09,6.27,1,1,1.78,1.78,0,0/4 (0%),1-1 (50%),0-2 (0%),0-2 (0%),2025-10-08,Lower power rating,-3.76
-41,Jeremiah May/Murry Tyler,Redford Thurston,2,3,2,3,-4.92,13.8,-1.09,21.38,21.38,7.49,0,0,1.02,0.0,0,0/3 (0%),,0-1 (0%),,2025-10-03,Lower power rating,-3.98
-42,Jake Donaldson/Todd Schmitz,St Clair Shores Lakeview,2,3,1,3,8.2,15.5,-1.5,15.54,15.54,5.68,8,8,-0.61,-1.81,0,0/3 (0%),1-2 (33%),,0-1 (0%),2025-10-08,Lower power rating,-4.29
-43,Brady Curtis/George Curtis,Jackson,2,3,2,6,-12.42,12.8,-4.31,14.07,14.07,6.13,4,4,2.24,-0.32,0,0/6 (0%),1-0 (100%),0-5 (0%),0-1 (0%),2025-10-08,Lower power rating,-5.73
-44,Kylen Rowe/reed mihalik,Allen Park,2,3,5,6,-16.46,12.2,-3.5,12.71,12.71,5.4,1,1,-1.98,-0.95,0,0/6 (0%),1-2 (33%),0-2 (0%),0-1 (0%),2025-10-08,Lower power rating,-7.34
-45,Aidan Gaskin/Matthew Wirsing,Flushing,2,3,9,15,9.54,15.7,-2.81,17.02,17.02,6.61,12,12,-0.88,5.27,0,1/16 (6%),6-4 (60%),0-5 (0%),0-3 (0%),2025-10-08,Worse score margin vs common opponents,-6.27
-46,Arshill Choudhury/Tajrean Chowdhury,Warren Mott,2,3,4,11,6.68,15.3,0.12,16.63,16.63,5.5,4,4,-3.9,-6.58,0,0/10 (0%),2-7 (22%),0-3 (0%),,2025-10-08,Lower power rating,-8.15
-47,Jay Turner/Rafe Turner,East Lansing,2,3,0,12,-58.9,6.6,-12.22,9.3,9.3,7.17,0,0,4.36,4.16,0,0/12 (0%),0-2 (0%),0-3 (0%),0-6 (0%),2025-10-08,Lower power rating,-5.59
-48,Caleb Burger/Evan Clark,Mount Pleasant,2,3,0,4,-33.83,9.9,-6.91,13.32,13.32,6.74,0,0,1.43,4.17,0,0/3 (0%),0-2 (0%),0-1 (0%),0-1 (0%),2025-10-08,Lower power rating,-5.64
-49,Alan Lodzinski/Oscar Lodzinski,White Lake Lakeland,2,3,0,7,-23.72,11.3,-4.98,14.31,14.31,6.43,0,0,2.35,0.99,0,0/6 (0%),0-1 (0%),0-3 (0%),0-1 (0%),2025-10-08,Lower power rating,-8.01
-50,Jack Caplis/Jackson Wallace,Alpena,2,3,0,7,-58.41,6.7,-12.02,7.17,7.17,6.4,0,0,3.41,-0.48,0,0/7 (0%),0-2 (0%),0-1 (0%),0-3 (0%),2025-10-08,Lower power rating,-8.3
-51,Devin DeLeon/Luke Blasko,Ypsilanti Lincoln,2,3,2,8,-13.68,12.6,-3.92,16.58,16.58,6.83,3,3,-0.16,1.04,0,0/7 (0%),1-1 (50%),0-3 (0%),0-1 (0%),2025-10-08,Lower power rating,-8.47
-52,Conner Zylstra/Liam Kondor,Lowell,2,3,3,10,-40.52,9.0,-8.35,9.17,9.17,5.84,1,1,-1.62,-1.89,0,1/11 (9%),2-4 (33%),0-3 (0%),0-1 (0%),2025-10-08,Lower power rating,-8.76
-53,Ali Farhat/Hassan Farhat,Dearborn Heights Crestwood,2,3,4,4,-42.7,8.7,-8.37,9.91,9.91,6.09,0,0,-1.8,-4.33,0,0/4 (0%),0-2 (0%),0-2 (0%),,2025-10-08,Lower power rating,-10.26
-54,Aiden Chase/Landon Allen,Carleton Airport,2,3,2,11,-24.8,11.1,-5.26,13.42,13.42,6.23,1,1,-1.0,1.8,0,0/11 (0%),1-3 (25%),0-2 (0%),0-2 (0%),2025-10-08,Lower power rating,-11.2
-55,Amauri Tobar/Nolan Pippin,Warren Woods Tower,2,3,2,5,-15.88,12.3,-3.1,12.17,12.17,5.09,2,2,-8.84,-10.06,0,0/5 (0%),1-3 (25%),,,2025-10-08,Lower power rating,-14.97
-56,Hunter Langford/Liam Stanley,Sterling Heights,2,3,2,9,-19.84,11.8,-4.24,12.16,12.16,5.47,2,2,-5.35,-7.71,0,1/9 (11%),1-5 (17%),0-1 (0%),,2025-10-08,Worse score margin vs common opponents,-13.21
-57,Aiken Roberts/Cole Scott,Ferndale,2,3,1,4,-28.99,10.6,-5.34,10.13,10.13,5.16,1,1,-8.6,-9.99,0,0/3 (0%),1-3 (25%),0-1 (0%),,2025-10-08,Lost head-to-head vs player above,-11.97
-58,Brennan Dietz/Gabe Feirick,Muskegon Reeths-Puffer,2,3,0,14,-108.53,0.0,-21.79,-0.74,-0.74,7.02,0,0,0.84,3.61,0,0/13 (0%),0-5 (0%),0-5 (0%),0-3 (0%),2025-09-27,Lower power rating,-12.01
-59,Armontae Wooten/Jamal Huff,Wyoming,2,3,0,4,-41.6,8.9,-8.19,9.15,9.15,5.78,0,0,-1.29,-4.04,0,0/4 (0%),0-2 (0%),0-2 (0%),,2025-10-08,Worse score margin vs common opponents,-12.83
-1,Ethan Clark/Vettel Xu,Midland Dow,2,4,30,1,595.95,100.0,29.33,50.95,50.95,7.21,210,210,4.42,4.44,18,4/4 (100%),6-0 (100%),6-0 (100%),12-1 (92%),2025-10-08,,14.87
-2,Gabe Christman/Ryan McArdle,Birmingham Seaholm,2,4,20,7,575.05,96.8,27.9,44.32,44.32,5.47,207,207,9.96,6.98,11,1/6 (17%),3-0 (100%),2-0 (100%),9-7 (56%),2025-10-08,Lost head-to-head vs player above,13.39
-3,Brody Slot/Zeke Sandholm,Byron Center,2,4,19,5,585.25,98.4,30.52,47.04,47.04,5.51,205,205,6.19,4.88,13,0/3 (0%),2-0 (100%),7-0 (100%),6-5 (55%),2025-10-08,Lost head-to-head vs player above,12.69
-4,Mikey Hernly/brooks kraal,Grand Rapids Forest Hills Northern,2,4,10,1,518.77,88.2,21.2,39.04,39.04,5.95,201,201,6.33,6.61,5,2/3 (67%),2-0 (100%),,6-1 (86%),2025-10-08,Lost head-to-head vs player above,10.77
-5,Sanay Shah/Shane Goldman,Birmingham Groves,2,4,11,7,514.91,87.6,20.74,37.35,37.35,5.54,197,197,10.34,8.53,8,0/6 (0%),1-0 (100%),2-0 (100%),6-7 (46%),2025-10-08,Lost head-to-head vs player above,10.46
-6,Davis Gryzenia/Weston Jerabek,Grosse Pointe South,2,4,16,5,450.98,77.8,14.79,33.79,33.79,6.33,182,182,4.94,4.47,7,0/4 (0%),4-0 (100%),5-0 (100%),2-4 (33%),2025-10-15,Lost head-to-head vs player above,9.41
-7,Jacob Foster/Nathan Draft,Grand Rapids Forest Hills Central,2,4,6,9,455.45,78.5,17.45,33.89,33.89,5.48,179,179,8.38,9.49,4,1/9 (11%),2-0 (100%),2-0 (100%),2-9 (18%),2025-10-08,Worse score margin vs common opponents,6.36
-8,Hayden Rithauddean/Wesley Koelper,Portage Central,2,4,24,8,474.2,81.3,19.48,37.8,37.8,6.11,178,178,5.44,5.78,12,0/6 (0%),4-0 (100%),7-0 (100%),5-7 (42%),2025-10-08,Lost head-to-head vs player above,10.0
-9,Andrew Stewart/Chet Stevens,Zeeland West,2,4,13,9,461.48,79.4,20.71,36.44,36.44,5.24,175,175,3.7,4.81,4,0/8 (0%),5-0 (100%),2-1 (67%),2-7 (22%),2025-10-08,Worse score margin vs common opponents,3.7
-10,Andrew Witt/Tucker Spaulding,Midland,2,4,16,4,463.98,79.8,19.45,37.2,37.2,5.92,176,176,2.29,4.48,9,1/5 (20%),6-0 (100%),5-1 (83%),4-3 (57%),2025-10-08,Worse score margin vs common opponents,5.34
-11,Brady Johnsen/Henry Yonts,Traverse City Central,2,4,18,10,449.95,77.6,16.37,31.63,31.63,5.09,174,174,4.07,3.53,12,3/11 (27%),5-0 (100%),10-1 (91%),2-8 (20%),2025-10-08,Lost head-to-head vs player above,6.5
-12,Noah Golembiewski/Vinnie Holder,Berkley,2,4,15,10,339.35,60.7,11.55,29.52,29.52,5.99,134,134,6.06,2.18,7,2/12 (17%),5-0 (100%),5-0 (100%),2-9 (18%),2025-10-08,Worse score margin vs common opponents,7.01
-13,Cooper Stankus/Zach Shaman,Portage Northern,2,4,12,10,254.09,47.6,7.36,24.37,24.37,5.67,105,105,2.46,3.63,4,2/10 (20%),6-1 (86%),4-0 (100%),0-8 (0%),2025-10-08,Lower power rating,3.52
-14,Alexander Kuysh/Anik Machammagri,Ypsilanti,2,4,10,3,239.07,45.3,9.49,26.3,26.3,5.6,95,95,0.05,-8.05,1,0/3 (0%),4-0 (100%),1-0 (100%),0-3 (0%),2025-10-30,Lower power rating,3.31
-15,Carson Tkach/Patrick Sorenson,Traverse City West,2,4,17,12,303.11,55.1,10.68,28.92,28.92,6.08,122,122,2.27,3.19,3,1/12 (8%),7-0 (100%),2-4 (33%),1-5 (17%),2025-10-08,Lower power rating,3.24
-16,Carter Stewart/nolan kochany,Bay City Western,2,4,11,6,228.44,43.7,11.44,27.12,27.12,5.23,85,85,-0.67,0.69,1,0/6 (0%),6-0 (100%),1-2 (33%),0-3 (0%),2025-10-08,Worse score margin vs common opponents,2.44
-17,Asher Ndenga/Bobby Dunning,Mattawan,2,4,4,10,168.97,34.5,1.12,17.55,17.55,5.48,80,80,3.7,4.19,1,0/7 (0%),2-0 (100%),1-4 (20%),0-6 (0%),2025-10-08,Lower power rating,1.23
-18,Charlie Pataniczek/Clark Bennett,Grand Rapids Northview,2,4,11,9,287.48,52.7,10.62,27.11,27.11,5.5,115,115,2.67,3.59,2,1/10 (10%),4-0 (100%),2-3 (40%),0-4 (0%),2025-10-08,Lower power rating,1.17
-19,Janson Wildeboer/Teddy Greenwalt,East Lansing,2,4,4,7,183.28,36.7,2.65,23.7,23.7,7.02,84,84,4.0,6.51,0,0/6 (0%),4-0 (100%),0-2 (0%),0-4 (0%),2025-10-08,Worse score margin vs common opponents,1.19
-20,Connor Evans/Jack Evans,Dexter,2,4,2,5,190.98,37.9,3.83,21.4,21.4,5.86,85,85,3.58,0.27,0,1/5 (20%),2-0 (100%),0-2 (0%),0-3 (0%),2025-10-08,Lower power rating,0.28
-21,Brayden Fout/Pablo Solis Mata,Battle Creek Lakeview,2,4,6,15,157.63,32.8,-2.62,13.04,13.04,5.22,83,83,3.45,5.02,2,2/16 (12%),3-0 (100%),1-7 (12%),1-4 (20%),2025-10-08,Lost head-to-head vs player above,-1.14
-22,Chris Bong/Nathan Vansteenkiste,South Lyon,2,4,6,3,224.58,43.1,16.36,31.34,31.34,4.99,70,70,-0.57,-0.57,2,3/5 (60%),2-0 (100%),2-3 (40%),,2025-10-08,Lower power rating,-1.33
-23,Vaishnav Polapragada/Varun Kongara,South Lyon East,2,4,10,7,165.94,34.1,4.76,20.9,20.9,5.38,69,69,2.17,1.63,2,3/9 (33%),4-1 (80%),2-1 (67%),0-4 (0%),2025-10-15,Lost head-to-head vs player above,1.49
-24,Adam Verplank/Lois Halladay,Royal Oak,2,4,12,4,186.29,37.2,12.38,29.08,29.08,5.57,59,59,0.59,4.42,4,2/6 (33%),4-0 (100%),4-2 (67%),0-1 (0%),2025-10-08,Worse score margin vs common opponents,2.82
-25,Ender Straughen/Ian Beshke,Warren De La Salle Collegiate,2,4,11,4,171.8,35.0,11.14,30.79,30.79,6.55,56,56,2.08,-0.09,2,2/6 (33%),3-0 (100%),2-1 (67%),0-3 (0%),2025-10-08,Fewer wins vs common opponents,1.55
-26,Greyson Goodwin/Ryan Kujansuu,Dearborn Divine Child,2,4,13,7,159.71,33.1,10.29,25.82,25.82,5.18,53,53,1.36,-0.49,1,1/5 (20%),3-2 (60%),1-2 (33%),0-2 (0%),2025-10-08,Lost head-to-head vs player above,0.63
-27,Ben Allen/Mason Eshelman,Riverview Gabriel Richard,2,4,5,4,161.01,33.3,11.38,27.99,27.99,5.53,51,51,1.09,0.27,1,1/5 (20%),2-0 (100%),1-2 (33%),0-2 (0%),2025-10-08,Lost head-to-head vs player above,-0.58
-28,Mason Martin/Peyton Johnson,Southgate Anderson,2,4,16,7,132.3,28.9,4.91,21.56,21.56,5.55,50,50,0.34,0.65,5,2/9 (22%),6-1 (86%),5-1 (83%),0-4 (0%),2025-10-08,Lost head-to-head vs player above,1.87
-29,Isaac Hinkelman/Jacob Black,Temperance Bedford,2,4,10,9,149.86,31.6,5.57,23.39,23.39,5.94,60,60,0.94,1.13,1,2/10 (20%),4-0 (100%),1-3 (25%),0-3 (0%),2025-10-08,Lost head-to-head vs player above,1.25
-30,Blake Keessen/Jaiden Pope,Muskegon Mona Shores,2,4,7,5,87.02,22.0,5.37,20.94,20.94,5.19,30,30,0.21,0.37,0,0/5 (0%),5-0 (100%),0-2 (0%),0-3 (0%),2025-10-08,Lower power rating,1.15
-31,Johnny Cueter/Levi Olsey,Grosse Pointe North,2,4,3,13,58.21,17.5,-3.38,17.09,17.09,6.82,35,35,7.13,7.91,1,1/13 (8%),1-0 (100%),1-2 (33%),0-8 (0%),2025-10-08,Worse score margin vs common opponents,-1.41
-32,Alex Harper/Joey Ogden,Wyandotte Roosevelt,2,4,12,6,90.89,22.6,11.47,29.68,29.68,6.07,15,15,0.92,1.56,2,0/4 (0%),3-0 (100%),2-2 (50%),0-2 (0%),2025-10-08,Worse score margin vs common opponents,0.88
-33,Charlie Abbott/Kyron Fernando,Gibraltar Carlson,2,4,13,9,59.34,17.7,8.69,24.17,24.17,5.16,6,6,1.67,1.59,2,0/9 (0%),4-0 (100%),1-4 (20%),1-4 (20%),2025-09-29,Lost head-to-head vs player above,0.72
-34,Jacob O'Brien/Owen Schodowski,Milford,2,4,8,5,52.21,16.6,7.31,23.39,23.39,5.36,8,8,-0.78,-1.72,0,1/4 (25%),4-0 (100%),0-2 (0%),0-1 (0%),2025-10-08,Lower power rating,0.48
-35,Ben Bolton/Ben Wasser,North Farmington,2,4,4,16,46.01,15.7,4.89,19.96,19.96,5.02,10,10,3.07,0.18,0,0/15 (0%),3-1 (75%),0-5 (0%),0-7 (0%),2025-10-08,Worse score margin vs common opponents,-2.0
-36,Mason Ebels/Tanner Green,Greenville,2,4,11,12,0.44,8.7,-1.8,16.28,16.28,6.03,4,4,-0.18,1.75,1,1/12 (8%),4-2 (67%),1-8 (11%),0-1 (0%),2025-10-08,Lower power rating,-3.08
-37,Hayden Brennan Turski/Marshall Bowen,St Clair Shores Lakeview,2,4,3,1,34.79,14.0,5.32,24.96,24.96,6.55,6,6,-7.76,0.0,0,0/1 (0%),2-0 (100%),0-1 (0%),,2025-09-30,Lower power rating,-3.8
-38,Laith Mohammed/Wahiduzzaman Ahnaf,Hamtramck,2,4,4,1,31.06,13.4,5.11,22.63,22.63,5.84,5,5,-9.11,-9.69,0,0/1 (0%),3-1 (75%),,,2025-09-27,Lower power rating,-4.32
-39,Evan Bamford/Jon Forsyth,Livonia Franklin,2,4,4,5,15.72,11.0,2.88,19.21,19.21,5.44,2,2,-5.41,-3.26,0,0/4 (0%),2-1 (67%),0-1 (0%),,2025-10-08,Worse score margin vs common opponents,-2.37
-40,Jaden Chachich/Logan Moore,Walled Lake Central,2,4,3,7,5.19,9.4,-0.53,15.92,15.92,5.48,4,4,-0.41,-1.38,0,0/7 (0%),2-2 (50%),0-4 (0%),0-1 (0%),2025-10-08,Worse score margin vs common opponents,-4.92
-41,Erik Nechwatal Fernandez-Coto/Findley Cook,White Lake Lakeland,2,4,6,7,-8.13,7.4,-1.98,14.91,14.91,5.63,1,1,-0.56,-3.28,0,1/8 (12%),2-2 (50%),0-2 (0%),0-2 (0%),2025-10-08,Lost head-to-head vs player above,-3.82
-42,Hussain Mala/Jayden Lee,Walled Lake Western,2,4,1,5,-43.94,1.9,-8.82,10.51,10.51,6.44,0,0,0.31,-1.22,0,0/4 (0%),0-2 (0%),0-1 (0%),0-1 (0%),2025-10-03,Lost head-to-head vs player above,-5.73
-43,Jackson Abbott/Levi Hoffman,Lowell,2,4,2,13,-42.87,2.1,-9.68,7.21,7.21,5.63,3,3,-0.96,-3.08,0,0/12 (0%),2-4 (33%),0-6 (0%),0-2 (0%),2025-10-08,Lower power rating,-6.1
-44,Brody Engstrom/Thaddeus Seacrest,Alpena,2,4,1,4,-45.43,1.7,-9.51,11.8,11.8,7.1,0,0,4.15,5.92,0,0/4 (0%),,0-2 (0%),0-2 (0%),2025-10-08,Lower power rating,-6.25
-45,brendyn brooks/wyatt douglass,Allen Park,2,4,3,3,-29.46,4.1,-6.11,13.49,13.49,6.53,0,0,2.1,0.15,0,0/3 (0%),0-1 (0%),0-1 (0%),0-1 (0%),2025-10-08,Lower power rating,-6.28
-46,Ethan Blom/Liam Hoyle,Mount Pleasant,2,4,0,6,-43.93,1.9,-9.15,10.39,10.39,6.51,0,0,3.6,5.24,0,0/6 (0%),0-1 (0%),0-4 (0%),0-1 (0%),2025-10-08,Lower power rating,-6.87
-47,Cameron Mock/Jack Erickson,Muskegon Reeths-Puffer,2,4,2,10,42.71,15.2,5.25,22.15,22.15,5.63,8,8,0.91,4.67,0,0/9 (0%),2-2 (50%),0-3 (0%),0-4 (0%),2025-09-27,Lower power rating,-7.47
-48,Austin Ruddy/Hunter Holbert,Livonia Churchill,2,4,4,5,-20.44,5.5,-4.65,12.0,12.0,5.55,1,1,1.51,-4.92,0,2/7 (29%),1-1 (50%),0-1 (0%),0-2 (0%),2025-10-08,Lower power rating,-8.12
-49,Hadi Chokr/Walid Safah,Dearborn Heights Crestwood,2,4,4,3,-2.5,8.2,-0.45,16.47,16.47,5.64,1,1,-4.61,-2.0,0,0/3 (0%),1-2 (33%),,,2025-10-08,Lower power rating,-8.23
-50,Jadiel Rosario/Tyson Jones,Carleton Airport,2,4,2,8,0.02,8.6,-0.24,17.84,17.84,6.03,1,1,-1.62,3.22,0,0/8 (0%),1-2 (33%),0-1 (0%),0-1 (0%),2025-10-08,Lower power rating,-8.69
-51,Abdel Aboelkassem/Izaiah Hendricks,Flushing,2,4,1,12,-56.25,0.0,-11.58,8.41,8.41,6.66,0,0,3.27,6.13,0,0/12 (0%),0-2 (0%),0-3 (0%),0-3 (0%),2025-09-20,Lower power rating,-8.85
-52,Anthony Lam/Marshawn Allen,Warren Mott,2,4,5,9,-10.03,7.1,-3.01,15.62,15.62,6.21,3,3,-2.03,-4.39,0,1/10 (10%),2-2 (50%),0-4 (0%),0-1 (0%),2025-10-08,Lower power rating,-9.0
-53,Brian Chen/Gabriel Nelson,Sterling Heights,2,4,3,7,-7.94,7.4,-1.4,17.35,17.35,6.25,1,1,-5.92,-8.97,0,0/7 (0%),1-4 (20%),0-1 (0%),0-1 (0%),2025-10-08,Lost head-to-head vs player above,-10.39
+1,Hunter Helfman/Kalil Wahab,Birmingham Seaholm,2,1,15,4,665.93,100.0,30.89,47.98,47.98,5.7,243,243,11.76,8.05,13,0/4 (0%),,2-0 (100%),12-4 (75%),2026-09-29,,16.11
+2,Brayden Slot/Brody Slot,Byron Center,2,1,23,1,625.02,94.8,25.58,48.52,48.52,7.65,237,237,4.04,-1.97,14,0/1 (0%),3-0 (100%),4-0 (100%),10-1 (91%),2026-10-05,Worse score margin vs common opponents,15.63
+3,Henry Logan/Oscar DeLuca,Grosse Pointe South,2,1,13,3,551.13,85.5,21.06,40.2,40.2,6.38,214,214,8.49,8.32,9,2/5 (40%),1-0 (100%),3-0 (100%),7-3 (70%),2026-10-05,Worse score margin vs common opponents,13.46
+4,Breck Suvedi/Thano Bird,Grand Rapids Forest Hills Northern,2,1,14,8,549.62,85.3,20.71,38.79,38.79,6.03,211,211,8.97,9.6,13,0/8 (0%),,4-0 (100%),9-7 (56%),2026-09-28,Lost head-to-head vs player above,11.73
+5,Nathan Song/Sullivan Ladd,Midland Dow,2,1,26,3,578.33,88.9,27.16,44.42,44.42,5.75,206,206,3.84,4.4,19,0/2 (0%),5-0 (100%),11-0 (100%),8-3 (73%),2026-10-05,Lost head-to-head vs player above,14.24
+6,Jacob Foster/James Notarnicola,Grand Rapids Forest Hills Central,2,1,11,11,492.32,78.0,13.43,32.28,32.28,6.28,205,205,9.26,9.15,7,1/12 (8%),2-0 (100%),2-0 (100%),5-11 (31%),2026-10-05,Lost head-to-head vs player above,8.6
+7,Asa Somers/Wesley MacDonald,Berkley,2,1,12,5,510.15,80.3,19.11,35.81,35.81,5.57,201,201,7.09,4.86,6,0/4 (0%),3-0 (100%),2-0 (100%),4-5 (44%),2026-09-29,Lost head-to-head vs player above,9.08
+8,Ryan Brand/Sanay Shah,Birmingham Groves,2,1,9,6,507.15,79.9,19.9,35.8,35.8,5.3,197,197,9.16,11.8,6,1/6 (17%),1-0 (100%),2-0 (100%),4-6 (40%),2026-10-03,Lost head-to-head vs player above,8.21
+9,Jordan Woodring/Micah Bement,Muskegon Mona Shores,2,1,13,6,401.46,66.5,10.95,27.41,27.41,5.49,168,168,3.29,3.75,6,1/5 (20%),4-0 (100%),5-2 (71%),1-4 (20%),2026-10-02,Fewer wins vs common opponents,4.83
+10,Jackson McDermott/Jaden Jones,Richland Gull Lake,2,1,16,3,456.39,73.5,13.7,30.4,30.4,5.57,189,189,1.65,0.07,6,1/3 (33%),7-0 (100%),2-0 (100%),4-3 (57%),2026-10-03,Fewer wins vs common opponents,7.66
+11,Colin Miller/Liam Fischer,Dearborn Divine Child,2,1,10,0,232.05,45.1,18.34,40.0,40.0,7.22,69,69,-1.47,-0.76,2,1/1 (100%),5-0 (100%),2-0 (100%),,2026-09-29,Lower power rating,6.34
+12,Gabe Armstrong/Grant Armstrong,Temperance Bedford,2,1,10,6,268.01,49.6,7.88,23.96,23.96,5.36,110,110,2.04,3.94,5,2/7 (29%),2-0 (100%),5-1 (83%),0-3 (0%),2026-10-01,Lower power rating,4.64
+13,Isaac Jones/Nathaniel Wenzell,Midland,2,1,20,5,444.59,72.0,21.39,40.51,40.51,6.37,164,164,1.09,3.62,6,1/5 (20%),7-0 (100%),8-0 (100%),0-4 (0%),2026-10-05,Lower power rating,4.07
+14,Anders Lyons/Chris Girrbach,Traverse City Central,2,1,18,12,429.44,70.1,17.77,35.35,35.35,5.86,162,162,3.08,4.16,10,2/13 (15%),7-0 (100%),8-1 (89%),2-9 (18%),2026-10-05,Lost head-to-head vs player above,4.26
+15,Carson Brandt/Henry Hebbes,Dexter,2,1,6,4,272.04,50.1,10.34,26.27,26.27,5.31,108,108,2.6,4.0,2,0/3 (0%),3-0 (100%),2-1 (67%),0-3 (0%),2026-09-29,Lost head-to-head vs player above,3.94
+16,Garrett Backus/Spencer Ball,Mason,2,1,16,6,374.58,63.1,13.82,30.21,30.21,5.46,146,146,2.77,2.47,8,4/9 (44%),5-0 (100%),8-1 (89%),0-5 (0%),2026-10-05,Worse score margin vs common opponents,4.09
+17,Dexter Todd/Jay Heil,Lake Fenton,2,1,11,5,267.08,49.5,20.56,36.62,36.62,5.35,81,81,-1.6,-4.39,2,1/5 (20%),8-1 (89%),2-3 (40%),0-1 (0%),2026-09-29,Fewer wins vs common opponents,2.0
+18,Thomas Blind/Zach Shaman,Portage Northern,2,1,10,8,349.34,59.9,14.67,29.36,29.36,4.9,136,136,1.88,2.83,2,1/7 (14%),6-1 (86%),1-2 (33%),1-5 (17%),2026-09-24,Worse score margin vs common opponents,1.52
+19,Janson Wildeboer/Rhys Sykes-McLaughlin,East Lansing,2,1,9,7,274.68,50.5,10.71,26.57,26.57,5.28,105,105,4.11,5.38,6,3/9 (33%),2-0 (100%),6-3 (67%),0-3 (0%),2026-09-28,Lost head-to-head vs player above,4.8
+20,Brooks Boller/Jacob Maher,Gibraltar Carlson,2,1,14,3,171.81,37.5,20.08,37.17,37.17,5.69,32,32,-0.38,-0.67,5,1/3 (33%),6-0 (100%),5-1 (83%),0-2 (0%),2026-09-29,Lower power rating,4.19
+21,dylan sagady/nolan kochany,Bay City Western,2,1,10,10,174.69,37.8,9.7,26.7,26.7,5.67,62,62,1.24,1.89,1,1/10 (10%),5-1 (83%),1-4 (20%),0-4 (0%),2026-10-01,Lower power rating,0.08
+22,Adam Ghanem/Andon Federico,Saginaw Heritage,2,1,11,5,167.67,36.9,8.23,24.32,24.32,5.36,61,61,-0.14,1.29,3,2/7 (29%),5-0 (100%),3-3 (50%),0-1 (0%),2026-10-01,Lost head-to-head vs player above,1.83
+23,Luke Burdis/Sam Milliman,Flushing,2,1,9,13,142.2,33.7,4.43,21.07,21.07,5.54,59,59,1.01,3.28,1,2/15 (13%),6-1 (86%),1-9 (10%),0-3 (0%),2026-09-29,Lost head-to-head vs player above,-4.39
+24,Isaac Imasa/Jack Sidle,Royal Oak,2,1,8,8,125.89,31.6,7.83,25.02,25.02,5.73,43,43,1.34,1.92,0,2/10 (20%),6-0 (100%),0-2 (0%),0-5 (0%),2026-09-29,Worse score margin vs common opponents,-0.56
+25,Griffin Lee/Matthew Wood,Port Huron Northern,2,1,11,5,138.12,33.2,10.92,28.95,28.95,6.01,40,40,0.92,-2.91,2,1/5 (20%),4-1 (80%),2-0 (100%),0-4 (0%),2026-09-29,Fewer wins vs common opponents,1.4
+26,Alex Bishop/Joseph Burke,Detroit U-D Jesuit,2,1,2,5,105.71,29.1,6.13,25.17,25.17,6.35,35,35,10.05,4.29,0,0/5 (0%),2-0 (100%),,0-5 (0%),2026-09-29,Worse score margin vs common opponents,2.26
+27,Lewis Wuerker/Peyton Johnson,Southgate Anderson,2,1,13,13,131.37,32.3,12.98,31.77,31.77,6.26,31,31,2.88,1.84,2,0/13 (0%),10-1 (91%),2-4 (33%),0-8 (0%),2026-10-03,Lower power rating,1.02
+28,Brady Oxley/Jaxon Bishop,Battle Creek Lakeview,2,1,12,16,91.31,27.3,3.8,19.24,19.24,5.15,34,34,2.53,4.63,2,4/19 (21%),7-1 (88%),2-5 (29%),0-10 (0%),2026-10-03,Lower power rating,-0.61
+29,Corbin Barker/Tanner Green,Greenville,2,1,14,7,102.25,28.6,8.11,26.04,26.04,5.98,31,31,-0.73,-2.9,0,0/7 (0%),11-0 (100%),,0-6 (0%),2026-09-28,Worse score margin vs common opponents,2.08
+30,Justin Jensen/Nathan Ronald,Walled Lake Central,2,1,6,6,121.68,31.1,15.05,30.49,30.49,5.14,22,22,1.73,0.15,1,1/5 (20%),3-0 (100%),1-3 (25%),0-2 (0%),2026-10-02,Lower power rating,1.21
+31,Jacob Draheim/Nick Draheim,North Farmington,2,1,8,9,91.6,27.3,9.92,25.91,25.91,5.33,19,19,1.88,-0.61,2,2/9 (22%),4-0 (100%),1-3 (25%),1-3 (25%),2026-10-02,Lost head-to-head vs player above,2.4
+32,Ansh Patil/Vishroth Avvula,South Lyon East,2,1,6,6,89.54,27.0,11.67,28.21,28.21,5.51,15,15,2.22,1.32,0,0/6 (0%),5-0 (100%),0-2 (0%),0-3 (0%),2026-10-02,Fewer wins vs common opponents,2.59
+33,Jack Bouma/Ryan Peterson,Mattawan,2,1,5,12,73.99,25.1,1.4,19.71,19.71,6.1,32,32,2.91,4.85,1,0/12 (0%),4-1 (80%),1-2 (33%),0-9 (0%),2026-10-05,Lower power rating,-0.32
+34,Collin Ecie/Jackson Lore,Allen Park,2,1,13,5,80.8,25.9,6.07,21.6,21.6,5.18,26,26,-3.21,-3.21,0,0/5 (0%),9-0 (100%),0-5 (0%),,2026-10-01,Lower power rating,-0.68
+35,Alex Bonin/Evan Femminineo,Warren De La Salle Collegiate,2,1,7,8,59.73,23.3,-1.11,18.25,18.25,6.45,31,31,6.5,-1.11,0,0/8 (0%),1-0 (100%),0-2 (0%),0-5 (0%),2026-10-01,Lower power rating,-2.48
+36,Evan Zaker/Mason Eshelman,Riverview Gabriel Richard,2,1,5,5,91.12,27.2,6.35,22.06,22.06,5.24,30,30,-4.38,-2.69,1,1/5 (20%),3-3 (50%),1-2 (33%),,2026-09-26,Lost head-to-head vs player above,-4.47
+37,Tafhim Zihan/Yousuf Ahmed,Hamtramck,2,1,11,4,89.35,27.0,10.45,28.02,28.02,5.86,20,20,-5.94,-5.42,0,0/3 (0%),10-3 (77%),0-1 (0%),,2026-10-05,Worse score margin vs common opponents,-1.38
+38,Andrew Wilson/Brennan Hillard,Livonia Franklin,2,1,8,6,78.66,25.7,9.24,25.1,25.1,5.29,17,17,-3.15,0.32,0,1/7 (14%),7-1 (88%),0-3 (0%),0-1 (0%),2026-10-02,Worse score margin vs common opponents,-1.83
+39,Nick Rokos/Riley Haynes,Lowell,2,1,8,13,43.72,21.2,1.0,18.65,18.65,5.88,19,19,1.34,-0.03,0,0/13 (0%),5-0 (100%),0-6 (0%),0-5 (0%),2026-09-26,Lower power rating,-2.13
+40,Brayden Kalbfleisch/Lloyd Bray,South Lyon,2,1,5,5,37.69,20.5,3.32,21.04,21.04,5.91,11,11,-1.9,-0.43,0,2/7 (29%),4-0 (100%),0-3 (0%),,2026-10-02,Lower power rating,-2.17
+41,Braylon Bruegger/Jacob O'Brien,Milford,2,1,5,4,49.75,22.0,6.3,23.23,23.23,5.64,10,10,-3.64,-3.46,0,0/3 (0%),5-1 (83%),0-3 (0%),,2026-10-02,Lost head-to-head vs player above,-0.39
+42,Hunter McDonald/Kaden James,Sterling Heights,2,1,9,3,35.45,20.2,5.65,20.97,20.97,5.11,5,5,-5.76,-7.13,0,0/2 (0%),6-3 (67%),,,2026-10-02,Lower power rating,-1.24
+43,Aidan Beaman/Marcus Vassas,Livonia Churchill,2,1,2,6,-8.21,14.7,-2.87,16.7,16.7,6.52,3,3,0.19,-1.89,0,0/5 (0%),2-1 (67%),0-4 (0%),0-1 (0%),2026-10-02,Lower power rating,-1.82
+44,Afjal Khan/Nathan Feliciano,Warren Mott,2,1,7,3,54.79,22.6,9.78,26.64,26.64,5.62,4,4,-4.39,-7.38,0,0/3 (0%),5-2 (71%),0-1 (0%),,2026-09-29,Lower power rating,-2.02
+45,Caleb Dise/Liam Hoyle,Mount Pleasant,2,1,5,7,35.79,20.2,3.3,21.79,21.79,6.16,9,9,-0.5,2.65,1,1/8 (12%),4-2 (67%),1-4 (20%),0-1 (0%),2026-10-01,Lower power rating,-2.19
+46,Brady Curtis/Tannyn Magee,Jackson,2,1,3,2,11.55,17.2,1.9,19.28,19.28,5.8,1,1,0.03,-1.76,0,0/2 (0%),1-0 (100%),0-2 (0%),,2026-09-29,Lower power rating,-2.55
+47,Alex Steiger/Benson Hilliker,Grosse Pointe North,2,1,5,15,-28.18,12.1,-6.99,13.17,13.17,6.72,2,2,2.47,3.83,1,1/14 (7%),2-4 (33%),1-5 (17%),0-4 (0%),2026-10-05,Lower power rating,-2.91
+48,Caden Hibbler/Tucker Lane,Lapeer,2,1,8,12,-14.25,13.9,-5.01,12.18,12.18,5.73,6,6,-2.52,-2.84,0,0/11 (0%),7-6 (54%),0-5 (0%),,2026-10-01,Worse score margin vs common opponents,-2.89
+49,Charlie Pataniczek/Jonah Damstra,Grand Rapids Northview,2,1,5,12,24.2,18.8,1.17,18.69,18.69,5.84,9,9,0.66,-0.02,0,1/13 (8%),4-1 (80%),0-4 (0%),0-5 (0%),2026-10-02,Lower power rating,-4.25
+50,Alex Harper/John Kazmirski,Wyandotte Roosevelt,2,1,7,13,4.69,16.3,-3.21,15.26,15.26,6.16,10,10,1.46,2.39,0,1/13 (8%),4-2 (67%),0-7 (0%),0-3 (0%),2026-10-03,Lower power rating,-4.82
+51,Erik Nechwatal Fernandez-Coto/Sarthak Bhandiwad,White Lake Lakeland,2,1,5,10,14.39,17.5,0.22,16.79,16.79,5.52,7,7,-1.53,-1.96,0,3/13 (23%),4-4 (50%),0-5 (0%),,2026-10-02,Lower power rating,-6.51
+52,Austin DeRosia/Thaddeus Seacrest,Alpena,2,1,2,7,-20.62,13.1,-5.16,11.39,11.39,5.52,3,3,-1.68,-0.73,0,1/8 (12%),2-4 (33%),0-2 (0%),0-1 (0%),2026-09-23,Lower power rating,-7.24
+53,Devin DeLeon/Lucas Bigham,Ypsilanti Lincoln,2,1,0,4,-22.56,12.8,-4.37,15.01,15.01,6.46,0,0,-1.38,-2.55,0,0/4 (0%),0-2 (0%),0-1 (0%),,2026-09-29,Lower power rating,-7.47
+54,Daniel Tibebu/Nolan Corden,Walled Lake Western,2,1,0,4,-45.65,9.9,-8.84,8.91,8.91,5.92,0,0,-2.91,-2.91,0,0/3 (0%),0-3 (0%),,,2026-10-02,Lower power rating,-9.35
+55,Jseth Beech/Steven Wilder,Lansing Eastern,2,1,0,5,-28.03,12.2,-5.51,12.45,12.45,5.99,0,0,-0.94,0.0,0,0/5 (0%),0-2 (0%),0-2 (0%),,2026-09-30,Lower power rating,-9.96
+56,Dax Sievers/Elias Van Drunen,Grand Rapids Ottawa Hills,2,1,0,8,-47.52,9.7,-9.88,9.9,9.9,6.6,0,0,3.8,2.08,0,0/8 (0%),0-1 (0%),0-2 (0%),0-3 (0%),2026-09-28,Lower power rating,-10.8
+57,Mason Russeau/Nolan Thompson,Carleton Airport,2,1,2,12,-60.43,8.1,-12.19,5.77,5.77,5.99,1,1,-3.01,-1.38,0,0/12 (0%),1-7 (12%),0-3 (0%),0-1 (0%),2026-10-03,Lower power rating,-11.37
+58,Amauri Tobar/Cooper Makie,Warren Woods Tower,2,1,1,7,-15.5,13.7,-3.05,14.35,14.35,5.8,1,1,-4.55,-4.87,0,0/6 (0%),1-7 (12%),,,2026-09-29,Lower power rating,-12.51
+59,Ahmad Hijazi/Hassan Farhat,Dearborn Heights Crestwood,2,1,0,7,-36.04,11.1,-6.5,11.36,11.36,5.95,0,0,-7.08,0.0,0,0/7 (0%),0-3 (0%),,,2026-10-03,Lower power rating,-12.64
+60,Jackson Harrison/Jayden Whaley,Lincoln Park,2,1,0,4,-45.24,10.0,-8.85,8.97,8.97,5.94,0,0,-1.98,-0.68,0,0/4 (0%),0-2 (0%),0-2 (0%),,2026-09-28,Worse score margin vs common opponents,-11.09
+61,daniel pollack/logan pharris,Warren Cousino,2,1,1,5,-52.38,9.1,-9.8,7.45,7.45,5.75,0,0,-6.77,-6.88,0,0/5 (0%),1-4 (20%),,,2026-09-29,Lower power rating,-11.35
+62,Cayden Felice/Luke Hansen,St Clair Shores Lakeview,2,1,3,8,-53.35,8.9,-10.73,10.37,10.37,7.03,0,0,0.52,-1.54,0,0/8 (0%),0-4 (0%),0-4 (0%),,2026-09-29,Worse score margin vs common opponents,-8.39
+63,Braiden Ellis/Gabe Feirick,Muskegon Reeths-Puffer,2,1,0,19,-124.05,0.0,-25.12,0.1,0.1,8.41,0,0,3.15,12.03,0,0/19 (0%),0-7 (0%),0-2 (0%),0-9 (0%),2026-10-02,Lower power rating,-12.22
+1,Ethan Clark/Jashwanth Thamminana,Midland Dow,2,2,23,1,663.23,100.0,30.93,50.22,50.22,6.43,240,240,5.98,6.49,17,1/2 (50%),3-0 (100%),4-0 (100%),13-1 (93%),2026-10-05,,15.36
+2,Ahren Gupta/Kyle Carr,Birmingham Seaholm,2,2,14,5,622.83,94.7,25.77,41.46,41.46,5.23,236,236,10.77,7.37,11,1/5 (20%),,3-0 (100%),9-5 (64%),2026-09-29,Lost head-to-head vs player above,13.72
+3,Luke Brennan/Max Prather,Grosse Pointe South,2,2,13,4,486.45,76.6,14.95,36.39,36.39,7.15,198,198,7.29,7.26,8,0/3 (0%),1-0 (100%),5-0 (100%),3-4 (43%),2026-10-05,Worse score margin vs common opponents,10.57
+4,Sam Newell/Terrence Simmons,Byron Center,2,2,20,4,574.28,88.2,28.79,44.92,44.92,5.38,204,204,5.51,-1.85,13,0/4 (0%),2-0 (100%),3-0 (100%),11-4 (73%),2026-10-05,Worse score margin vs common opponents,10.77
+5,Drew Decker/Ethan Han,Grand Rapids Forest Hills Northern,2,2,13,7,516.01,80.5,20.92,38.59,38.59,5.89,195,195,9.69,8.83,11,1/7 (14%),,3-0 (100%),8-7 (53%),2026-09-22,Worse score margin vs common opponents,11.12
+6,Lukas Kazmierczak/Noah Rajasekaran,Grand Rapids Forest Hills Central,2,2,12,10,437.09,70.1,19.58,37.26,37.26,5.89,162,162,9.23,7.81,7,1/11 (9%),1-0 (100%),2-0 (100%),5-10 (33%),2026-10-05,Fewer wins vs common opponents,8.26
+7,Brennen Reister/Dylan Lyonnais,Muskegon Mona Shores,2,2,19,5,462.69,73.5,16.52,33.49,33.49,5.66,186,186,1.0,2.45,5,0/5 (0%),9-0 (100%),3-0 (100%),2-5 (29%),2026-10-02,Worse score margin vs common opponents,7.43
+8,Grant Ford/Lukas Harnick,Mason,2,2,19,3,436.75,70.1,20.98,38.5,38.5,5.84,156,156,3.54,1.56,12,3/5 (60%),3-0 (100%),6-0 (100%),6-3 (67%),2026-10-05,Worse score margin vs common opponents,8.04
+9,Lincoln Peterson/McGuire Abegg,Richland Gull Lake,2,2,15,4,355.34,59.3,15.5,32.43,32.43,5.64,133,133,2.5,1.64,7,2/6 (33%),5-0 (100%),6-0 (100%),1-4 (20%),2026-10-03,Lost head-to-head vs player above,6.48
+10,Carson Wortham/Ian Ruhrup,Mattawan,2,2,11,6,333.88,56.5,12.15,28.29,28.29,5.38,131,131,4.14,2.47,6,0/5 (0%),4-0 (100%),2-1 (67%),4-5 (44%),2026-10-05,Lost head-to-head vs player above,5.11
+11,Alden Ritter/Ira Retish,Berkley,2,2,12,7,351.22,58.8,12.49,30.26,30.26,5.92,141,141,4.37,4.24,3,1/8 (12%),5-0 (100%),2-0 (100%),1-7 (12%),2026-09-29,Fewer wins vs common opponents,4.16
+12,Jaden Lash/Ryder Hake,Birmingham Groves,2,2,7,7,296.41,51.5,11.26,27.76,27.76,5.5,115,115,8.08,9.77,4,1/7 (14%),,2-1 (67%),2-6 (25%),2026-10-03,Lost head-to-head vs player above,5.99
+13,Kai Estep/Nirmal Loganathan,Saginaw Heritage,2,2,13,2,244.57,44.7,20.98,42.5,42.5,7.17,65,65,1.16,3.13,6,1/3 (33%),5-0 (100%),5-0 (100%),1-2 (33%),2026-10-01,Worse score margin vs common opponents,7.73
+14,Kyle Burger/Lucas Maynard,Temperance Bedford,2,2,13,3,207.56,39.8,14.39,34.8,34.8,6.8,65,65,2.07,1.04,3,1/4 (25%),3-0 (100%),3-0 (100%),0-2 (0%),2026-10-01,Lower power rating,5.69
+15,Henry Yonts/Max Lardie,Traverse City Central,2,2,15,15,287.25,50.3,13.79,31.09,31.09,5.77,101,101,5.53,6.21,9,1/15 (7%),4-0 (100%),5-2 (71%),4-12 (25%),2026-10-05,Lower power rating,4.56
+16,Matt Fortier/Noah de Forest,Greenville,2,2,13,7,204.42,39.4,10.82,27.52,27.52,5.57,75,75,0.49,-1.12,0,0/6 (0%),7-0 (100%),0-2 (0%),0-4 (0%),2026-09-28,Worse score margin vs common opponents,1.44
+17,Genesis (Gibbs) Blalock/Tucker Spaulding,Midland,2,2,14,4,210.71,40.2,16.31,37.32,37.32,7.0,63,63,0.21,4.55,2,0/3 (0%),8-0 (100%),2-1 (67%),1-3 (25%),2026-10-05,Worse score margin vs common opponents,6.52
+18,Aditya Talakanti/Manish Gurugari,South Lyon East,2,2,6,1,158.31,33.3,19.62,36.48,36.48,5.62,27,27,0.2,-2.36,4,0/1 (0%),2-0 (100%),4-1 (80%),,2026-10-02,Lower power rating,4.85
+19,Cruz Zawaideh/Donald McSkimming,Detroit U-D Jesuit,2,2,2,6,47.7,18.7,1.33,20.32,20.32,6.33,18,18,7.01,2.12,1,0/5 (0%),1-0 (100%),1-1 (50%),0-4 (0%),2026-09-29,Lower power rating,3.75
+20,Alex Fieck-Losh/Gabe Fernandez,Dexter,2,2,8,8,138.95,30.7,11.42,26.49,26.49,5.02,39,39,4.58,4.16,1,0/7 (0%),5-0 (100%),1-1 (50%),0-7 (0%),2026-09-29,Lower power rating,3.67
+21,Lucas Moul/Tyler Nusser,Southgate Anderson,2,2,14,10,146.07,31.7,16.98,36.23,36.23,6.41,29,29,0.21,-2.12,2,0/9 (0%),12-1 (92%),2-1 (67%),0-6 (0%),2026-10-03,Worse score margin vs common opponents,3.03
+22,Baylen Guiles/Hudson Parsons,Lake Fenton,2,2,12,4,169.22,34.7,19.43,35.25,35.25,5.27,35,35,-1.95,-9.42,2,0/4 (0%),8-0 (100%),2-2 (50%),0-1 (0%),2026-09-29,Lower power rating,1.64
+23,Carter Chucta/Naveen Bhatt,Portage Northern,2,2,11,10,306.69,52.9,10.2,27.25,27.25,5.68,127,127,0.28,3.3,1,1/11 (9%),8-1 (89%),1-4 (20%),0-5 (0%),2026-10-05,Lower power rating,-0.65
+24,Bodhi Kiebler/Parker Hughes,East Lansing,2,2,2,5,105.86,26.4,0.49,17.4,17.4,5.64,50,50,3.74,2.48,1,1/6 (17%),1-1 (50%),1-0 (100%),0-4 (0%),2026-09-24,Lost head-to-head vs player above,0.56
+25,Brady Douglas/jack holman,Bay City Western,2,2,6,7,114.93,27.6,8.44,26.74,26.74,6.1,36,36,1.37,2.42,0,0/6 (0%),6-0 (100%),0-2 (0%),0-5 (0%),2026-10-01,Lost head-to-head vs player above,1.63
+26,Easton Jacobson/Lukas Board,Milford,2,2,6,2,126.42,29.1,14.51,31.02,31.02,5.5,26,26,0.62,-0.14,1,3/5 (60%),3-0 (100%),1-2 (33%),,2026-10-02,Lower power rating,1.03
+27,Ian Beshke/Rhys Smith,Warren De La Salle Collegiate,2,2,5,10,39.91,17.6,0.84,20.3,20.3,6.48,16,16,4.31,-0.88,1,0/10 (0%),1-1 (50%),1-3 (25%),0-4 (0%),2026-10-01,Lower power rating,0.1
+28,Nicholas Markovic/Tyceon Graham,Port Huron Northern,2,2,7,6,78.75,22.8,3.24,22.31,22.31,6.36,31,31,1.02,-6.34,0,1/6 (17%),3-0 (100%),0-4 (0%),0-1 (0%),2026-09-29,Lower power rating,-0.1
+29,Adam Verplank/Bakari Moss,Royal Oak,2,2,7,7,72.37,21.9,9.34,26.73,26.73,5.8,13,13,-0.74,-2.72,0,3/10 (30%),5-0 (100%),0-6 (0%),,2026-09-29,Lower power rating,-1.83
+30,Alex Jagielski/Marco Vultaggio,Livonia Franklin,2,2,9,5,81.56,23.1,8.23,26.36,26.36,6.04,21,21,-3.28,-4.34,0,3/8 (38%),8-0 (100%),0-4 (0%),,2026-10-02,Worse score margin vs common opponents,-0.43
+31,Charlie Abbott/Lucca Giorgi,Gibraltar Carlson,2,2,11,7,87.84,24.0,12.98,28.75,28.75,5.25,12,12,-2.27,-2.5,0,1/7 (14%),9-0 (100%),0-4 (0%),0-1 (0%),2026-09-29,Worse score margin vs common opponents,1.04
+32,Austin Traver/Rylan Rodabaugh,Lapeer,2,2,10,6,87.96,24.0,3.74,20.0,20.0,5.42,35,35,-1.59,-0.36,0,0/6 (0%),8-0 (100%),0-3 (0%),0-1 (0%),2026-10-01,Lower power rating,-1.66
+33,Gus Hufnagel/Nathan Gwozdz,Allen Park,2,2,13,4,39.39,17.6,4.94,21.69,21.69,5.58,9,9,-6.75,-5.17,0,0/4 (0%),7-1 (88%),0-3 (0%),,2026-10-01,Lower power rating,-1.85
+34,Brody Engstrom/Jackson Wallace,Alpena,2,2,4,7,61.03,20.4,2.18,18.52,18.52,5.45,25,25,0.17,-1.22,0,2/9 (22%),4-1 (80%),0-3 (0%),0-2 (0%),2026-09-21,Lower power rating,-3.36
+35,Pablo Solis Mata/Xander O'Keefe,Battle Creek Lakeview,2,2,8,20,-2.81,12.0,-7.19,12.38,12.38,6.52,16,16,2.25,3.73,0,0/19 (0%),5-2 (71%),0-8 (0%),0-9 (0%),2026-10-03,Worse score margin vs common opponents,-3.16
+36,George Girgenti/Nikolai Lysakowsky,St Clair Shores Lakeview,2,2,6,4,76.2,22.4,12.4,29.48,29.48,5.69,8,8,-3.69,-4.03,0,2/6 (33%),6-1 (86%),0-2 (0%),,2026-09-29,Lower power rating,-3.18
+37,Ben Bolton/Ben Wasser,North Farmington,2,2,4,8,96.18,25.1,9.7,26.95,26.95,5.75,23,23,0.24,-2.14,1,0/7 (0%),1-1 (50%),1-5 (17%),,2026-10-02,Lower power rating,-3.77
+38,Jacob Fisher/Noah Walt,Grand Rapids Northview,2,2,7,8,22.74,15.4,-0.89,14.51,14.51,5.13,14,14,-1.72,1.44,0,2/10 (20%),5-3 (62%),0-2 (0%),0-3 (0%),2026-10-02,Lower power rating,-3.88
+39,Findley Cook/Issac Fong,White Lake Lakeland,2,2,3,7,-5.01,11.7,-6.09,13.01,13.01,6.37,13,13,-1.23,-1.73,0,1/8 (12%),1-4 (20%),0-2 (0%),,2026-10-02,Lower power rating,-6.48
+40,Carter Bidigare/Drew Savage,South Lyon,2,2,2,6,4.25,12.9,-3.78,14.84,14.84,6.21,12,12,-1.75,-2.86,0,1/6 (17%),2-1 (67%),0-5 (0%),,2026-10-02,Lost head-to-head vs player above,-4.35
+41,Logan Moore/Madhav Nair,Walled Lake Central,2,2,2,2,48.15,18.7,6.43,24.46,24.46,6.01,8,8,-0.07,-2.06,0,0/1 (0%),1-0 (100%),0-2 (0%),,2026-10-02,Worse score margin vs common opponents,-0.63
+42,Tafhim Zihan/Yousuf Ahmed,Hamtramck,2,2,5,1,65.69,21.0,11.03,30.05,30.05,6.34,7,7,-7.14,-8.76,0,0/1 (0%),3-0 (100%),0-1 (0%),,2026-09-16,Lower power rating,-1.15
+43,Anthony Lam/Azman Siddile,Warren Mott,2,2,6,4,71.2,21.8,12.66,29.38,29.38,5.57,5,5,-4.33,-8.08,0,0/3 (0%),5-1 (83%),0-3 (0%),,2026-09-29,Lower power rating,-1.68
+44,George Curtis/Khalid (Ehsan) Shakoor,Jackson,2,2,3,2,21.28,15.2,3.63,19.94,19.94,5.44,3,3,-5.87,-2.84,0,0/1 (0%),3-1 (75%),0-1 (0%),,2026-09-29,Lower power rating,-2.43
+45,Ben Allen/Jacob Chiles,Riverview Gabriel Richard,2,2,5,6,13.27,14.1,0.03,15.84,15.84,5.27,6,6,-0.85,-0.9,1,0/5 (0%),1-2 (33%),1-3 (25%),,2026-09-26,Lower power rating,-3.19
+46,Hunter Holbert/Luke Majetic,Livonia Churchill,2,2,2,10,27.66,16.0,2.46,19.83,19.83,5.79,7,7,2.66,-1.26,0,0/9 (0%),1-3 (25%),0-2 (0%),0-2 (0%),2026-10-02,Lower power rating,-5.16
+47,Ryan Kujansuu/Zeke Vitale,Dearborn Divine Child,2,2,3,2,9.73,13.7,0.19,17.64,17.64,5.82,6,6,-6.51,-3.5,0,0/1 (0%),2-2 (50%),,,2026-09-29,Lost head-to-head vs player above,-3.57
+48,Ethan Blom/Nolan Gehring,Mount Pleasant,2,2,0,4,-8.75,11.2,-2.44,20.37,20.37,7.6,0,0,6.92,6.92,0,0/4 (0%),,,0-3 (0%),2026-10-01,Lower power rating,-4.39
+49,Jack Radamaker/Johnny Cueter,Grosse Pointe North,2,2,1,10,-76.41,2.3,-15.59,6.74,6.74,7.44,0,0,3.03,4.74,0,0/8 (0%),0-1 (0%),0-6 (0%),0-2 (0%),2026-10-05,Lower power rating,-6.34
+50,Alen Pedic/Liam Stanley,Sterling Heights,2,2,5,7,10.66,13.8,1.66,18.95,18.95,5.76,3,3,-7.39,-8.0,0,1/7 (14%),4-4 (50%),0-1 (0%),,2026-10-02,Lower power rating,-6.37
+51,Levi Hoffman/Liam Kondor,Lowell,2,2,2,5,-52.84,5.4,-10.39,9.26,9.26,6.55,0,0,-1.81,1.44,0,0/5 (0%),0-3 (0%),0-2 (0%),,2026-09-21,Lower power rating,-6.92
+52,Luke Mayes/Santino Phillips,Lansing Eastern,2,2,1,6,-31.69,8.2,-7.77,9.74,9.74,5.84,4,4,-1.74,0.0,0,0/6 (0%),1-2 (33%),0-3 (0%),0-1 (0%),2026-09-30,Lower power rating,-8.09
+53,Jackson Heinzerling/Trey Troutman,Wyandotte Roosevelt,2,2,3,15,-0.02,12.4,-1.87,14.66,14.66,5.51,5,5,-1.35,-1.73,0,0/14 (0%),2-6 (25%),0-6 (0%),,2026-10-03,Lower power rating,-8.76
+54,Henry Monsma/Will Chassee,Grand Rapids Ottawa Hills,2,2,0,8,-35.0,7.7,-7.3,10.59,10.59,5.96,0,0,3.02,0.0,0,0/8 (0%),0-1 (0%),0-2 (0%),0-2 (0%),2026-09-28,Lower power rating,-8.91
+55,Lucien Waite/Nathan Sheldon,Ypsilanti Lincoln,2,2,0,5,-41.97,6.8,-8.02,10.86,10.86,6.29,0,0,-3.77,-2.43,0,0/4 (0%),0-4 (0%),,,2026-09-29,Lower power rating,-9.35
+56,Hudson Pattee/Matthew Wirsing,Flushing,2,2,1,16,-93.61,0.0,-18.82,4.39,4.39,7.73,0,0,0.91,4.22,0,0/16 (0%),1-6 (14%),0-5 (0%),0-3 (0%),2026-09-29,Lower power rating,-9.42
+57,Alex Sliger/Marwan AlZuhairi,Warren Woods Tower,2,2,2,7,-26.74,8.8,-5.23,13.25,13.25,6.16,1,1,-5.21,-8.2,0,0/6 (0%),2-5 (29%),0-2 (0%),,2026-09-29,Lower power rating,-10.41
+58,Bradley Gaunt/Cameron Mock,Muskegon Reeths-Puffer,2,2,1,15,-64.91,3.8,-14.06,6.82,6.82,6.96,2,2,2.8,9.66,0,1/16 (6%),1-3 (25%),0-3 (0%),0-8 (0%),2026-10-02,Lower power rating,-10.42
+59,Landon Allen/Tyson Jones,Carleton Airport,2,2,3,10,-14.53,10.4,-3.48,13.27,13.27,5.58,3,3,-6.28,-1.85,0,0/9 (0%),2-6 (25%),1-0 (100%),,2026-10-03,Lower power rating,-10.5
+60,Asel Alasry/Hussein Almokdad,Dearborn Heights Crestwood,2,2,0,6,-40.81,7.0,-7.8,10.07,10.07,5.96,0,0,-3.59,0.0,0,0/6 (0%),0-3 (0%),0-1 (0%),,2026-10-03,Lower power rating,-11.78
+61,brenden quinn/roshan bhatti,Warren Cousino,2,2,0,7,-67.46,3.5,-12.91,6.05,6.05,6.32,0,0,-5.83,-7.05,0,0/7 (0%),0-6 (0%),0-1 (0%),,2026-09-29,Lower power rating,-12.37
+62,Alejandro Samano-Guzman/Angel Jimenz-Gonzalez,Lincoln Park,2,2,0,7,-70.22,3.1,-13.74,7.56,7.56,7.1,0,0,-3.05,-1.64,0,0/7 (0%),0-4 (0%),0-2 (0%),,2026-09-28,Lower power rating,-16.86
+1,Davis Gryzenia/Weston Jerabek,Grosse Pointe South,2,3,22,5,559.56,100.0,27.02,48.71,48.71,7.23,200,200,6.73,7.08,14,2/7 (29%),3-0 (100%),5-0 (100%),10-4 (71%),2026-10-05,,13.58
+2,Aaryan Senthilvanan/Mark Latinsky,Birmingham Seaholm,2,3,11,6,484.76,89.2,16.41,31.95,31.95,5.18,193,193,12.3,10.28,7,1/5 (20%),,1-0 (100%),6-6 (50%),2026-09-29,Lost head-to-head vs player above,14.14
+3,Vettel Xu/Zander Salisbury,Midland Dow,2,3,18,2,524.08,94.9,25.56,43.36,43.36,5.94,192,192,3.42,2.16,7,1/2 (50%),7-0 (100%),1-0 (100%),6-2 (75%),2026-10-05,Lost head-to-head vs player above,14.0
+4,Ivan Ortega-Rooze/Nathan Draft,Grand Rapids Forest Hills Central,2,3,14,8,516.14,93.7,23.49,40.58,40.58,5.7,189,189,8.26,7.5,11,3/10 (30%),1-0 (100%),4-0 (100%),7-7 (50%),2026-10-05,Lost head-to-head vs player above,10.75
+5,Teddy DuRoss/Zach Bartoi,Birmingham Groves,2,3,10,6,463.89,86.1,16.21,34.94,34.94,6.24,185,185,7.52,11.15,6,1/5 (20%),2-0 (100%),,6-4 (60%),2026-10-03,Lost head-to-head vs player above,9.84
+6,Daniel Jin/Mikey Hernly,Grand Rapids Forest Hills Northern,2,3,6,0,491.86,90.2,22.22,42.37,42.37,6.72,184,184,7.3,5.54,6,2/2 (100%),,1-0 (100%),5-0 (100%),2026-09-28,Worse score margin vs common opponents,12.73
+7,Braedyn Inthammavong/Luka Mulac,Byron Center,2,3,18,6,469.56,87.0,17.8,34.4,34.4,5.54,180,180,4.97,-2.77,12,1/7 (14%),2-0 (100%),5-0 (100%),7-5 (58%),2026-10-05,Worse score margin vs common opponents,10.15
+8,Jack Ryan/Jackson Zapp,Temperance Bedford,2,3,12,4,369.91,72.5,14.28,30.98,30.98,5.57,144,144,2.86,4.12,6,2/5 (40%),2-0 (100%),5-1 (83%),1-2 (33%),2026-10-01,Lower power rating,8.54
+9,Ari Schindler/Jake Ingber,Berkley,2,3,10,6,263.86,57.1,11.0,27.73,27.73,5.57,100,100,5.55,3.2,4,2/5 (40%),4-0 (100%),3-0 (100%),1-5 (17%),2026-09-29,Lower power rating,7.11
+10,Connor Evans/Jack Evans,Dexter,2,3,8,9,300.46,62.4,11.47,28.97,28.97,5.83,118,118,5.11,3.68,3,0/9 (0%),3-0 (100%),3-0 (100%),0-8 (0%),2026-09-29,Lower power rating,4.1
+11,Blake Davison/Graeme Wood,Traverse City Central,2,3,17,8,375.38,73.3,23.52,45.7,45.7,7.39,120,120,2.39,1.58,11,1/8 (12%),4-0 (100%),11-2 (85%),0-4 (0%),2026-10-05,Worse score margin vs common opponents,6.4
+12,Caleb McCumber/Connor Knop,Muskegon Mona Shores,2,3,16,6,160.23,42.1,11.27,29.1,29.1,5.94,48,48,0.6,0.77,5,0/6 (0%),10-0 (100%),5-1 (83%),0-5 (0%),2026-10-02,Fewer wins vs common opponents,5.54
+13,Cade Riker/Oscar Sullivan,Richland Gull Lake,2,3,10,8,202.52,48.2,5.76,21.22,21.22,5.15,84,84,2.29,-0.27,3,0/8 (0%),4-0 (100%),3-2 (60%),0-6 (0%),2026-10-03,Lower power rating,3.06
+14,Caden Skarp/Cameron Roelof,Battle Creek Lakeview,2,3,16,11,322.95,65.7,17.9,33.72,33.72,5.27,111,111,1.75,1.09,7,1/10 (10%),5-0 (100%),5-3 (62%),2-5 (29%),2026-10-03,Lost head-to-head vs player above,2.65
+15,Chase McMeeken/JJ Randle,Mason,2,3,17,8,316.63,64.8,17.1,34.61,34.61,5.84,110,110,1.18,-0.13,7,1/9 (11%),6-0 (100%),7-3 (70%),0-4 (0%),2026-10-05,Lost head-to-head vs player above,3.99
+16,Ethan Shank/Kyron Fernando,Gibraltar Carlson,2,3,14,4,136.95,38.7,15.53,31.37,31.37,5.28,27,27,-1.56,-2.0,4,0/3 (0%),9-0 (100%),4-2 (67%),0-2 (0%),2026-09-29,Worse score margin vs common opponents,4.15
+17,Joshua Wilks/Wyatt Buckley,Warren De La Salle Collegiate,2,3,10,5,233.45,52.7,16.68,34.61,34.61,5.98,72,72,2.93,4.11,3,1/6 (17%),5-0 (100%),3-0 (100%),0-5 (0%),2026-10-01,Lower power rating,3.56
+18,Anders Kuiper/Josh Heerlyn,Mattawan,2,3,6,14,222.56,51.1,10.83,28.2,28.2,5.79,82,82,2.81,4.61,2,0/14 (0%),3-0 (100%),2-7 (22%),0-5 (0%),2026-10-05,Lower power rating,-0.07
+19,Gabe Vincent/Louie Gouveia,East Lansing,2,3,5,3,218.55,50.6,13.39,31.09,31.09,5.9,75,75,0.07,0.1,1,1/4 (25%),4-0 (100%),1-2 (33%),,2026-09-28,Worse score margin vs common opponents,1.54
+20,Anderson Hart/Leo Karmanos,Detroit U-D Jesuit,2,3,1,6,101.59,33.6,0.2,17.86,17.86,5.88,48,48,9.13,5.61,0,0/5 (0%),1-0 (100%),0-1 (0%),0-5 (0%),2026-09-29,Lower power rating,0.3
+21,Calvin Berry/River Wilson,Grand Rapids Northview,2,3,12,6,82.22,30.8,4.63,22.38,22.38,5.92,29,29,1.98,5.54,0,2/7 (29%),4-0 (100%),0-2 (0%),0-4 (0%),2026-10-02,Lower power rating,-0.21
+22,Jorge Perez/Lorenzo Farina,Greenville,2,3,9,4,86.67,31.4,6.65,24.19,24.19,5.85,27,27,-1.3,0.0,0,0/4 (0%),5-0 (100%),0-2 (0%),0-2 (0%),2026-09-28,Worse score margin vs common opponents,-0.08
+23,Matthew McBrady/Tyler Collins,Grosse Pointe North,2,3,8,16,130.06,37.7,6.66,24.5,24.5,5.95,47,47,2.47,3.71,1,1/17 (6%),3-1 (75%),2-3 (40%),0-9 (0%),2026-10-05,Lower power rating,-1.8
+24,Vaishnav Polapragada/Varun Kongara,South Lyon East,2,3,8,1,174.91,44.2,25.83,43.17,43.17,5.78,21,21,1.31,2.07,2,0/1 (0%),5-0 (100%),2-0 (100%),0-1 (0%),2026-10-02,Worse score margin vs common opponents,6.53
+25,Aiden Fernandez/Owen Schodowski,Milford,2,3,5,2,139.79,39.1,19.16,35.43,35.43,5.42,20,20,1.83,2.49,2,2/4 (50%),3-0 (100%),1-0 (100%),1-2 (33%),2026-10-02,Lost head-to-head vs player above,2.91
+26,Gabriel Wallace/Luke Rohroff,Southgate Anderson,2,3,7,3,84.57,31.1,12.53,29.34,29.34,5.6,11,11,-3.3,-2.49,1,1/4 (25%),6-0 (100%),1-3 (25%),,2026-09-28,Lower power rating,1.17
+27,Jon Forsyth/Mason Macdonald,Livonia Franklin,2,3,10,7,94.24,32.5,11.73,28.49,28.49,5.59,18,18,-0.98,-1.44,0,2/9 (22%),6-1 (86%),0-1 (0%),0-2 (0%),2026-10-02,Worse score margin vs common opponents,2.23
+28,Dezmond Fante/Quintin Holmes,St Clair Shores Lakeview,2,3,7,2,86.52,31.4,14.14,33.53,33.53,6.47,9,9,-4.48,-5.09,0,1/3 (33%),6-0 (100%),0-2 (0%),,2026-09-29,Lower power rating,-0.45
+29,Owen Naspinski/Tommy McDavid,White Lake Lakeland,2,3,7,9,73.76,29.6,10.44,27.74,27.74,5.77,11,11,-1.0,-0.08,0,1/9 (11%),6-0 (100%),0-2 (0%),0-3 (0%),2026-10-02,Lower power rating,-1.13
+30,Evan Espinoza/Jerry Evans,Saginaw Heritage,2,3,6,4,138.64,39.0,10.79,30.05,30.05,6.42,43,43,-2.72,-1.81,0,1/5 (20%),5-2 (71%),,0-2 (0%),2026-10-01,Worse score margin vs common opponents,-3.23
+31,Even Gehoski/dylan dutcher,Bay City Western,2,3,13,6,122.76,36.7,11.84,28.51,28.51,5.56,33,33,-5.02,-3.31,0,0/6 (0%),9-2 (82%),1-2 (33%),0-1 (0%),2026-10-01,Fewer wins vs common opponents,-1.33
+32,Edward Plewka/Kaden Kolesar,Lake Fenton,2,3,10,6,93.14,32.4,11.76,29.2,29.2,5.81,17,17,-2.39,-12.99,1,1/6 (17%),7-0 (100%),1-4 (20%),0-2 (0%),2026-09-29,Worse score margin vs common opponents,-0.7
+33,Jason Yuan/Tristan Williams,Livonia Churchill,2,3,2,4,16.63,21.3,2.24,20.92,20.92,6.23,2,2,2.78,1.71,0,0/3 (0%),1-0 (100%),1-1 (50%),0-3 (0%),2026-10-02,Lower power rating,-0.92
+34,Jackson Jager/John Bui,Riverview Gabriel Richard,2,3,4,3,38.82,24.5,6.11,28.6,28.6,7.5,5,5,-3.57,-3.57,0,0/3 (0%),1-0 (100%),0-3 (0%),,2026-09-26,Lower power rating,-1.04
+35,Evan Wenzell/Wyatt Shaffner,Midland,2,3,10,7,52.12,26.4,3.84,22.15,22.15,6.1,17,17,-2.23,-0.49,0,0/7 (0%),10-1 (91%),0-3 (0%),0-3 (0%),2026-10-05,Lower power rating,-1.45
+36,Lucas Rancour/Thomas Grahor,Dearborn Divine Child,2,3,3,4,54.74,26.8,7.52,25.11,25.11,5.86,8,8,2.17,0.65,0,2/5 (40%),2-0 (100%),0-3 (0%),0-1 (0%),2026-09-29,Lower power rating,-1.54
+37,Amir Yako/brendyn brooks,Allen Park,2,3,10,4,36.07,24.1,3.9,21.18,21.18,5.76,9,9,-2.98,-3.04,0,0/4 (0%),4-0 (100%),0-4 (0%),,2026-10-01,Lower power rating,-2.1
+38,Bara Omaira/Sid Hegde,Portage Northern,2,3,4,10,19.85,21.8,1.15,19.48,19.48,6.11,7,7,0.14,2.76,0,1/10 (10%),4-1 (80%),0-7 (0%),0-2 (0%),2026-10-05,Lower power rating,-3.38
+39,Kashif Ahmed/Sharif Hasan,Hamtramck,2,3,8,4,11.83,20.6,0.82,17.25,17.25,5.48,5,5,-4.64,-3.51,0,1/5 (20%),4-2 (67%),1-2 (33%),,2026-10-05,Lower power rating,-3.52
+40,Alexander Markovic/Jeremy Scott,Port Huron Northern,2,3,9,7,5.34,19.7,0.53,19.71,19.71,6.39,2,2,-2.7,-1.8,0,1/8 (12%),5-1 (83%),0-5 (0%),0-1 (0%),2026-09-29,Worse score margin vs common opponents,-2.75
+41,Drew Messing/Vaughn Selden,Royal Oak,2,3,4,9,4.46,19.5,0.05,16.81,16.81,5.59,2,2,0.34,2.79,0,0/6 (0%),2-2 (50%),0-2 (0%),0-2 (0%),2026-09-29,Fewer wins vs common opponents,-2.27
+42,Cameron Roe/Isaac Gyuran,Wyandotte Roosevelt,2,3,5,10,20.92,21.9,2.71,19.52,19.52,5.61,4,4,-1.29,-3.99,0,0/9 (0%),2-1 (67%),0-5 (0%),,2026-10-03,Worse score margin vs common opponents,-3.57
+43,Mohammed Wafi/Nestor Cuevas,Warren Mott,2,3,4,4,25.09,22.5,4.43,22.06,22.06,5.88,2,2,-2.25,-5.47,0,0/4 (0%),2-1 (67%),0-3 (0%),,2026-09-29,Lower power rating,-3.77
+44,Adrik Bozarth/Dylan DeLeon,Ypsilanti Lincoln,2,3,2,3,19.78,21.7,3.53,20.57,20.57,5.68,2,2,-3.77,-10.79,0,1/4 (25%),2-1 (67%),0-1 (0%),,2026-09-29,Lower power rating,-5.36
+45,Connor Buckley/Ethan Luke,South Lyon,2,3,4,8,1.49,19.1,-0.58,18.69,18.69,6.42,2,2,0.68,0.63,0,1/7 (14%),2-1 (67%),0-3 (0%),0-2 (0%),2026-10-02,Worse score margin vs common opponents,-1.71
+46,Brandon Ulrich/Gabriel Ramos,Walled Lake Central,2,3,2,2,-5.49,18.1,-1.25,15.83,15.83,5.69,1,1,-2.55,-0.92,0,0/1 (0%),1-2 (33%),,,2026-10-02,Lower power rating,-3.62
+47,Conner Zylstra/Jake Wills,Lowell,2,3,2,8,-31.83,14.3,-7.66,10.8,10.8,6.15,3,3,0.87,-0.08,0,0/7 (0%),1-1 (50%),0-5 (0%),0-1 (0%),2026-09-26,Lower power rating,-5.54
+48,Jamal Abouzenni/Mahdi Mousavi,Dearborn Heights Crestwood,2,3,0,5,-23.86,15.4,-4.99,16.97,16.97,7.32,0,0,2.14,0.0,0,0/4 (0%),0-1 (0%),,0-2 (0%),2026-10-03,Lower power rating,-6.17
+49,Josh Wagner/Sanjay Pugazhendhi,North Farmington,2,3,1,11,-14.92,16.7,-3.31,15.75,15.75,6.35,1,1,-0.79,0.55,0,1/12 (8%),1-5 (17%),0-1 (0%),0-2 (0%),2026-10-02,Lower power rating,-6.32
+50,Gavin Miles/Nick Uryga-Williams,Lapeer,2,3,3,5,-10.12,17.4,-2.59,19.35,19.35,7.31,2,2,-2.39,-0.89,0,0/5 (0%),2-2 (50%),0-1 (0%),0-1 (0%),2026-10-01,Lower power rating,-6.79
+51,Andrew Tokarz/Lucas Noggle,Mount Pleasant,2,3,2,5,16.27,21.2,2.05,19.29,19.29,5.75,3,3,-0.0,3.74,0,1/5 (20%),1-4 (20%),,0-1 (0%),2026-10-01,Worse score margin vs common opponents,-7.28
+52,Hunter Langford/Julian Khoury,Sterling Heights,2,3,6,7,-23.86,15.4,-4.8,13.21,13.21,6.0,1,1,-3.81,-4.3,0,0/7 (0%),2-5 (29%),,,2026-10-02,Lower power rating,-7.98
+53,Jonah Gagnon/Otto Dahleen,Alpena,2,3,0,4,-40.78,13.0,-8.24,9.42,9.42,5.89,0,0,0.88,6.4,0,0/4 (0%),0-1 (0%),0-1 (0%),0-1 (0%),2026-09-23,Lower power rating,-8.71
+54,Brody Maue/Jerry Gardner,Carleton Airport,2,3,3,9,3.66,19.4,-0.04,16.7,16.7,5.58,3,3,-4.36,-2.83,0,0/9 (0%),2-6 (25%),0-1 (0%),,2026-10-03,Lower power rating,-9.13
+55,ben ocampo/odin ocampo,Warren Cousino,2,3,1,3,-24.34,15.4,-4.08,15.78,15.78,6.62,0,0,-7.98,-7.98,0,0/3 (0%),0-1 (0%),,,2026-09-29,Lower power rating,-9.98
+56,Ian Gardner/Kyle Sykes,Jackson,2,3,1,4,-34.26,13.9,-6.76,13.78,13.78,6.85,0,0,-0.92,-0.63,0,0/4 (0%),0-2 (0%),0-2 (0%),,2026-09-29,Lower power rating,-10.79
+57,Asa Wunderink/Lucas Schmidt,Grand Rapids Ottawa Hills,2,3,0,8,-43.59,12.6,-8.98,9.49,9.49,6.16,0,0,2.65,0.0,0,0/8 (0%),0-1 (0%),0-2 (0%),0-2 (0%),2026-09-28,Lower power rating,-12.31
+58,Isiah Garcia/Karson Dean,Lansing Eastern,2,3,2,11,-85.07,6.5,-16.84,2.43,2.43,6.43,0,0,-1.72,1.27,0,0/11 (0%),0-4 (0%),0-6 (0%),,2026-09-30,Lower power rating,-13.29
+59,Brayan Alburquerque/Caiden Green,Flushing,2,3,0,21,-130.25,0.0,-26.0,1.45,1.45,9.15,0,0,-0.46,2.42,0,0/21 (0%),0-12 (0%),0-3 (0%),0-4 (0%),2026-09-29,Worse score margin vs common opponents,-12.99
+60,Nolan Vanderwall/Tayte Schroeder,Muskegon Reeths-Puffer,2,3,0,13,-98.11,4.7,-19.74,2.06,2.06,7.27,0,0,1.22,8.61,0,0/13 (0%),0-6 (0%),0-2 (0%),0-4 (0%),2026-10-02,Lower power rating,-14.59
+61,Aaron Hernandez/Angel Torres,Lincoln Park,2,3,0,7,-66.61,9.2,-13.11,8.07,8.07,7.06,0,0,-2.11,-0.09,0,0/7 (0%),0-4 (0%),0-3 (0%),,2026-09-28,Lower power rating,-15.08
+1,Deven Badhwar/Ryan McArdle,Birmingham Seaholm,2,4,11,2,523.37,100.0,25.05,41.99,41.99,5.65,190,190,9.07,8.97,9,2/4 (50%),,1-0 (100%),8-1 (89%),2026-09-29,,15.55
+2,Joseph Dauphin/Vinnie Holder,Berkley,2,4,12,3,432.85,86.2,21.07,39.98,39.98,6.3,157,157,5.8,5.29,7,0/3 (0%),1-0 (100%),5-0 (100%),2-2 (50%),2026-09-29,Lost head-to-head vs player above,10.57
+3,Colten King/Jonah Wiechertjes,Byron Center,2,4,21,3,443.77,87.9,22.37,38.23,38.23,5.29,156,156,6.71,5.8,11,2/4 (50%),2-0 (100%),2-0 (100%),9-2 (82%),2026-10-05,Worse score margin vs common opponents,12.52
+4,Luka Zilo/virinchi Kakaraparthi,Grand Rapids Forest Hills Northern,2,4,15,7,441.61,87.5,25.03,41.27,41.27,5.41,150,150,8.79,7.56,8,1/5 (20%),1-0 (100%),1-0 (100%),7-6 (54%),2026-09-28,Lost head-to-head vs player above,11.39
+5,Dylan Hudson/Kellan Tanner,Grand Rapids Forest Hills Central,2,4,13,7,359.93,75.1,18.38,32.99,32.99,4.87,127,127,6.93,4.25,7,4/11 (36%),2-0 (100%),2-0 (100%),5-6 (45%),2026-10-05,Lost head-to-head vs player above,7.84
+6,Arya Karthikeyan/Bobby Tribfelner,Midland Dow,2,4,16,6,375.47,77.5,14.64,29.6,29.6,4.99,144,144,4.34,3.71,8,0/5 (0%),3-0 (100%),5-0 (100%),3-5 (38%),2026-10-05,Lost head-to-head vs player above,10.1
+7,Charlie Tursman/James Churella,Traverse City Central,2,4,19,5,521.59,99.7,26.87,46.27,46.27,6.46,183,183,3.28,3.98,13,2/6 (33%),3-0 (100%),9-1 (90%),4-4 (50%),2026-10-05,Worse score margin vs common opponents,7.2
+8,Caleb Ward/Jack Etters,Mason,2,4,19,6,423.84,84.8,11.56,26.57,26.57,5.0,178,178,1.93,-1.84,6,0/5 (0%),5-0 (100%),6-1 (86%),0-4 (0%),2026-10-05,Lost head-to-head vs player above,6.9
+9,Bru San Juan/Owen Kamp,Birmingham Groves,2,4,2,5,252.19,58.7,8.65,24.78,24.78,5.38,102,102,6.84,9.28,1,0/5 (0%),1-0 (100%),,1-4 (20%),2026-10-03,Lower power rating,4.47
+10,Matthew Guthat/Peter Struck,Grosse Pointe South,2,4,10,2,298.29,65.7,17.64,36.56,36.56,6.31,101,101,3.99,5.88,4,2/4 (50%),4-0 (100%),,4-2 (67%),2026-10-05,Lost head-to-head vs player above,7.99
+11,Chris Sulewski/Killian Lucidi,Gibraltar Carlson,2,4,15,3,299.17,65.8,22.79,40.35,40.35,5.85,89,89,-0.73,-1.85,5,1/4 (25%),5-0 (100%),5-1 (83%),0-2 (0%),2026-09-29,Fewer wins vs common opponents,6.83
+12,Landon Kamendat/Lawson Paeth,Port Huron Northern,2,4,14,0,273.25,61.9,24.58,44.11,44.11,6.51,71,71,1.55,0.0,5,2/2 (100%),3-0 (100%),3-0 (100%),2-0 (100%),2026-09-29,Lower power rating,6.52
+13,Blake Keessen/Jaiden Pope,Muskegon Mona Shores,2,4,14,6,170.81,46.3,11.11,29.81,29.81,6.23,55,55,1.36,5.53,3,0/5 (0%),8-0 (100%),3-1 (75%),0-5 (0%),2026-10-02,Lower power rating,5.24
+14,Andy Bowers/Xavier Haman,Wyandotte Roosevelt,2,4,15,7,217.77,53.4,8.68,26.1,26.1,5.81,86,86,-1.38,1.82,2,2/8 (25%),8-1 (89%),3-2 (60%),0-2 (0%),2026-10-03,Lower power rating,1.44
+15,Declan O'Shea/Lois Halladay,Royal Oak,2,4,11,5,278.64,62.7,21.9,37.92,37.92,5.34,81,81,2.11,6.01,4,0/4 (0%),3-0 (100%),4-2 (67%),0-2 (0%),2026-09-29,Lost head-to-head vs player above,3.49
+16,Liam Bunkley/Samuel Glowacki,South Lyon East,2,4,8,1,234.36,56.0,25.17,41.22,41.22,5.35,50,50,1.82,3.18,5,2/3 (67%),1-0 (100%),5-0 (100%),0-1 (0%),2026-10-02,Worse score margin vs common opponents,5.17
+17,Finn Loughin/Sai Chitrapu,Grand Rapids Northview,2,4,7,3,146.69,42.6,9.42,27.39,27.39,5.99,48,48,0.99,0.0,2,0/2 (0%),2-0 (100%),2-0 (100%),0-2 (0%),2026-10-02,Lower power rating,4.69
+18,Austin Moceri/Leo Bueti,Warren De La Salle Collegiate,2,4,9,6,69.56,30.9,8.08,25.41,25.41,5.78,13,13,0.16,-2.9,2,0/6 (0%),5-0 (100%),2-1 (67%),0-2 (0%),2026-10-01,Lower power rating,4.26
+19,Chris Semple/Liam Reinert,Dexter,2,4,5,2,88.13,33.7,14.35,31.26,31.26,5.64,7,7,1.61,1.96,1,0/2 (0%),2-0 (100%),1-0 (100%),0-2 (0%),2026-09-29,Lower power rating,3.28
+20,Weston Smith/Will Holmes,Richland Gull Lake,2,4,9,8,58.5,29.2,2.27,20.77,20.77,6.17,22,22,3.18,-0.34,1,0/7 (0%),3-0 (100%),1-2 (33%),0-6 (0%),2026-10-03,Lower power rating,1.68
+21,bradley mcfarland/cody mckeon,Bay City Western,2,4,12,5,109.83,37.0,12.2,28.73,28.73,5.51,24,24,-1.49,-1.2,1,1/6 (17%),5-0 (100%),1-3 (25%),0-1 (0%),2026-10-01,Lower power rating,1.1
+22,Bobby Dunning/Devon Lipps,Mattawan,2,4,10,11,97.81,35.2,9.52,25.24,25.24,5.24,21,21,4.32,5.56,4,2/13 (15%),4-0 (100%),3-2 (60%),1-8 (11%),2026-10-05,Lower power rating,0.77
+23,Eli Rohr/Maks Terrill,Midland,2,4,12,6,122.1,38.9,14.65,31.97,31.97,5.77,23,23,-0.45,2.94,2,1/6 (17%),6-1 (86%),3-1 (75%),0-4 (0%),2026-10-05,Fewer wins vs common opponents,1.59
+24,Grant Pelton/Teddy Lelo,Saginaw Heritage,2,4,11,4,78.69,32.2,8.36,27.63,27.63,6.42,19,19,-2.31,0.68,0,2/6 (33%),8-0 (100%),0-1 (0%),0-2 (0%),2026-10-01,Lost head-to-head vs player above,1.74
+25,Alex Terpay/Austin Malik,Milford,2,4,6,3,107.84,36.7,16.11,32.82,32.82,5.57,11,11,1.4,1.44,3,2/5 (40%),2-0 (100%),3-0 (100%),0-2 (0%),2026-10-02,Lower power rating,1.31
+26,Collin Leja/Jake Bledsoe,South Lyon,2,4,5,3,74.58,31.6,10.56,27.59,27.59,5.67,10,10,0.43,1.51,1,2/3 (67%),3-0 (100%),1-2 (33%),0-1 (0%),2026-10-02,Lost head-to-head vs player above,2.13
+27,Caleb Swartz/Hunter Stacey,Temperance Bedford,2,4,9,7,48.56,27.7,7.56,22.48,22.48,4.97,3,3,3.36,0.73,2,1/7 (14%),2-0 (100%),0-2 (0%),2-3 (40%),2026-10-01,Lower power rating,1.61
+28,James Freitag/Michael Jaber,Dearborn Divine Child,2,4,4,4,51.48,28.1,7.22,28.97,28.97,7.25,7,7,2.7,-1.91,0,0/4 (0%),2-1 (67%),0-1 (0%),0-2 (0%),2026-09-28,Lower power rating,0.27
+29,Aiden Drewno/angus walton,Detroit U-D Jesuit,2,4,2,9,4.22,20.9,-0.83,20.92,20.92,7.25,2,2,8.73,4.92,0,0/8 (0%),1-0 (100%),0-1 (0%),0-5 (0%),2026-09-29,Lower power rating,-0.91
+30,Cole Nusbaum/Logan Stankus,Portage Northern,2,4,6,8,52.27,28.2,4.02,22.02,22.02,6.0,16,16,0.21,1.53,0,2/8 (25%),5-0 (100%),0-2 (0%),0-4 (0%),2026-09-24,Lower power rating,-1.45
+31,Ali Charafeddine/MJ Tkac,Battle Creek Lakeview,2,4,2,2,-5.21,19.5,-1.28,17.97,17.97,6.42,1,1,-1.7,-1.45,0,0/2 (0%),1-1 (50%),,0-1 (0%),2026-10-03,Lost head-to-head vs player above,-0.31
+32,Fuad Kamaly/Syed Jamal,Warren Mott,2,4,7,2,14.01,22.4,1.64,20.72,20.72,6.36,3,3,-0.52,-2.78,0,0/1 (0%),1-1 (50%),0-1 (0%),,2026-09-29,Lower power rating,-1.59
+33,Braylen French/Parker Starr,Mount Pleasant,2,4,3,4,4.22,20.9,-0.06,16.11,16.11,5.39,3,3,-3.09,1.48,0,1/5 (20%),3-1 (75%),0-3 (0%),,2026-10-01,Lower power rating,-2.28
+34,Aiden Kryzaniwskyj/Shane Killeen,St Clair Shores Lakeview,2,4,5,2,40.37,26.4,7.61,25.57,25.57,5.99,2,2,-3.45,-1.59,0,1/3 (33%),3-1 (75%),0-1 (0%),,2026-09-29,Lower power rating,-2.78
+35,Griffin Boedeker/Michael Schorer,Grosse Pointe North,2,4,2,7,-38.16,14.4,-8.14,11.05,11.05,6.4,1,1,1.06,3.54,0,0/6 (0%),1-2 (33%),0-2 (0%),0-3 (0%),2026-10-05,Lower power rating,-3.0
+36,Cash Hanks/Lincoln Morgan,Lapeer,2,4,4,4,59.86,29.4,6.17,22.78,22.78,5.54,15,15,-2.08,0.29,0,0/4 (0%),3-0 (100%),0-2 (0%),0-1 (0%),2026-10-01,Lower power rating,-3.66
+37,Connor Lundquist/Ezra Aeschliman,Lake Fenton,2,4,6,5,82.87,32.9,10.82,28.36,28.36,5.85,15,15,-2.59,-11.77,0,0/4 (0%),3-1 (75%),0-2 (0%),,2026-09-29,Worse score margin vs common opponents,-3.0
+38,Brenden Caywood/Collin Godbout,Southgate Anderson,2,4,7,7,20.96,23.5,1.34,19.68,19.68,6.11,7,7,0.45,3.5,0,1/8 (12%),4-0 (100%),0-4 (0%),0-3 (0%),2026-10-03,Lower power rating,-3.22
+39,Francesco Julian/breslin mcmillan,Allen Park,2,4,7,5,17.64,22.9,1.72,18.57,18.57,5.62,5,5,-2.04,-0.72,0,0/4 (0%),3-1 (75%),0-3 (0%),0-1 (0%),2026-10-01,Lost head-to-head vs player above,-3.57
+40,Alex OBrien/Taevin Roberts,Greenville,2,4,5,3,22.1,23.6,3.61,20.99,20.99,5.79,2,2,-0.02,-7.81,0,0/3 (0%),2-0 (100%),0-3 (0%),,2026-09-21,Lower power rating,-3.58
+41,Laith Mohammed/Suhan Hussain,Hamtramck,2,4,5,1,29.93,24.8,5.69,23.43,23.43,5.91,2,2,-5.23,0.0,0,1/2 (50%),2-1 (67%),,,2026-10-05,Lower power rating,-3.91
+42,Anthony Margelis/Austin Ruddy,Livonia Churchill,2,4,2,3,20.73,23.4,4.22,21.84,21.84,5.88,1,1,-4.78,-9.68,0,0/3 (0%),2-2 (50%),0-1 (0%),,2026-10-02,Lower power rating,-5.98
+43,Jason Bodle/Kipton Huff,White Lake Lakeland,2,4,3,3,-2.19,19.9,-0.75,18.58,18.58,6.44,1,1,-1.02,-4.19,0,0/2 (0%),1-0 (100%),0-3 (0%),,2026-10-02,Worse score margin vs common opponents,-4.24
+44,Noah Webb/Roman Faurot,Lowell,2,4,4,14,-47.93,13.0,-10.07,8.47,8.47,6.18,1,1,0.75,-3.58,0,0/12 (0%),1-3 (25%),1-3 (25%),0-2 (0%),2026-09-26,Lower power rating,-7.81
+45,Dominic Didario/Jadiel Rosario,Carleton Airport,2,4,5,9,4.27,20.9,0.54,17.98,17.98,5.81,2,2,-4.97,-0.98,0,0/9 (0%),3-4 (43%),0-1 (0%),,2026-10-01,Lower power rating,-7.91
+46,Julian Gewirtz/Marcus Basey-Rocha,Lansing Eastern,2,4,4,7,-30.29,15.6,-7.69,8.93,8.93,5.54,4,4,0.25,6.9,0,0/6 (0%),1-3 (25%),0-3 (0%),0-1 (0%),2026-09-30,Lower power rating,-8.02
+47,anthony woodruff/ezel philip,Warren Cousino,2,4,1,3,0.03,20.3,,,,,0,0,0.0,0.0,0,0/3 (0%),0-1 (0%),,,2026-09-29,Tied — no deciding criterion found,
+48,Dekota DeKleine/LaZelle Martin,Grand Rapids Ottawa Hills,2,4,0,4,2.72,20.7,-0.56,21.37,21.37,7.31,0,0,11.02,0.0,0,0/4 (0%),,,0-1 (0%),2026-09-21,Tied — no deciding criterion found,-0.66
+49,Jaden Chachich/Wesley Goodwin,Walled Lake Central,2,4,1,3,-14.98,18.0,-3.17,17.35,17.35,6.84,0,0,1.65,1.72,0,0/1 (0%),,0-3 (0%),,2026-10-02,Lower power rating,-1.73
+50,Donovan Finger/Owen Sarzynski,East Lansing,2,4,1,8,-49.37,12.7,-10.3,9.65,9.65,6.65,0,0,4.21,2.72,0,0/7 (0%),0-1 (0%),0-3 (0%),0-3 (0%),2026-09-28,Lower power rating,-5.1
+51,Brennan Kelly/Eli Flores,Riverview Gabriel Richard,2,4,1,4,-24.47,16.5,-5.27,14.45,14.45,6.57,0,0,3.73,3.79,0,0/4 (0%),,0-3 (0%),0-1 (0%),2026-09-26,Lower power rating,-8.07
+52,Deniz Erpardo/Noah Bloch,North Farmington,2,4,2,8,-37.67,14.5,-7.63,14.3,14.3,7.31,0,0,0.96,0.0,0,0/8 (0%),0-1 (0%),0-4 (0%),,2026-09-29,Lower power rating,-9.13
+53,Evan Bamford/Liam Minton,Livonia Franklin,2,4,2,7,-46.95,13.1,-8.95,10.44,10.44,6.46,0,0,-4.45,-5.4,0,0/6 (0%),0-5 (0%),,,2026-09-29,Lower power rating,-9.68
+54,Abdul Dallal/Liam Zeitoun,Dearborn Heights Crestwood,2,4,0,5,-36.92,14.6,-7.33,13.61,13.61,6.98,0,0,-0.57,0.0,0,0/5 (0%),0-3 (0%),0-1 (0%),,2026-10-03,Lower power rating,-11.34
+55,Ben Kurnik/Reed Atkinson,Flushing,2,4,2,19,-132.96,0.0,-26.73,0.69,0.69,9.14,0,0,1.32,3.31,0,0/19 (0%),0-7 (0%),0-6 (0%),0-4 (0%),2026-09-29,Lower power rating,-11.77
+56,Brayden Witham/Gavin Willi,Muskegon Reeths-Puffer,2,4,0,7,-48.44,12.9,-9.41,11.22,11.22,6.88,0,0,-2.82,0.0,0,0/7 (0%),0-3 (0%),0-2 (0%),,2026-08-21,Lower power rating,-14.92
