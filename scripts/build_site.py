@@ -418,7 +418,6 @@ const SIM_SEED_BLEND_WEIGHT = 0.05;    // backtested: 0.05 minimizes held-out lo
 const SIM_THREE_SET_SCALE = 0.60;
 const SIM_TIEBREAK_SCALE = 0.46;
 const SIM_SEVEN_FIVE_SCALE = 0.82;
-const SIM_MARGIN_SD = 0.75;            // MARGIN_SD: how tightly the printed line's game margin tracks the rating gap
 const SIM_SCORE_SEED = 2026;           // SCORE_SEED: change to reshuffle all predicted scorelines
 const SIM_TABLE_STEP = 0.25;
 const SIM_EPS = 1e-9;
@@ -614,6 +613,18 @@ function simMixtureStats(d, tau) {
   return acc;
 }
 
+// Game margin one set score contributes (first number's side): 7-5 counts as
+// 1.5, 7-6 as 1, everything else is the plain game difference.
+function simSetMargin(x) {
+  const [a, b] = simSplit(x);
+  if (a === 7 && b === 5) return 1.5;
+  if (a === 5 && b === 7) return -1.5;
+  if (a === 7 && b === 6) return 1;
+  if (a === 6 && b === 7) return -1;
+  return a - b;
+}
+function simLineMargin(sets) { return sets.reduce((t, x) => t + simSetMargin(x), 0); }
+
 // Games A is expected to beat B by: rating gap capped at +/-12
 function simExpectedMargin(a, b) {
   return Math.max(-SIM_CAP, Math.min(SIM_CAP, a.power - b.power));
@@ -631,6 +642,25 @@ function simApplySeedPrior(p, a, b) {
 function matchWinProb(a, b) {
   const s = simMixtureStats(simExpectedMargin(a, b), simTau(a, b));
   return simApplySeedPrior(s[0] + s[1], a, b);
+}
+
+// Signed expected game margin (+ = A favored) AFTER the seed boost: the gap
+// whose plain (no-prior) win probability equals matchWinProb(a, b). Equals the
+// raw rating gap when there is no seed difference. Mirrors effective_margin().
+function simEffectiveMargin(a, b) {
+  const d = simExpectedMargin(a, b);
+  if (SIM_SEED_BLEND_WEIGHT <= 0 || !a.rank || !b.rank || a.rank === b.rank) return d;
+  const tau = simTau(a, b);
+  const target = matchWinProb(a, b);
+  const f = x => { const s = simMixtureStats(x, tau); return s[0] + s[1]; };
+  let lo = -SIM_CAP, hi = SIM_CAP;
+  if (target >= f(hi)) return hi;
+  if (target <= f(lo)) return lo;
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2;
+    if (f(mid) < target) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
 }
 
 // FNV-1a 32-bit hash of the UTF-8 text; mirrors _hash32() in predict_state.py.
@@ -652,11 +682,12 @@ function simMatchupSeed(a, b, winnerIsA) {
 }
 
 // Everything about one matchup, exact. Mirrors predict_match_details() in
-// predict_state.py: pick the more likely shape (straight sets vs three, using
-// the data-calibrated odds), then the most likely exact score in that shape,
-// oriented winner-first.
+// predict_state.py: the printed line's total game margin EQUALS the
+// seed-adjusted expected margin rounded to whole games (7-5 = 1.5, 7-6 = 1,
+// others plain); the shape (straight sets vs three) comes from the
+// data-calibrated odds, then a line is drawn among those hitting the margin.
 function predictMatchDetails(a, b, winnerIsA) {
-  const d = simExpectedMargin(a, b);
+  const d = simEffectiveMargin(a, b);
   const s = simMixtureStats(d, simTau(a, b));
   const w2 = winnerIsA ? s[0] : s[2], w3 = winnerIsA ? s[1] : s[3];
   const shapeW = {2: w2 + (1 - SIM_THREE_SET_SCALE) * w3, 3: SIM_THREE_SET_SCALE * w3};
@@ -664,44 +695,52 @@ function predictMatchDetails(a, b, winnerIsA) {
   const idx = Math.min(Math.round(Math.min(Math.abs(d), SIM_CAP) / SIM_TABLE_STEP), tab.length - 1);
   const winnerIsFavorite = (winnerIsA === (d >= 0));
   const src = winnerIsFavorite ? tab[idx].aWins : tab[idx].bWins;
-  // Printed line's total game margin should track the expected margin (|d|),
-  // floored at 1.5; an underdog winner shows a narrow win.
-  const target = winnerIsFavorite ? Math.max(Math.abs(d), 1.5) : 1.5;
-  // Step 1: pick the SHAPE (straight sets vs three) with the data-calibrated
-  // odds so printed three-setters match real frequency; step 2: sample a line
-  // inside that shape, matching the target margin as well as the shape allows.
+  const target = winnerIsFavorite ? Math.max(1, Math.floor(Math.abs(d) + 0.5)) : 1;
   const seed = simMatchupSeed(a, b, winnerIsA);
-  const p3 = (shapeW[2] + shapeW[3]) > 0 ? shapeW[3] / (shapeW[2] + shapeW[3]) : 0;
-  let shapePick = simUniform((seed + 0x1B873593) >>> 0) < p3 ? 3 : 2;
-  if (!src[shapePick].length) shapePick = 2;
-  const lines = src[shapePick];
-  // Straight-set wins are realistically never narrower than ~6-4 6-4 (+4).
-  const tgt = shapePick === 2 ? Math.max(target, 4) : target;
-  let tot = 0;
-  for (const e of lines) tot += e[1];
-  const cands = [];
-  let totalW = 0;
-  for (const [key, p] of lines) {
-    const sets = key.split(' ');
-    let margin = 0, damp = 1;
-    for (const x of sets) {
-      const [a1, b1] = simSplit(x);
-      margin += a1 - b1;
-      if (x === '7-6' || x === '6-7') damp *= SIM_TIEBREAK_SCALE;
-      else if (x === '7-5' || x === '5-7') damp *= SIM_SEVEN_FIVE_SCALE;
-    }
-    const wgt = p / tot * damp * Math.exp(-((margin - tgt) ** 2) / (2 * SIM_MARGIN_SD ** 2));
-    cands.push([sets, wgt]);
-    totalW += wgt;
+
+  const byShape = {};
+  for (const shp of [2, 3]) {
+    byShape[shp] = src[shp].map(([key, p]) => {
+      const sets = key.split(' ');
+      let damp = 1;
+      for (const x of sets) {
+        if (x === '7-6' || x === '6-7') damp *= SIM_TIEBREAK_SCALE;
+        else if (x === '7-5' || x === '5-7') damp *= SIM_SEVEN_FIVE_SCALE;
+      }
+      return [sets, p * damp, Math.abs(simLineMargin(sets) - target)];
+    });
   }
+
+  const p3 = (shapeW[2] + shapeW[3]) > 0 ? shapeW[3] / (shapeW[2] + shapeW[3]) : 0;
+  const preferred = simUniform((seed + 0x1B873593) >>> 0) < p3 ? 3 : 2;
+  const order = [preferred, 5 - preferred];
+
+  let pool = [];
+  for (const shp of order) {
+    pool = byShape[shp].filter(e => e[2] < 1e-9).map(e => [e[0], e[1]]);
+    if (pool.length) break;
+  }
+  if (!pool.length) {
+    let bestMiss = Infinity;
+    for (const shp of order) for (const e of byShape[shp]) bestMiss = Math.min(bestMiss, e[2]);
+    if (bestMiss < Infinity) {
+      for (const shp of order) {
+        pool = byShape[shp].filter(e => e[2] <= bestMiss + 1e-9).map(e => [e[0], e[1]]);
+        if (pool.length) break;
+      }
+    }
+  }
+
   // Replicable draw: same matchup -> same line; different matchups vary.
   let best = null;
+  let totalW = 0;
+  for (const e of pool) totalW += e[1];
   if (totalW > 0) {
     const r = simUniform(seed) * totalW;
     let acc = 0;
-    for (const [sets, w] of cands) { acc += w; best = sets; if (r < acc) break; }
+    for (const [sets, w] of pool) { acc += w; best = sets; if (r < acc) break; }
   }
-  let score = best || ['6-4', '6-4'];
+  let score = best ? best.slice() : ['6-4', '6-4'];
   if (score.length === 3) {
     // Stored as (set lost, won, won) with no order; deal it out in a real
     // sequence: winner loses set 1 or set 2 (real data 51% / 49%), ALWAYS
@@ -710,6 +749,9 @@ function predictMatchDetails(a, b, winnerIsA) {
     const lostFirst = simUniform((seed + 0x9E3779B9) >>> 0) < 0.5;
     if (simUniform((seed + 0x3C6EF372) >>> 0) < 0.5) [w1, w2] = [w2, w1];
     score = lostFirst ? [lost, w1, w2] : [w1, lost, w2];
+  } else if (score.length === 2) {
+    // Straight sets are stored bigger-win-first; deal either order.
+    if (simUniform((seed + 0x2545F491) >>> 0) < 0.5) score = [score[1], score[0]];
   }
   return {
     score: score,
