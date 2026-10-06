@@ -127,7 +127,7 @@ FORM_SD = 3.0
 # the gain includes zero), a big one clearly hurts. 0.05 keeps the blend ON
 # at the accuracy-maximizing strength. Mirror in build_site.py.
 SEED_PRIOR_ACCURACY = 0.950
-SEED_BLEND_WEIGHT = 0.05
+SEED_BLEND_WEIGHT = 0.15
 
 # The point-by-point model treats the two sets as independent given the
 # match's form, so it over-predicts how often matches are competitive. On
