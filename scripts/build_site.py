@@ -413,7 +413,7 @@ const SIM_CAP = 12;
 const SIM_RIDGE = 0.5;                 // POWER_RIDGE (rating fit)
 const SIM_FORM_SD = 3.0;               // FORM_SD (games) -- fit to held-out data
 const SIM_SEED_PRIOR_ACCURACY = 0.950;
-const SIM_SEED_BLEND_WEIGHT = 0.05;    // backtested: 0.05 minimizes held-out log-loss
+const SIM_SEED_BLEND_WEIGHT = 0.15;    // backtested: 0.05 minimizes held-out log-loss
 // Shape multipliers fit to held-out matches (the exact model over-predicts competitive matches)
 const SIM_THREE_SET_SCALE = 0.60;
 const SIM_TIEBREAK_SCALE = 0.46;
