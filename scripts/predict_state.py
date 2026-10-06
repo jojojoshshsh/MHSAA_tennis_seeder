@@ -138,10 +138,9 @@ SEED_BLEND_WEIGHT = 0.05
 # three-setters moves to straight sets, so win probability is untouched.
 THREE_SET_SCALE = 0.60
 
-# How tightly the PRINTED scoreline's total game margin must track the
-# expected margin (rating gap). Smaller = margin matches more exactly, at the
-# cost of showing less typical lines.
-MARGIN_SD = 0.75
+# The PRINTED scoreline's total game margin must EQUAL the seed-adjusted
+# expected margin rounded to whole games (7-5 counts 1.5, 7-6 counts 1; see
+# _set_margin / predict_match_details), so there is no tolerance constant.
 TIEBREAK_SCALE = 0.46
 SEVEN_FIVE_SCALE = 0.82
 
@@ -260,6 +259,27 @@ def _solve_point_prob(d: float) -> float:
         else:
             hi = mid
     return 0.5 * (lo + hi)
+
+
+def _set_margin(x: str) -> float:
+    """Game margin a set score contributes, from the first number's side.
+    7-5 counts as 1.5 and 7-6 (tiebreak) as 1; every other set is its plain
+    game difference (6-3 = 3, 6-0 = 6, a lost 4-6 = -2, ...)."""
+    a, b = (int(v) for v in x.split("-"))
+    if (a, b) == (7, 5):
+        return 1.5
+    if (a, b) == (5, 7):
+        return -1.5
+    if (a, b) == (7, 6):
+        return 1.0
+    if (a, b) == (6, 7):
+        return -1.0
+    return float(a - b)
+
+
+def _line_margin(sets) -> float:
+    """Total game margin of a whole scoreline (winner's side)."""
+    return sum(_set_margin(x) for x in sets)
 
 
 def _fmt_set(a: int, b: int) -> str:
@@ -483,6 +503,42 @@ def match_win_prob(a, b) -> float:
     return _apply_seed_prior(s[0] + s[1], a, b)
 
 
+def effective_margin(a: dict, b: dict) -> float:
+    """Signed expected game margin (positive = A favored) AFTER the seed
+    boost. The seed prior nudges the win probability toward the higher seed,
+    so the rating gap alone no longer describes the matchup. This inverts the
+    blended win probability back into a rating-gap-equivalent: the gap d_eff
+    whose plain (no-prior) win probability equals match_win_prob(a, b).
+    Without a seed difference (or with the blend off) it is exactly the raw
+    rating gap. The printed scoreline is built from this number, so the
+    "Fav. By" column, the winner and the scoreline all agree."""
+    d = expected_margin(a, b)
+    if SEED_BLEND_WEIGHT <= 0.0:
+        return d
+    sa, sb = _seed_number(a), _seed_number(b)
+    if sa is None or sb is None or sa == sb:
+        return d
+    tau = _tau(a, b)
+    target = match_win_prob(a, b)
+
+    def f(x: float) -> float:
+        s = _mixture_stats(x, tau)
+        return s[0] + s[1]
+
+    lo, hi = -POWER_CAP, POWER_CAP
+    if target >= f(hi):
+        return hi
+    if target <= f(lo):
+        return lo
+    for _ in range(30):
+        mid = 0.5 * (lo + hi)
+        if f(mid) < target:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
+
+
 # ============================================================================
 # 2.  Standard tournament bracket seeding (1v32, 16v17, 8v25, ... etc.)
 # ============================================================================
@@ -624,24 +680,28 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     """
     Everything about one matchup, exact and deterministic:
 
-      - "exp_margin": games the favorite (by rating) is expected to win by
+      - "exp_margin": games the favorite is expected to win by, INCLUDING the
+        seed boost (see effective_margin)
       - "score": the single representative scoreline, oriented so the
-        FIRST number in each set is the predicted winner's games. Every
-        straight-set and three-set line is scored by how likely it is
-        (with the data-calibrated shape odds, see THREE_SET_SCALE) minus a
-        penalty for missing the expected game margin, so the printed
-        score's total games-ahead matches the "favored by" number. One
-        line is then DRAWN from those weights with a seed built from the
-        two players (see SCORE_SEED), so scores vary between matchups but
-        are identical on every rebuild.
+        FIRST number in each set is the predicted winner's games. Its total
+        game margin EXACTLY equals exp_margin rounded to whole games (7-5
+        counts as 1.5, 7-6 as 1, everything else is the plain game
+        difference), e.g. a 4.6-game favorite prints a +5 line like 6-3 6-4
+        or 6-4 6-3. The shape (straight sets vs three) is picked with the
+        data-calibrated odds (THREE_SET_SCALE); then one line is DRAWN,
+        weighted by likelihood, from the lines that hit the margin, with a
+        seed built from the two players (see SCORE_SEED), so scores vary
+        between matchups but are identical on every rebuild.
       - "prob_three_sets" / "prob_tiebreak" / "prob_75": chance the match
         goes to a 3rd set / contains a 7-6 set / contains a 7-5 set.
 
     Match-shape odds use the full form-noise mixture, scaled by the
     fitted shape multipliers; the exact scoreline text is read from the
-    table entry nearest the raw rating gap.
+    table entry nearest the seed-adjusted rating gap.
     """
-    d = expected_margin(a, b)
+    # Seed-adjusted gap: the win probability includes the small seed boost for
+    # the higher seed, so the margin the scoreline must reflect does too.
+    d = effective_margin(a, b)
     pw2, pw3, pl2, pl3, p_tb, p_75 = _mixture_stats(d, _tau(a, b))
 
     w2, w3 = (pw2, pw3) if winner_is_a else (pl2, pl3)
@@ -656,58 +716,65 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
     winner_is_favorite = (winner_is_a == (d >= 0))
     src = tab[idx]["a_wins" if winner_is_favorite else "b_wins"]
 
-    # Target game margin for the printed line: the favorite is expected to
-    # win by |d| games, so a favorite's line should total about that many
-    # games ahead. If the predicted winner is the rating underdog, show a
-    # narrow win.
-    # Floor of 1.5: a winner is essentially always at least a game or two
-    # ahead, so an even matchup shouldn't print a margin of 0.
-    target = max(abs(d), 1.5) if winner_is_favorite else 1.5
+    # TARGET MARGIN: the printed line's total game margin must EQUAL the
+    # favorite's expected margin rounded to a whole number of games (4.6 ->
+    # 5, so 6-3 6-4 or 6-4 6-3). Margin counts 7-5 as 1.5 and 7-6 as 1;
+    # every other set is its plain game difference (see _set_margin). A
+    # winner is always at least 1 game ahead. (In the bracket the winner is
+    # always the favorite; an underdog winner shows a 1-game win.)
+    target = max(1, math.floor(abs(d) + 0.5)) if winner_is_favorite else 1
+    seed = _matchup_seed(a, b, winner_is_a)
 
-    # Score every candidate line: log(how likely, given the shape odds)
-    # minus a penalty for missing the target margin. MARGIN_SD is how many
-    # games of miss cost as much as a factor of e^0.5 in likelihood.
+    # Every candidate line in each shape, weighted by how likely it is
+    # (damped for the over-predicted 7-6 / 7-5 sets) and tagged with how far
+    # its margin is from the target.
+    by_shape: dict[int, list[tuple[list, float, float]]] = {}
+    for shp in (2, 3):
+        cands = []
+        for sets, p in src[shp]:
+            damp = 1.0
+            for x in sets:
+                if x in ("7-6", "6-7"):
+                    damp *= TIEBREAK_SCALE
+                elif x in ("7-5", "5-7"):
+                    damp *= SEVEN_FIVE_SCALE
+            cands.append((sets, p * damp, abs(_line_margin(sets) - target)))
+        by_shape[shp] = cands
+
     # Step 1 -- pick the SHAPE (straight sets vs three sets) with the
     # data-calibrated odds, so the share of printed three-setters matches
-    # real matches (see THREE_SET_SCALE) instead of being driven by margin.
-    seed = _matchup_seed(a, b, winner_is_a)
+    # real matches (see THREE_SET_SCALE). If the preferred shape has no line
+    # that hits the target margin exactly (a straight-set win can't be +1; a
+    # three-setter can't be +11), fall to the other shape.
     p3 = shape_w[3] / (shape_w[2] + shape_w[3]) if (shape_w[2] + shape_w[3]) > 0.0 else 0.0
-    shape_pick = 3 if _uniform_from_seed((seed + 0x1B873593) & 0xFFFFFFFF) < p3 else 2
-    if not src[shape_pick]:
-        shape_pick = 2
+    preferred = 3 if _uniform_from_seed((seed + 0x1B873593) & 0xFFFFFFFF) < p3 else 2
+    order = (preferred, 5 - preferred)
 
-    # Step 2 -- inside that shape, sample a line: likelihood x damping x
-    # closeness to the target margin. A compromise: the margin is matched as
-    # well as the shape allows (a straight-set win can't be narrower than
-    # about +3, a three-setter can't be as lopsided as +10).
-    lines = src[shape_pick]
-    tot = sum(p for _, p in lines)
-    # A straight-set win is realistically never narrower than ~6-4 6-4 (+4);
-    # without this floor close matchups drift to double-tiebreak lines.
-    if shape_pick == 2:
-        target = max(target, 4.0)
-    cands: list[tuple[list, float]] = []
-    for sets, p in lines:
-        margin = sum(int(x.split("-")[0]) - int(x.split("-")[1]) for x in sets)
-        # The set model over-predicts 7-6 / 7-5 sets (see TIEBREAK_SCALE,
-        # SEVEN_FIVE_SCALE), so damp lines by the fitted ratios per set.
-        damp = 1.0
-        for x in sets:
-            if x in ("7-6", "6-7"):
-                damp *= TIEBREAK_SCALE
-            elif x in ("7-5", "5-7"):
-                damp *= SEVEN_FIVE_SCALE
-        wgt = p / tot * damp * math.exp(-(margin - target) ** 2 / (2.0 * MARGIN_SD ** 2))
-        cands.append((sets, wgt))
-    # Replicable "random" draw seeded from the matchup: different matchups
-    # with the same rating gap get different (but realistic) scorelines,
-    # while the same matchup always gets the same one.
+    pool: list[tuple[list, float]] = []
+    for shp in order:
+        pool = [(sets, w) for sets, w, miss in by_shape[shp] if miss < 1e-9]
+        if pool:
+            break
+    if not pool:
+        # No line reaches the target at all (extreme tails): take the
+        # closest margin available.
+        best_miss = min((miss for shp in order for _, _, miss in by_shape[shp]), default=None)
+        if best_miss is not None:
+            for shp in order:
+                pool = [(sets, w) for sets, w, miss in by_shape[shp] if miss <= best_miss + 1e-9]
+                if pool:
+                    break
+
+    # Step 2 -- replicable weighted draw among the lines that hit the target
+    # (e.g. 6-3 6-4 vs 6-2 6-3 for a 5-game margin): different matchups with
+    # the same margin get different scorelines, the same matchup always gets
+    # the same one.
     best = None
-    total_w = sum(w for _, w in cands)
+    total_w = sum(w for _, w in pool)
     if total_w > 0.0:
         r = _uniform_from_seed(seed) * total_w
         acc = 0.0
-        for sets, w in cands:
+        for sets, w in pool:
             acc += w
             best = sets
             if r < acc:
@@ -724,6 +791,12 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
         if swap:
             w1, w2 = w2, w1
         score = [lost, w1, w2] if lost_first else [w1, lost, w2]
+    elif len(score) == 2:
+        # Straight sets are stored bigger-win-first; the order of the two
+        # sets doesn't change the margin, so deal either order (6-3 6-4 or
+        # 6-4 6-3), seeded so it is repeatable.
+        if _uniform_from_seed((seed + 0x2545F491) & 0xFFFFFFFF) < 0.5:
+            score = [score[1], score[0]]
 
     return {
         "score": score,
@@ -1140,8 +1213,9 @@ def build_full_html(all_results: list[dict], team_points: dict) -> str:
     32-draw bracket (#1 and #2 can only meet in the final, etc.) -- no
     simulation or randomness anywhere, so re-running reproduces every
     number. The bracket path is the single most-likely outcome: the
-    higher-rated side always advances, and each printed scoreline is the
-    most likely exact score for that matchup. Form noise, the small
+    higher-rated side (after the small seed boost) always advances, and each
+    printed scoreline's game margin equals the "Fav. By" number rounded to
+    whole games (a 7-5 set counts as 1.5 games, a 7-6 set as 1). Form noise, the small
     seed-history blend and the match-shape odds were all fit to a
     walk-forward backtest of held-out matches.
     "Fav. By" is the expected game margin; the last three columns are the
