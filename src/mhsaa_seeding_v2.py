@@ -216,6 +216,7 @@ added/rewritten.
 
 import csv
 import json
+import unicodedata
 import math
 import os
 import re
@@ -717,6 +718,157 @@ def load_matches(filepath: str, school_meta: dict | None = None,
               f"records, excluded from ranking consideration.")
 
     return matches
+
+
+# ============================================================================
+# 1b.  Winners report (state qualifiers) — OPTIONAL
+# ============================================================================
+# If "Winners_Report_MHSAA_Regional--<YEAR>.xlsx" (YEAR from config.py) is
+# found next to the input CSV, next to this script, or in <repo>/data, only
+# the players/pairs listed in it are treated as state qualifiers.
+#
+# Non-qualifiers are NOT removed from the data: every match (including
+# qualifier-vs-non-qualifier and non-qualifier-vs-non-qualifier) still feeds
+# cycle removal, the beats graph, transitive closure, head-to-head, common
+# opponents, TrueSkill, power ratings, SOS, records, etc. They are removed
+# ONLY from the seed order right before the adjacent fix-up pass (and so
+# from every division split / "overall" list / output), so a qualifier can't
+# get stuck in a slot because of a non-qualifier sitting next to them.
+#
+# No report found (or YEAR unset / unreadable) -> everyone is included.
+
+def _qual_canon(name: str) -> str:
+    """Accent/case/whitespace/punctuation-insensitive name key. Doubles
+    ("A/B") are split and alphabetized so order never matters."""
+    s = unicodedata.normalize("NFKD", str(name or ""))
+    s = "".join(c for c in s if not unicodedata.combining(c)).lower()
+    parts = []
+    for part in s.split("/"):
+        part = re.sub(r"[^a-z0-9 ]", "", part)
+        part = " ".join(part.split())
+        if part:
+            parts.append(part)
+    return "/".join(sorted(parts))
+
+
+def _qual_slot(_unused, match_type: str, flight: str) -> tuple[str, str]:
+    return (str(match_type or "").strip().lower(), str(flight or "").strip())
+
+
+def find_winners_report(csv_path: str) -> Path | None:
+    year = getattr(_config, "YEAR", None)
+    if year is None:
+        return None
+    script_dir = Path(__file__).parent.resolve()
+    csv_dir = Path(csv_path).parent.resolve()
+    repo_root = script_dir.parent.resolve()
+
+    def _norm(fname: str) -> str:
+        return re.sub(r"[\s_]+", "", fname).lower()
+
+    wanted = {_norm(f"Winners_Report_MHSAA_Regional--{year}.xlsx")}
+    for d in [csv_dir, script_dir, repo_root / "data"]:
+        if not d.is_dir():
+            continue
+        for f in sorted(d.iterdir()):
+            if f.is_file() and _norm(f.name) in wanted:
+                return f
+    return None
+
+
+def load_winners_report(csv_path: str) -> dict | None:
+    """
+    Returns None if there is no (readable) winners report for config.YEAR,
+    meaning "include everyone". Otherwise returns
+        {"players": {(match_type, flight): {canonical name, ...}},
+         "teams": {canonical school, ...}, "path": Path}
+    Every sheet containing a "Flight / Player / Player 2 / School" header
+    row (the "All Qualifiers" sheet and/or each regional sheet) is read;
+    results are unioned.
+    """
+    path = find_winners_report(csv_path)
+    year = getattr(_config, "YEAR", None)
+    if path is None:
+        print(f"  Winners report for {year} not found — including ALL players.")
+        return None
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    except Exception as e:  # missing openpyxl, corrupt file, ...
+        print(f"  WARNING: could not read winners report {path} ({e}) — "
+              f"including ALL players.")
+        return None
+
+    players: dict[tuple, set] = defaultdict(set)
+    teams: set[str] = set()
+    n_entries = 0
+
+    for ws in wb.worksheets:
+        cols: dict[str, int] | None = None
+        for row in ws.iter_rows(values_only=True):
+            cells = ["" if c is None else str(c).strip() for c in row]
+            lowered = [c.lower() for c in cells]
+            if "flight" in lowered and "player" in lowered:
+                cols = {h: i for i, h in enumerate(lowered) if h}
+                continue
+            if cols is None:
+                continue
+            def g(h):
+                i = cols.get(h)
+                return cells[i] if i is not None and i < len(cells) else ""
+            m = re.match(r"\s*(\d)\s*(singles|doubles)", g("flight").lower())
+            p1 = g("player")
+            if not m or not p1:
+                continue
+            flight, mtype = m.group(1), m.group(2)
+            school = g("school")
+            p2 = g("player 2")
+            if p2:
+                name = normalize_player_name_with_school(
+                    f"{p1}/{p2}", school)
+            else:
+                name = normalize_player_name_with_school(p1, school)
+            players[(mtype, flight)].add(_qual_canon(name))
+            if school:
+                teams.add(_qual_canon(school))
+            n_entries += 1
+
+        # "All Team Points"-style sheet (Division/Host, Team Name, Points)
+        hdr = None
+        for row in ws.iter_rows(values_only=True):
+            cells = ["" if c is None else str(c).strip() for c in row]
+            low = [c.lower() for c in cells]
+            if "team name" in low:
+                hdr = low.index("team name")
+                continue
+            if hdr is not None and hdr < len(cells) and cells[hdr]:
+                teams.add(_qual_canon(cells[hdr]))
+    wb.close()
+
+    if not n_entries:
+        print(f"  WARNING: winners report {path.name} had no qualifier rows — "
+              f"including ALL players.")
+        return None
+    print(f"  Winners report loaded: {path.name} "
+          f"({n_entries} qualifier entries, {len(teams)} teams)")
+    return {"players": dict(players), "teams": teams, "path": path}
+
+
+def qualified_players_for_group(players: list[str], key: tuple,
+                                report: dict | None) -> set[str] | None:
+    """Subset of `players` that are state qualifiers for this
+    (gender, match_type, flight) group, or None meaning "everyone"."""
+    if report is None:
+        return None
+    gender, match_type, flight = key
+    slot = _qual_slot(None, match_type, flight)
+    names = report["players"].get(slot, set())
+    q = {p for p in players if _qual_canon(p) in names}
+    if not q:
+        print(f"  NOTE ({gender} {match_type} flight={flight}): no players in "
+              f"this group appear in the winners report — including everyone.")
+        return None
+    return q
 
 
 # ============================================================================
@@ -1817,7 +1969,8 @@ def _format_record(wl: list[int]) -> str:
 # 10.  Per-group pipeline
 # ============================================================================
 
-def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
+def process_group(key: tuple, group_matches: list[dict],
+                  winners_report: dict | None = None) -> list[dict]:
     """
     Full pipeline for one (gender, match_type, flight) group, ranked
     across all divisions together, then split.
@@ -1850,6 +2003,12 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         if school:
             school_to_players[school].append(p)
 
+    # Qualifier set (None == everyone). Computed from the FULL bucket so the
+    # dedup below can prefer a school's qualifier over a non-qualifier.
+    qualified = qualified_players_for_group(
+        players_in_group(group_matches), key, winners_report
+    )
+
     drop_players: set[str] = set()
     for school, candidates in school_to_players.items():
         if len(candidates) <= 1:
@@ -1871,8 +2030,17 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
         # slot where nobody's played enough yet), fall back to picking
         # by recency among all candidates so the school isn't dropped
         # from this slot entirely.
-        qualified = [p for p in candidates if _match_count(p) >= MIN_MATCHES]
-        pool = qualified if qualified else candidates
+        cleared = [p for p in candidates if _match_count(p) >= MIN_MATCHES]
+        pool = cleared if cleared else candidates
+        # If this school has a state qualifier in this slot, the rep must
+        # be a qualifier (otherwise a more-recent non-qualifier could knock
+        # the qualifier out of the seeding entirely).
+        if qualified is not None:
+            q_pool = [p for p in pool if p in qualified]
+            if not q_pool:
+                q_pool = [p for p in candidates if p in qualified]
+            if q_pool:
+                pool = q_pool
 
         # Rank by recency first; if two-plus candidates are tied on the
         # exact same last-match date (e.g. a walkover and a real match
@@ -1947,6 +2115,17 @@ def process_group(key: tuple, group_matches: list[dict]) -> list[dict]:
     seed_order = transitivity_seed_order(
         players, reach, recency, margins, trueskill_ratings
     )
+
+    # --- Winners-report filter: drop non-qualifiers from the seed order ---
+    # Everything above (cycles, reach, h2h, opponents, ratings) used ALL
+    # matches. Only the order handed to the adjacent fix-up is filtered.
+    all_seed_order = seed_order
+    if qualified is not None:
+        seed_order = [p for p in all_seed_order if p in qualified]
+        print(f"  Winners report ({gender} {match_type} flight={flight}): "
+              f"{len(seed_order)} qualifiers kept, "
+              f"{len(all_seed_order) - len(seed_order)} non-qualifiers "
+              f"removed before fix-up.")
 
     # --- STEP 3: split into divisions ---
     div_players: dict[str, list[str]] = defaultdict(list)
@@ -2089,9 +2268,11 @@ def run(csv_path: str) -> list[dict]:
             f"flight={flight or '-':3}  ({len(buckets[key])} matches)"
         )
 
+    winners_report = load_winners_report(csv_path)
+
     results = []
     for key in sorted(buckets):
-        results.extend(process_group(key, buckets[key]))
+        results.extend(process_group(key, buckets[key], winners_report))
 
     return results
 
