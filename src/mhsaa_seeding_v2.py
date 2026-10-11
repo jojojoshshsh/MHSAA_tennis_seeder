@@ -1513,6 +1513,128 @@ def build_transitive_closure(
     return reach
 
 
+def build_transitive_closure_scc(
+    players: list[str],
+    beats: dict[str, set[str]],
+) -> dict[str, set[str]]:
+    """
+    Cycle-tolerant transitive closure. NO matches are deleted. The beats
+    graph may contain cycles of any length; each strongly connected
+    component (SCC) is a group of players who all reach each other.
+
+    reach[p] = every OTHER player p can get to by any chain of wins,
+    including teammates-in-a-cycle (everyone in p's own SCC) and
+    everyone downstream of that SCC. Because no edge is ever removed,
+    adding a new result can only ADD edges, so a player's reach can
+    never shrink or grow because of which cycle happened to be broken.
+    A loss by p adds an edge INTO p and so never increases p's own reach
+    (it can only merge p into a cycle with the winner, if p already
+    reached that winner through a chain).
+
+    Tarjan's SCC (iterative) emits components in reverse topological
+    order (sinks first), so one DP pass over that order is enough.
+    """
+    pset = set(players)
+    adj = {p: sorted(q for q in beats.get(p, ()) if q in pset and q != p)
+           for p in players}
+
+    index: dict[str, int] = {}
+    low: dict[str, int] = {}
+    on_stack: set[str] = set()
+    stack: list[str] = []
+    sccs: list[list[str]] = []
+    counter = 0
+
+    for root in sorted(players):
+        if root in index:
+            continue
+        index[root] = low[root] = counter
+        counter += 1
+        stack.append(root)
+        on_stack.add(root)
+        work = [(root, iter(adj[root]))]
+        while work:
+            node, it = work[-1]
+            advanced = False
+            for nxt in it:
+                if nxt not in index:
+                    index[nxt] = low[nxt] = counter
+                    counter += 1
+                    stack.append(nxt)
+                    on_stack.add(nxt)
+                    work.append((nxt, iter(adj[nxt])))
+                    advanced = True
+                    break
+                elif nxt in on_stack:
+                    low[node] = min(low[node], index[nxt])
+            if advanced:
+                continue
+            work.pop()
+            if work:
+                parent = work[-1][0]
+                low[parent] = min(low[parent], low[node])
+            if low[node] == index[node]:
+                comp = []
+                while True:
+                    w = stack.pop()
+                    on_stack.discard(w)
+                    comp.append(w)
+                    if w == node:
+                        break
+                sccs.append(comp)
+
+    comp_of: dict[str, int] = {}
+    for i, comp in enumerate(sccs):
+        for w in comp:
+            comp_of[w] = i
+
+    # Reach of a whole component (members + everything downstream).
+    comp_reach: list[set[str]] = [set() for _ in sccs]
+    for i, comp in enumerate(sccs):          # sinks first
+        r: set[str] = set(comp)
+        for w in comp:
+            for q in adj[w]:
+                j = comp_of[q]
+                if j != i:
+                    r |= comp_reach[j]
+        comp_reach[i] = r
+
+    reach: dict[str, set[str]] = {}
+    for w in players:
+        reach[w] = comp_reach[comp_of[w]] - {w}
+    return reach
+
+
+def reach_power_seed_order(
+    players: list[str],
+    reach: dict[str, set[str]],
+    power_ratings: dict,
+    recency: dict[str, float],
+    margins: dict[str, float],
+    trueskill_ratings: dict,
+) -> list[str]:
+    """
+    FIRST-PASS seed order: reachability size (desc), then power rating
+    (desc) within each reachability tie. Recency / margin / TrueSkill /
+    name are kept only as deterministic last-resort tiebreaks. The
+    adjacent fix-up pass runs afterwards, unchanged.
+    """
+    def pr(p: str) -> float:
+        return power_ratings[p].rating if p in power_ratings else 0.0
+
+    return sorted(
+        players,
+        key=lambda p: (
+            -len(reach.get(p, ())),
+            -pr(p),
+            -recency.get(p, 0.0),
+            -margins.get(p, 0.0),
+            -(trueskill_ratings[p].mu if p in trueskill_ratings else 0.0),
+            p,
+        ),
+    )
+
+
 def transitivity_seed_order(
     players: list[str],
     reach: dict[str, set[str]],
@@ -2107,13 +2229,14 @@ def process_group(key: tuple, group_matches: list[dict],
     quality_wins_full = precompute_quality_wins(players, ranking_results_idx, power_ratings)
 
     # --- STEP 1: break every cycle, regardless of length ---
-    acyclic_matches = resolve_all_cycles(ranking_matches, players)
-    beats = _directed_beats_from_matches(acyclic_matches)
+    # No edges are deleted any more: cycles are handled by collapsing
+    # strongly connected components inside build_transitive_closure_scc.
+    beats = _directed_beats_from_matches(ranking_matches)
 
     # --- STEP 2: transitive closure + transitivity-only order ---
-    reach = build_transitive_closure(players, beats)
-    seed_order = transitivity_seed_order(
-        players, reach, recency, margins, trueskill_ratings
+    reach = build_transitive_closure_scc(players, beats)
+    seed_order = reach_power_seed_order(
+        players, reach, power_ratings, recency, margins, trueskill_ratings
     )
 
     # --- Winners-report filter: drop non-qualifiers from the seed order ---
