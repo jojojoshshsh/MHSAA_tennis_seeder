@@ -7,10 +7,10 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
   STEP 1 — Cycle removal
       Build the winner->loser "beats" graph for the whole cross-division
       group. Repeatedly find ANY cycle (length >= 2, e.g. A beat B and B
-      beat A is a 2-cycle) and remove the OLDEST match on that cycle.
+      beat A is a 2-cycle) and remove the LEAST CONVINCING match on that cycle (smallest win
+      margin; ties broken by oldest date).
       Repeat until the graph is fully acyclic (a DAG). This is the same
-      "remove the oldest contradicting result" idea as the original
-      resolve_cycles(), but it now runs on cycles of every length, not
+      "remove the weakest contradicting result" idea, and it now runs on cycles of every length, not
       just length > 4, because the new algorithm needs a clean DAG to
       build a transitive closure from.
 
@@ -76,7 +76,7 @@ DETERMINISM
 
     2. Cycle detection iterated over `set[str]` children in whatever
        order Python's hash randomization handed back that run. Since
-       which cycle is discovered first determines which "oldest match"
+       which cycle is discovered first determines which "least convincing match"
        gets deleted to break it, this could silently produce a
        different acyclic graph — and therefore different rankings — on
        two runs over identical input. Children are now visited in
@@ -1365,7 +1365,7 @@ def _find_any_cycle(
     DETERMINISM: `beats[node]` is a set[str], and Python's set iteration
     order for strings depends on hash randomization (PYTHONHASHSEED),
     which varies process-to-process. Since which cycle is discovered
-    first determines which "oldest match" gets removed to break it, that
+    first determines which "least convincing match" gets removed to break it, that
     would let two runs over identical input silently land on a different
     acyclic graph. We visit children in sorted() order instead, so the
     DFS traversal — and therefore the cycle found, and therefore the
@@ -1417,14 +1417,13 @@ def _find_any_cycle(
 
 def _match_to_remove_on_cycle(cycle: list[str], active: list[dict]) -> dict | None:
     """
-    Picks which match on the cycle to drop. Primary key is still the
-    oldest date (matches the original "remove the oldest contradicting
-    result" behavior). If two or more matches on the cycle land on the
-    exact same date, the tie is broken by margin of win — the match
-    that was the LEAST convincing win (smallest game-differential
-    margin, from parse_score_margin) is the one removed, since a
-    razor-thin win is the weakest evidence to be contradicting the
-    rest of the graph.
+    Picks which match on the cycle to drop: the LEAST CONVINCING one,
+    i.e. the win with the smallest game-differential margin (from
+    parse_score_margin). A razor-thin win is the weakest evidence to be
+    contradicting the rest of the graph. If two or more matches on the
+    cycle share the same smallest margin, the tie is broken by removing
+    the OLDEST of them (earliest date); any remaining tie falls back to
+    the first in `active` order, which is stable run to run.
     """
     k = len(cycle)
     edges: set[tuple[str, str]] = {
@@ -1434,19 +1433,16 @@ def _match_to_remove_on_cycle(cycle: list[str], active: list[dict]) -> dict | No
     if not candidates:
         return None
 
-    oldest_date = min(m["date"] for m in candidates)
-    on_oldest_date = [m for m in candidates if m["date"] == oldest_date]
-    if len(on_oldest_date) == 1:
-        return on_oldest_date[0]
-
-    # Exact date tie: remove the least convincing win (smallest margin).
-    return min(on_oldest_date, key=lambda m: parse_score_margin(m["score"]))
+    return min(
+        candidates,
+        key=lambda m: (parse_score_margin(m["score"]), m["date"]),
+    )
 
 
 def resolve_all_cycles(matches: list[dict], players: list[str]) -> list[dict]:
     """
-    Repeatedly find ANY cycle and drop the oldest match on it (ties on
-    the exact same date broken by smallest win margin — see
+    Repeatedly find ANY cycle and drop the least convincing match on it
+    (smallest win margin, ties broken by oldest date — see
     _match_to_remove_on_cycle), until the beats graph is fully acyclic.
     This is the foundation step the rest of the algorithm depends on —
     everything downstream assumes a DAG.
@@ -1511,128 +1507,6 @@ def build_transitive_closure(
             s |= reach.get(child, set())
         reach[node] = s
     return reach
-
-
-def build_transitive_closure_scc(
-    players: list[str],
-    beats: dict[str, set[str]],
-) -> dict[str, set[str]]:
-    """
-    Cycle-tolerant transitive closure. NO matches are deleted. The beats
-    graph may contain cycles of any length; each strongly connected
-    component (SCC) is a group of players who all reach each other.
-
-    reach[p] = every OTHER player p can get to by any chain of wins,
-    including teammates-in-a-cycle (everyone in p's own SCC) and
-    everyone downstream of that SCC. Because no edge is ever removed,
-    adding a new result can only ADD edges, so a player's reach can
-    never shrink or grow because of which cycle happened to be broken.
-    A loss by p adds an edge INTO p and so never increases p's own reach
-    (it can only merge p into a cycle with the winner, if p already
-    reached that winner through a chain).
-
-    Tarjan's SCC (iterative) emits components in reverse topological
-    order (sinks first), so one DP pass over that order is enough.
-    """
-    pset = set(players)
-    adj = {p: sorted(q for q in beats.get(p, ()) if q in pset and q != p)
-           for p in players}
-
-    index: dict[str, int] = {}
-    low: dict[str, int] = {}
-    on_stack: set[str] = set()
-    stack: list[str] = []
-    sccs: list[list[str]] = []
-    counter = 0
-
-    for root in sorted(players):
-        if root in index:
-            continue
-        index[root] = low[root] = counter
-        counter += 1
-        stack.append(root)
-        on_stack.add(root)
-        work = [(root, iter(adj[root]))]
-        while work:
-            node, it = work[-1]
-            advanced = False
-            for nxt in it:
-                if nxt not in index:
-                    index[nxt] = low[nxt] = counter
-                    counter += 1
-                    stack.append(nxt)
-                    on_stack.add(nxt)
-                    work.append((nxt, iter(adj[nxt])))
-                    advanced = True
-                    break
-                elif nxt in on_stack:
-                    low[node] = min(low[node], index[nxt])
-            if advanced:
-                continue
-            work.pop()
-            if work:
-                parent = work[-1][0]
-                low[parent] = min(low[parent], low[node])
-            if low[node] == index[node]:
-                comp = []
-                while True:
-                    w = stack.pop()
-                    on_stack.discard(w)
-                    comp.append(w)
-                    if w == node:
-                        break
-                sccs.append(comp)
-
-    comp_of: dict[str, int] = {}
-    for i, comp in enumerate(sccs):
-        for w in comp:
-            comp_of[w] = i
-
-    # Reach of a whole component (members + everything downstream).
-    comp_reach: list[set[str]] = [set() for _ in sccs]
-    for i, comp in enumerate(sccs):          # sinks first
-        r: set[str] = set(comp)
-        for w in comp:
-            for q in adj[w]:
-                j = comp_of[q]
-                if j != i:
-                    r |= comp_reach[j]
-        comp_reach[i] = r
-
-    reach: dict[str, set[str]] = {}
-    for w in players:
-        reach[w] = comp_reach[comp_of[w]] - {w}
-    return reach
-
-
-def reach_power_seed_order(
-    players: list[str],
-    reach: dict[str, set[str]],
-    power_ratings: dict,
-    recency: dict[str, float],
-    margins: dict[str, float],
-    trueskill_ratings: dict,
-) -> list[str]:
-    """
-    FIRST-PASS seed order: reachability size (desc), then power rating
-    (desc) within each reachability tie. Recency / margin / TrueSkill /
-    name are kept only as deterministic last-resort tiebreaks. The
-    adjacent fix-up pass runs afterwards, unchanged.
-    """
-    def pr(p: str) -> float:
-        return power_ratings[p].rating if p in power_ratings else 0.0
-
-    return sorted(
-        players,
-        key=lambda p: (
-            -len(reach.get(p, ())),
-            -pr(p),
-            -recency.get(p, 0.0),
-            -margins.get(p, 0.0),
-            -(trueskill_ratings[p].mu if p in trueskill_ratings else 0.0),
-            p,
-        ),
-    )
 
 
 def transitivity_seed_order(
@@ -2229,14 +2103,13 @@ def process_group(key: tuple, group_matches: list[dict],
     quality_wins_full = precompute_quality_wins(players, ranking_results_idx, power_ratings)
 
     # --- STEP 1: break every cycle, regardless of length ---
-    # No edges are deleted any more: cycles are handled by collapsing
-    # strongly connected components inside build_transitive_closure_scc.
-    beats = _directed_beats_from_matches(ranking_matches)
+    acyclic_matches = resolve_all_cycles(ranking_matches, players)
+    beats = _directed_beats_from_matches(acyclic_matches)
 
     # --- STEP 2: transitive closure + transitivity-only order ---
-    reach = build_transitive_closure_scc(players, beats)
-    seed_order = reach_power_seed_order(
-        players, reach, power_ratings, recency, margins, trueskill_ratings
+    reach = build_transitive_closure(players, beats)
+    seed_order = transitivity_seed_order(
+        players, reach, recency, margins, trueskill_ratings
     )
 
     # --- Winners-report filter: drop non-qualifiers from the seed order ---
