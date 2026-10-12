@@ -7,11 +7,10 @@ New ranking algorithm (replaces the old multi-rule cmp_to_key sort):
   STEP 1 — Cycle removal
       Build the winner->loser "beats" graph for the whole cross-division
       group. Repeatedly find ANY cycle (length >= 2, e.g. A beat B and B
-      beat A is a 2-cycle) and remove the WEAKEST match on that cycle, scored by blending win
-      margin and age (thin AND old goes first; see
-      _match_to_remove_on_cycle).
+      beat A is a 2-cycle) and remove the OLDEST match on that cycle.
       Repeat until the graph is fully acyclic (a DAG). This is the same
-      "remove the weakest contradicting result" idea, and it now runs on cycles of every length, not
+      "remove the oldest contradicting result" idea as the original
+      resolve_cycles(), but it now runs on cycles of every length, not
       just length > 4, because the new algorithm needs a clean DAG to
       build a transitive closure from.
 
@@ -77,7 +76,7 @@ DETERMINISM
 
     2. Cycle detection iterated over `set[str]` children in whatever
        order Python's hash randomization handed back that run. Since
-       which cycle is discovered first determines which "weakest match"
+       which cycle is discovered first determines which "oldest match"
        gets deleted to break it, this could silently produce a
        different acyclic graph — and therefore different rankings — on
        two runs over identical input. Children are now visited in
@@ -1366,7 +1365,7 @@ def _find_any_cycle(
     DETERMINISM: `beats[node]` is a set[str], and Python's set iteration
     order for strings depends on hash randomization (PYTHONHASHSEED),
     which varies process-to-process. Since which cycle is discovered
-    first determines which "weakest match" gets removed to break it, that
+    first determines which "oldest match" gets removed to break it, that
     would let two runs over identical input silently land on a different
     acyclic graph. We visit children in sorted() order instead, so the
     DFS traversal — and therefore the cycle found, and therefore the
@@ -1416,37 +1415,16 @@ def _find_any_cycle(
     return None
 
 
-# Weight an OLDEST match on a cycle gets relative to the NEWEST one when
-# scoring how convincing it is (1.0 = ignore age, 0.0 = oldest counts for
-# nothing). 0.5 means the newest match's margin counts twice as much as
-# the same margin on the oldest match.
-CYCLE_OLDEST_WEIGHT = 0.5
-# Margin (in games) treated as a "full" blowout when normalizing.
-CYCLE_FULL_MARGIN = 12.0
-
-
 def _match_to_remove_on_cycle(cycle: list[str], active: list[dict]) -> dict | None:
     """
-    Picks which match on the cycle to drop: the one with the lowest
-    "evidence strength", which blends BOTH margin and age instead of
-    choosing one over the other:
-
-        strength = margin_score * age_weight
-
-        margin_score = (margin + 1) / (CYCLE_FULL_MARGIN + 1)
-            margin from parse_score_margin, so a razor-thin win scores low
-            and a blowout scores near 1.
-        age_weight   = CYCLE_OLDEST_WEIGHT
-                       + (1 - CYCLE_OLDEST_WEIGHT) * recency
-            recency runs 0 (oldest match ON THIS CYCLE) to 1 (newest).
-            Measured relative to the cycle's own date span, so results
-            never change just because the program is run on a later day.
-
-    Effect: old AND thin matches go first. A thin recent win and a big
-    old win are weighed against each other rather than one rule always
-    overriding the other (an old blowout survives a recent squeaker, but
-    not a recent solid win of similar size). Exact strength ties fall
-    back to the oldest date, then to a stable `active` order.
+    Picks which match on the cycle to drop. Primary key is still the
+    oldest date (matches the original "remove the oldest contradicting
+    result" behavior). If two or more matches on the cycle land on the
+    exact same date, the tie is broken by margin of win — the match
+    that was the LEAST convincing win (smallest game-differential
+    margin, from parse_score_margin) is the one removed, since a
+    razor-thin win is the weakest evidence to be contradicting the
+    rest of the graph.
     """
     k = len(cycle)
     edges: set[tuple[str, str]] = {
@@ -1456,24 +1434,20 @@ def _match_to_remove_on_cycle(cycle: list[str], active: list[dict]) -> dict | No
     if not candidates:
         return None
 
-    oldest = min(m["date"] for m in candidates)
-    newest = max(m["date"] for m in candidates)
-    span = (newest - oldest).total_seconds()
+    oldest_date = min(m["date"] for m in candidates)
+    on_oldest_date = [m for m in candidates if m["date"] == oldest_date]
+    if len(on_oldest_date) == 1:
+        return on_oldest_date[0]
 
-    def strength(m: dict) -> float:
-        margin = max(parse_score_margin(m["score"]), 0.0)
-        margin_score = (margin + 1.0) / (CYCLE_FULL_MARGIN + 1.0)
-        recency = 1.0 if span <= 0 else (m["date"] - oldest).total_seconds() / span
-        age_weight = CYCLE_OLDEST_WEIGHT + (1.0 - CYCLE_OLDEST_WEIGHT) * recency
-        return margin_score * age_weight
-
-    return min(candidates, key=lambda m: (strength(m), m["date"]))
+    # Exact date tie: remove the least convincing win (smallest margin).
+    return min(on_oldest_date, key=lambda m: parse_score_margin(m["score"]))
 
 
 def resolve_all_cycles(matches: list[dict], players: list[str]) -> list[dict]:
     """
-    Repeatedly find ANY cycle and drop the weakest match on it (win margin
-    blended with age — see _match_to_remove_on_cycle), until the beats graph is fully acyclic.
+    Repeatedly find ANY cycle and drop the oldest match on it (ties on
+    the exact same date broken by smallest win margin — see
+    _match_to_remove_on_cycle), until the beats graph is fully acyclic.
     This is the foundation step the rest of the algorithm depends on —
     everything downstream assumes a DAG.
 
