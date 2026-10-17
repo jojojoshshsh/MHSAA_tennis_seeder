@@ -74,6 +74,10 @@ If historical/<Year>/brackets.csv exists, the real drawn brackets are used
 instead of the seed-order draw built from the rankings. Otherwise (file
 missing, or a bracket not in the file) everything works exactly as before.
 
+The bracket SHAPE comes from brackets.csv (odd matchups like 1 v 13 or
+21 v 4 are fine), but each player keeps the seed ("rank") from the rankings,
+so the seed prior still nudges every match.
+
     python scripts/predict_state.py                  # --mode full (default)
     python scripts/predict_state.py --mode tbd
     python scripts/predict_state.py --year 2026 --gender boys
@@ -1082,6 +1086,7 @@ class _Resolver:
 
     def __init__(self, rows: list[dict]):
         self.by_name, self.by_seed = {}, {}
+        self.has_rows = bool(rows)
         for r in rows:
             sch = _fold(r.get("school"))
             self.by_name[(_norm_person(_player_name(r)), sch)] = r
@@ -1101,13 +1106,18 @@ class _Resolver:
         base = self.by_name.get(k) or self.by_seed.get((sch, e["seed"]))
         if base is None:
             self.synthetic += 1
+            # Unranked entrant: no ranking seed, so the seed prior is skipped for
+            # them -- unless the whole group has no rankings, then the
+            # bracket's own seed stands in for it.
+            rank = "" if self.has_rows or e["seed"] is None else e["seed"]
             row = {"name": e["name"], "pair_name": e["name"], "school": e["school"],
-                   "rank": e["seed"] if e["seed"] is not None else "",
+                   "rank": rank, "bracket_seed": e["seed"],
                    "power_rating": self.floor, "wins": 0, "losses": 0}
         else:
+            # Keep the RANKING seed (row["rank"]) so the seed prior still
+            # applies; the bracket's own seed is only recorded.
             row = dict(base)
-            if e["seed"] is not None:
-                row["rank"] = e["seed"]
+            row["bracket_seed"] = e["seed"]
         self.cache[k] = row
         return row
 
