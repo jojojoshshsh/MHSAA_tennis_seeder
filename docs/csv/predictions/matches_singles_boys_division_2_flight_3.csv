@@ -1,32 +1,19 @@
-﻿round,player_a,seed_a,player_b,seed_b,predicted_winner,predicted_score,win_prob_pct,exp_margin_games,prob_three_sets_pct,prob_7_6_tiebreak_pct,prob_7_5_set_pct
-1,Charlie Griffith,1,Brogan Oxley,32,Charlie Griffith,6-0 6-0,99.6,11.6,1.3,0.7,1.9
-1,Anders Lyons,16,Mike Azzi,17,Mike Azzi,7-6 7-6,64.0,1.7,23.9,10.5,19.6
-1,Max Schardt,8,Ethan Vergara,25,Max Schardt,6-0 6-3,97.6,8.8,5.0,2.5,5.9
-1,Jake Goins,9,Dillon Gagnon,24,Jake Goins,6-4 6-0,97.1,8.5,5.8,2.9,6.6
-1,Frey Wu,4,aidan o'dell,29,Frey Wu,6-0 6-0,99.6,11.6,1.3,0.7,1.9
-1,Isaiah Bartlett,13,jaden Haugabook,20,Isaiah Bartlett,7-6 7-6,65.4,1.8,23.7,10.4,19.4
-1,Ryan McKendry,5,Sawyer Jordan,28,Ryan McKendry,6-0 6-0,99.6,11.6,1.3,0.7,1.9
-1,Jackson Hurley,12,Jordan Spoelhof,21,Jackson Hurley,7-6 6-3,80.9,4.0,18.6,8.4,16.3
-1,Brendan Stafford,2,Gabriel Smith,31,Brendan Stafford,6-0 6-0,99.6,11.6,1.3,0.7,1.9
-1,Gavin Russell,15,Jackson DuBuc,18,Gavin Russell,7-6 7-6,69.8,2.4,22.6,10.0,18.8
-1,Brendan Ryan,7,Colton Bible,26,Brendan Ryan,6-2 6-2,96.7,8.2,6.4,3.2,7.1
-1,Dom Szczerowski,10,William Blind,23,Dom Szczerowski,6-1 6-4,93.5,6.8,10.1,4.8,10.1
-1,Siddarth Venkatesan,3,Daniel Hosseini,30,Siddarth Venkatesan,6-0 6-0,99.6,11.6,1.3,0.7,1.9
-1,Jordan Serlin,14,Evan Goddard,19,Jordan Serlin,7-6 4-6 6-4,53.9,0.5,25.1,10.9,20.2
-1,Sam Ogilvie,6,Jackson Atwell,27,Sam Ogilvie,6-0 6-0,99.6,11.6,1.3,0.7,1.9
-1,Felix Llonch Balauder,11,Finn Murray,22,Felix Llonch Balauder,6-3 6-4,87.6,5.3,14.8,6.8,13.7
-2,Charlie Griffith,1,Mike Azzi,17,Charlie Griffith,6-0 6-0,99.6,11.6,1.3,0.7,1.9
-2,Max Schardt,8,Jake Goins,9,Max Schardt,7-6 7-6,66.4,2.0,23.5,10.3,19.3
-2,Frey Wu,4,Isaiah Bartlett,13,Frey Wu,6-1 6-0,99.4,11.0,1.8,1.0,2.4
-2,Ryan McKendry,5,Jackson Hurley,12,Ryan McKendry,6-1 6-1,98.9,10.1,2.9,1.5,3.6
-2,Brendan Stafford,2,Gavin Russell,15,Brendan Stafford,6-2 6-2,96.4,8.1,6.7,3.3,7.4
-2,Brendan Ryan,7,Dom Szczerowski,10,Brendan Ryan,6-4 6-3,85.0,4.7,16.5,7.5,14.8
-2,Siddarth Venkatesan,3,Jordan Serlin,14,Siddarth Venkatesan,6-1 6-0,99.6,11.5,1.4,0.8,2.0
-2,Sam Ogilvie,6,Felix Llonch Balauder,11,Sam Ogilvie,6-2 6-1,97.6,8.8,5.1,2.5,5.9
-3,Charlie Griffith,1,Max Schardt,8,Charlie Griffith,6-0 6-2,98.5,9.6,3.6,1.8,4.3
-3,Frey Wu,4,Ryan McKendry,5,Ryan McKendry,7-6 2-6 6-2,53.2,0.4,25.1,11.0,20.3
-3,Brendan Stafford,2,Brendan Ryan,7,Brendan Stafford,6-4 7-6,73.6,2.9,21.5,9.6,18.1
-3,Siddarth Venkatesan,3,Sam Ogilvie,6,Siddarth Venkatesan,7-6 7-6,65.0,1.8,23.7,10.4,19.5
-4,Charlie Griffith,1,Ryan McKendry,5,Charlie Griffith,7-6 7-6,70.1,2.4,22.6,10.0,18.8
-4,Brendan Stafford,2,Siddarth Venkatesan,3,Siddarth Venkatesan,3-6 6-4 6-4,61.8,1.4,24.3,10.6,19.8
-5,Charlie Griffith,1,Siddarth Venkatesan,3,Charlie Griffith,6-4 7-6,76.5,3.3,20.5,9.1,17.5
+﻿round,player_a,seed_a,player_b,seed_b,predicted_winner,predicted_score,win_prob_pct,exp_margin_games,prob_three_sets_pct,prob_7_6_tiebreak_pct,prob_7_5_set_pct,status,winner_points
+1,Jacob Nichols,8,Zeke Sandholm,7,Zeke Sandholm,7-6 7-6,68.8,2.3,22.9,10.1,19.0,predicted,1
+1,James Spoelma,19,King Nelson,16,King Nelson,6-0 6-4,96.1,7.9,7.1,3.5,7.8,predicted,1
+1,Alex Tian,12,Brogan Oxley,17,Alex Tian,6-4 6-3,88.2,5.4,14.4,6.7,13.4,predicted,1
+2,Raymond Chai,1,Zeke Sandholm,7,Raymond Chai,6-2 6-4,88.9,5.6,13.9,6.4,13.0,predicted,2
+2,Nate Yeamans,11,Oscar Brautnick,13,Nate Yeamans,6-3 6-3,90.9,6.1,12.4,5.8,11.9,predicted,2
+2,Jayen Bastani,4,Jack Koebel,15,Jayen Bastani,6-1 6-0,99.6,11.4,1.5,0.8,2.1,predicted,2
+2,Simon Babcock,5,Ethan Vergara,9,Simon Babcock,6-2 6-2,96.2,8.0,7.0,3.5,7.7,predicted,2
+2,Reave Smith,14,Jackson Hurley,6,Jackson Hurley,6-4 6-2,91.2,6.1,12.2,5.7,11.7,predicted,2
+2,King Nelson,16,Sam Ogilvie,3,Sam Ogilvie,6-1 6-4,94.5,7.2,9.1,4.4,9.4,predicted,2
+2,Lucas Sommer,18,Milo Woodruff,10,Milo Woodruff,6-0 6-3,98.0,9.2,4.4,2.2,5.2,predicted,2
+2,Alex Tian,12,Charlie Griffith,2,Charlie Griffith,6-3 6-2,95.2,7.5,8.2,4.0,8.7,predicted,2
+3,Raymond Chai,1,Nate Yeamans,11,Raymond Chai,6-4 6-1,92.8,6.6,10.7,5.1,10.6,predicted,1
+3,Jayen Bastani,4,Simon Babcock,5,Jayen Bastani,6-3 2-6 6-4,53.3,0.4,25.1,10.9,20.2,predicted,1
+3,Jackson Hurley,6,Sam Ogilvie,3,Sam Ogilvie,6-4 6-3,85.6,4.9,16.1,7.4,14.6,predicted,1
+3,Milo Woodruff,10,Charlie Griffith,2,Charlie Griffith,6-3 6-1,95.6,7.7,7.7,3.8,8.3,predicted,1
+4,Raymond Chai,1,Jayen Bastani,4,Raymond Chai,7-6 6-4,71.2,2.6,22.3,9.8,18.6,predicted,1
+4,Sam Ogilvie,3,Charlie Griffith,2,Charlie Griffith,6-4 6-4,78.1,3.6,19.8,8.9,17.1,predicted,1
+5,Raymond Chai,1,Charlie Griffith,2,Charlie Griffith,6-2 1-6 6-4,60.4,1.2,24.5,10.7,19.9,predicted,1
