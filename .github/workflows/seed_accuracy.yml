@@ -1,0 +1,98 @@
+name: Seed Accuracy
+
+# Re-runs the seeding engine and scores its output against the real
+# state-tournament seeds (top 6 only) whenever the engine, the scoring
+# script, the match data, or the real seeds change.
+on:
+  push:
+    paths:
+      - "src/**"
+      - "historical/**"
+      - ".github/workflows/seed_accuracy.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "historical/**"
+      - ".github/workflows/seed_accuracy.yml"
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "Season year (folder under historical/). Blank = config.YEAR"
+        required: false
+        default: ""
+      min_top6_pct:
+        description: "Fail if % of real top-6 seeds found in predicted top-6 is below this. Blank = no check"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  seed-accuracy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src   # engine + seed_accuracy.py live here; data is at ../historical
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        working-directory: .
+        run: |
+          python -m pip install --upgrade pip
+          if   [ -f requirements.txt ];     then pip install -r requirements.txt
+          elif [ -f src/requirements.txt ]; then pip install -r src/requirements.txt
+          fi
+
+      - name: Resolve year
+        id: cfg
+        run: |
+          YEAR="${{ github.event.inputs.year }}"
+          if [ -z "$YEAR" ]; then
+            YEAR=$(python -c "import config; print(getattr(config, 'YEAR', 2025))")
+          fi
+          echo "year=$YEAR" >> "$GITHUB_OUTPUT"
+          echo "Using year $YEAR"
+
+      - name: Check inputs exist
+        run: |
+          test -f "../historical/${{ steps.cfg.outputs.year }}/all_matches.csv" \
+            || { echo "::error::Missing historical/${{ steps.cfg.outputs.year }}/all_matches.csv"; exit 1; }
+          test -f "../historical/${{ steps.cfg.outputs.year }}/state_seeds.csv" \
+            || { echo "::error::Missing historical/${{ steps.cfg.outputs.year }}/state_seeds.csv"; exit 1; }
+
+      - name: Generate predicted seeds
+        run: |
+          python mhsaa_seeding_v2.py \
+            "../historical/${{ steps.cfg.outputs.year }}/all_matches.csv" \
+            rankings_by_division_flight
+
+      - name: Score against real state seeds (top 6 only)
+        run: |
+          ARGS=(--year "${{ steps.cfg.outputs.year }}"
+                --state-seeds "../historical/${{ steps.cfg.outputs.year }}/state_seeds.csv"
+                --predicted-dir rankings_by_division_flight)
+          if [ -n "${{ github.event.inputs.min_top6_pct }}" ]; then
+            ARGS+=(--min-top6-pct "${{ github.event.inputs.min_top6_pct }}")
+          fi
+          python seed_accuracy.py "${ARGS[@]}"
+
+      - name: Upload accuracy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seed-accuracy-${{ steps.cfg.outputs.year }}
+          if-no-files-found: ignore
+          path: |
+            src/seed_accuracy_report.csv
+            src/seed_accuracy_summary.csv
+            src/seed_accuracy_summary.md
+            src/seed_accuracy_summary.json
+            src/rankings_by_division_flight/
