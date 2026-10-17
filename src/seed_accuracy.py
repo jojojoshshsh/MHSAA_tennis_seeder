@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import difflib
 import json
 import os
 import re
@@ -156,11 +157,19 @@ def load_real_top6(path: Path, year: str | None) -> list[dict]:
     return rows
 
 
-def load_predicted(pred_dir: Path) -> dict[tuple, int]:
-    """lookup[(category, gender, division, flight, match_key)] = predicted rank.
+def load_predicted(pred_dir: Path):
+    """Returns (lookup, idx).
+    lookup[(category, gender, division, flight, match_key)] = predicted rank.
+    idx holds extra indexes used only to explain unmatched seeds:
+      by_name   {(cat, gen, key)}        -> [(division, flight, rank)]
+      by_player {(cat, gen, player_key)} -> [(division, flight, pair_name)]
+      by_slot   {(cat, gen, div, flight)} -> [(key, raw_name)]
+      files     {(cat, gen, div)} -> row count
     Only per-player files for divisions 1-4 are used (team_* and *_overall
     files are skipped)."""
     lookup: dict[tuple, int] = {}
+    idx = {"by_name": defaultdict(list), "by_player": defaultdict(list),
+           "by_slot": defaultdict(list), "files": {}}
     for path in sorted(pred_dir.glob("*_division_*.csv")):
         stem = path.stem
         if stem.startswith("team_") or "_division_" not in stem:
@@ -172,6 +181,7 @@ def load_predicted(pred_dir: Path) -> dict[tuple, int]:
             category, gender = cat_gender.split("_", 1)
         except ValueError:
             continue
+        n_rows = 0
         with open(path, newline="", encoding="utf-8-sig") as f:
             for row in csv.DictReader(f):
                 raw_name = row.get("pair_name") or row.get("name") or ""
@@ -179,13 +189,48 @@ def load_predicted(pred_dir: Path) -> dict[tuple, int]:
                     rank = int((row.get("rank") or "").strip())
                 except ValueError:
                     continue
-                key = (category, gender, norm_division(division),
-                       norm_flight(row.get("flight", "")),
-                       match_key(raw_name, row.get("school", "")))
-                # keep best rank if a name somehow appears twice
-                if key not in lookup or rank < lookup[key]:
-                    lookup[key] = rank
-    return lookup
+                div, fl = norm_division(division), norm_flight(row.get("flight", ""))
+                key = match_key(raw_name, row.get("school", ""))
+                lk = (category, gender, div, fl, key)
+                if lk not in lookup or rank < lookup[lk]:
+                    lookup[lk] = rank
+                idx["by_name"][(category, gender, key)].append((div, fl, rank))
+                idx["by_slot"][(category, gender, div, fl)].append((key, raw_name))
+                for part in key.split("/"):
+                    idx["by_player"][(category, gender, part)].append((div, fl, raw_name))
+                n_rows += 1
+        idx["files"][(category, gender, norm_division(division))] = n_rows
+    return lookup, idx
+
+
+def diagnose(cat, gen, div, fl, key, idx) -> tuple[str, str]:
+    """Explain why a real seed has no predicted row."""
+    if (cat, gen, div) not in idx["files"]:
+        return "no predicted file", f"{cat}_{gen}_division_{div}.csv not found/loaded"
+    elsewhere = idx["by_name"].get((cat, gen, key))
+    if elsewhere:
+        d, f, r = elsewhere[0]
+        return ("found in different division/flight",
+                f"predicted in div {d} flight {f} at rank {r}")
+    parts = key.split("/")
+    if len(parts) > 1:
+        hits = []
+        for p in parts:
+            for d, f, pair in idx["by_player"].get((cat, gen, p), []):
+                hits.append(f"{p} -> '{pair}' (div {d} flt {f})")
+        if hits:
+            return "partner combo differs", "; ".join(hits[:2])
+    slot = idx["by_slot"].get((cat, gen, div, fl), [])
+    best, best_ratio = None, 0.0
+    for k, raw in slot:
+        r = difflib.SequenceMatcher(None, key, k).ratio()
+        if r > best_ratio:
+            best, best_ratio = raw, r
+    if best and best_ratio >= 0.80:
+        return "possible spelling mismatch", f"closest predicted name: '{best}' ({best_ratio:.0%})"
+    if not slot:
+        return "flight empty in predictions", f"no predicted rows for div {div} flight {fl}"
+    return "not in any predicted file", "player/pair never ranked (no matches or below MIN_MATCHES)"
 
 
 # ----------------------------------------------------------------------------
@@ -344,11 +389,12 @@ def write_markdown(path: Path, breakdowns, unmatched_rows, year, name_source):
         L.append("")
         L.append(f"### Real top-{TOP_N} seeds not found in predictions ({len(unmatched_rows)})")
         L.append("")
-        L.append("| Gender | Category | Div | Flight | Seed | Name | School |")
-        L.append("|---|---|---|---|---:|---|---|")
+        L.append("| Gender | Category | Div | Flight | Seed | Name | School | Reason |")
+        L.append("|---|---|---|---|---:|---|---|---|")
         for r in unmatched_rows:
             L.append(f"| {r['gender']} | {r['category']} | {r['division']} | {r['flight']} | "
-                     f"{r['real_seed']} | {r['name']} | {r['school']} |")
+                     f"{r['real_seed']} | {r['name']} | {r['school']} | "
+                     f"{r['unmatched_reason']}: {r['unmatched_detail']} |")
     path.write_text("\n".join(L) + "\n", encoding="utf-8")
 
 
@@ -402,7 +448,7 @@ def main() -> None:
     print(f"Name matching : {NAME_SOURCE}")
     real_rows = load_real_top6(state_path, year if args.year else None)
     print(f"Loaded {len(real_rows)} real top-{TOP_N} seed rows from {state_path}")
-    lookup = load_predicted(pred_dir)
+    lookup, idx = load_predicted(pred_dir)
     print(f"Loaded {len(lookup)} predicted rows from {pred_dir}")
     if not real_rows:
         raise SystemExit("ERROR: no real top-6 seed rows to score.")
@@ -412,8 +458,10 @@ def main() -> None:
         cat, gen = category_gender_stem(r.get("category", ""), r.get("gender", ""))
         div, fl = norm_division(r.get("division", "")), norm_flight(r.get("flight", ""))
         name, school = r.get("name", ""), r.get("school", "")
-        pred = lookup.get((cat, gen, div, fl, match_key(name, school)))
+        key = match_key(name, school)
+        pred = lookup.get((cat, gen, div, fl, key))
         seed = r["_seed"]
+        reason, why = ("", "") if pred is not None else diagnose(cat, gen, div, fl, key, idx)
         row = {
             "gender": gen, "category": cat, "division": div, "flight": fl,
             "name": name, "school": school, "real_seed": seed,
@@ -421,10 +469,30 @@ def main() -> None:
             "diff": None if pred is None else pred - seed,
             "abs_diff": None if pred is None else abs(pred - seed),
             "in_predicted_top6": "" if pred is None else int(pred <= TOP_N),
+            "unmatched_reason": reason, "unmatched_detail": why,
         }
         detail.append(row)
         if pred is None:
             unmatched.append(row)
+
+    print("\nPredicted rows loaded per file:")
+    for (c, g, d), n in sorted(idx["files"].items()):
+        print(f"    {c}_{g}_division_{d}.csv : {n}")
+    if unmatched:
+        reasons = defaultdict(int)
+        for u in unmatched:
+            reasons[u["unmatched_reason"]] += 1
+        print(f"\nWhy {len(unmatched)} real seeds were not found:")
+        for k, v in sorted(reasons.items(), key=lambda kv: -kv[1]):
+            print(f"    {v:>4}  {k}")
+        print("  Examples:")
+        shown = set()
+        for u in unmatched:
+            if u["unmatched_reason"] in shown:
+                continue
+            shown.add(u["unmatched_reason"])
+            print(f"    [{u['unmatched_reason']}] {u['name']} ({u['school']}) "
+                  f"{u['category']} d{u['division']} f{u['flight']} #{u['real_seed']}: {u['unmatched_detail']}")
 
     breakdowns = build_breakdowns(detail)
     print_console(breakdowns, unmatched)
@@ -432,7 +500,8 @@ def main() -> None:
     # ---- files ---------------------------------------------------------
     order = lambda d: (d["gender"], d["category"], d["division"], d["flight"], d["real_seed"])
     fields = ["gender", "category", "division", "flight", "name", "school", "real_seed",
-              "predicted_rank", "diff", "abs_diff", "in_predicted_top6"]
+              "predicted_rank", "diff", "abs_diff", "in_predicted_top6",
+              "unmatched_reason", "unmatched_detail"]
     with open(args.out, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
