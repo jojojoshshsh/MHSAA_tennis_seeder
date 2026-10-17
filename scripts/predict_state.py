@@ -68,6 +68,38 @@ produced the seeds, so a heavy blend double counts them and hurts accuracy.
 FORM_SD, the blend weight and the shape multipliers are all fit to a
 walk-forward backtest -- see the constants block and calibrate_predictor.py.
 
+REAL BRACKETS (historical/<Year>/brackets.csv)
+----------------------------------------------
+If historical/<Year>/brackets.csv exists, the real drawn brackets are used
+instead of the seed-order draw built from the rankings. Otherwise (file
+missing, or a bracket not in the file) everything works exactly as before.
+
+    python scripts/predict_state.py                  # --mode full (default)
+    python scripts/predict_state.py --mode tbd
+    python scripts/predict_state.py --year 2026 --gender boys
+    python scripts/predict_state.py --brackets path/to/brackets.csv
+
+Layout: round 1 has one row per position (a position is a pairing of two
+slots; BYE is a slot). Round 2 position k = winner(R1 pos 2k-1) vs
+winner(R1 pos 2k); round 3 position k = winner(R2 pos 2k-1) vs winner(R2
+pos 2k); and so on (1&2, 3&4 ... 15&16, then (1,2)v(3,4) ...).
+
+  --mode full  (default) uses ONLY the round-1 draw and predicts the whole
+               tournament; anything already filled in later rounds is ignored.
+  --mode tbd   matchups already set in later rounds are kept (they mean
+               those players already won); only TBD slots are predicted.
+               Played matches count as real results (no score is invented)
+               and the title odds are conditioned on them.
+
+TEAM POINTS: +1 per match win, but a bye is NOT a free point: the match
+played right after a bye is worth 2 (1 + the bye). Losing it forfeits the
+bye point.
+
+brackets.csv has no gender column, so --gender (default boys) says which
+pool it belongs to (a "gender" column is used if present). Players are
+matched to rankings by name+school (then school+seed); unmatched players
+get a rating just below the lowest matched player in that bracket.
+
 OUTPUT
 ------
   - docs/csv/predictions/bracket_*.csv           (per-bracket seed odds)
@@ -79,10 +111,14 @@ OUTPUT
 
 from __future__ import annotations
 
+import argparse
 import csv
 import math
+import re
 import sys
+import unicodedata
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
@@ -92,6 +128,8 @@ SRC_DIR = REPO_ROOT / "src" / "rankings_by_division_flight"
 DOCS_DIR = REPO_ROOT / "docs"
 PRED_CSV_DIR = DOCS_DIR / "csv" / "predictions"
 PRED_HTML_PATH = DOCS_DIR / "prediction_of_state.html"
+HISTORICAL_DIR = REPO_ROOT / "historical"
+BRACKET_FILENAME = "brackets.csv"
 
 MAX_BRACKET = 32
 VALID_FLIGHTS = {"1", "2", "3", "4"}
@@ -586,14 +624,18 @@ def build_bracket_players(rows: list[dict]) -> list:
 # 3.  Exact bracket probabilities (champion / finalist / semifinalist)
 # ============================================================================
 
-def compute_bracket_probabilities(players: list) -> dict[int, dict]:
+def compute_bracket_probabilities(players: list, known: dict | None = None) -> dict[int, dict]:
     """
     Recursively computes, for every power-of-two sub-bracket size that
     appears while splitting `players` in half all the way down, the
     probability distribution over "who emerges from a sub-bracket of
     this size". Exact combinatorics over the known bracket tree -- no
     randomness involved. Uses match_win_prob() completely unmodified.
+
+    `known` ({(start_slot, size): winner_row}) pins matches that were
+    already played, so the odds are conditioned on real results.
     """
+    known = known or {}
     key_to_row: dict = {}
 
     def key_of(p):
@@ -605,33 +647,35 @@ def compute_bracket_probabilities(players: list) -> dict[int, dict]:
 
     captured: dict[int, dict] = {}
 
-    def recurse(sub: list) -> dict:
+    def recurse(sub: list, start: int) -> dict:
         if len(sub) == 1:
             return {key_of(sub[0]): 1.0}
         half = len(sub) // 2
-        left = recurse(sub[:half])
-        right = recurse(sub[half:])
-        combined: dict = defaultdict(float)
-        for lk, lp in left.items():
-            row_l = BYE if lk == "BYE" else key_to_row[lk]
-            for rk, rp in right.items():
-                row_r = BYE if rk == "BYE" else key_to_row[rk]
-                joint = lp * rp
-                if joint == 0.0:
-                    continue
-                p_l_wins = match_win_prob(row_l, row_r)
-                combined[lk] += joint * p_l_wins
-                combined[rk] += joint * (1.0 - p_l_wins)
+        left = recurse(sub[:half], start)
+        right = recurse(sub[half:], start + half)
+        kw = known.get((start, len(sub)))
+        if kw is not None:
+            combined = {key_of(kw): 1.0}
+        else:
+            combined = defaultdict(float)
+            for lk, lp in left.items():
+                row_l = BYE if lk == "BYE" else key_to_row[lk]
+                for rk, rp in right.items():
+                    row_r = BYE if rk == "BYE" else key_to_row[rk]
+                    joint = lp * rp
+                    if joint == 0.0:
+                        continue
+                    p_l_wins = match_win_prob(row_l, row_r)
+                    combined[lk] += joint * p_l_wins
+                    combined[rk] += joint * (1.0 - p_l_wins)
         size = len(sub)
         captured.setdefault(size, {}).update(combined)
         return dict(combined)
 
-    recurse(players)
+    recurse(players, 0)
     for size in list(captured):
         captured[size].pop("BYE", None)
     return captured
-
-
 
 
 # ============================================================================
@@ -802,21 +846,40 @@ def predict_match_details(a: dict, b: dict, winner_is_a: bool) -> dict:
 # 5.  Deterministic single-path bracket run
 # ============================================================================
 
-def simulate_bracket(players: list) -> list[list[dict]]:
+def simulate_bracket(players: list, overrides: dict | None = None,
+                     known: dict | None = None) -> list[list[dict]]:
     """
     One deterministic run through the whole bracket: in every match the
     favorite (p >= 0.5) always advances (no coin flips -- keeps this
     path consistent with the exact probabilities in section 3), and each
     match's scoreline comes from predict_match_details() above. Bye
     matches are marked score=["BYE"].
+
+    Optional real-bracket inputs (both keyed by (round_index, match_index),
+    0-based):
+      overrides -> {(r, k): (row_or_None, row_or_None)} entrants already set
+                   in that match (replaces the propagated winner)
+      known     -> {(r, k): winner_row} matches already played; the winner
+                   is taken as given (score=["played"]), nothing predicted.
+    Each match carries status = "bye" | "played" | "predicted".
     """
+    overrides = overrides or {}
+    known = known or {}
     current = list(players)
     rounds: list[list[dict]] = []
+    r = 0
     while len(current) > 1:
         matches = []
         next_round = []
         for i in range(0, len(current), 2):
+            k = i // 2
             a, b = current[i], current[i + 1]
+            ov = overrides.get((r, k))
+            if ov:
+                if ov[0] is not None:
+                    a = ov[0]
+                if ov[1] is not None:
+                    b = ov[1]
             if a is BYE and b is BYE:
                 next_round.append(BYE)
                 continue
@@ -825,7 +888,17 @@ def simulate_bracket(players: list) -> list[list[dict]]:
                 matches.append({"a": a, "b": b, "winner": winner, "loser": BYE,
                                  "score": ["BYE"], "p_fav": 1.0, "exp_margin": None,
                                  "prob_three_sets": None, "prob_tiebreak": None,
-                                 "prob_75": None})
+                                 "prob_75": None, "status": "bye"})
+                next_round.append(winner)
+                continue
+            kw = known.get((r, k))
+            if kw is not None:
+                winner = kw
+                loser = b if kw is a else a
+                matches.append({"a": a, "b": b, "winner": winner, "loser": loser,
+                                 "score": ["played"], "p_fav": 1.0, "exp_margin": None,
+                                 "prob_three_sets": None, "prob_tiebreak": None,
+                                 "prob_75": None, "status": "played"})
                 next_round.append(winner)
                 continue
             p = match_win_prob(a, b)
@@ -840,10 +913,12 @@ def simulate_bracket(players: list) -> list[list[dict]]:
                 "prob_three_sets": details["prob_three_sets"],
                 "prob_tiebreak": details["prob_tiebreak"],
                 "prob_75": details["prob_75"],
+                "status": "predicted",
             })
             next_round.append(winner)
         rounds.append(matches)
         current = next_round
+        r += 1
     return rounds
 
 
@@ -938,24 +1013,182 @@ def _team_group_sort_key(key: tuple) -> tuple:
 
 
 # ============================================================================
+# 6b.  Real brackets (historical/<Year>/brackets.csv)
+# ============================================================================
+
+def find_brackets_csv(year=None, explicit=None) -> Path | None:
+    """historical/<Year>/brackets.csv (or an explicit path); None if absent."""
+    if explicit:
+        p = Path(explicit)
+        return p if p.is_file() else None
+    p = HISTORICAL_DIR / str(year or datetime.now().year) / BRACKET_FILENAME
+    return p if p.is_file() else None
+
+
+def _fold(s) -> str:
+    s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "", s.lower())
+
+
+def _norm_person(name: str) -> str:
+    """Name key; doubles pairs ("A / B") are order-free."""
+    parts = [_fold(p) for p in re.split(r"\s*/\s*|\s+&\s+|\s+and\s+", name or "")]
+    return "|".join(sorted(p for p in parts if p))
+
+
+def _parse_entrant(name, school, seed):
+    """BYE sentinel, None for TBD/empty, else an entrant dict."""
+    name = (name or "").strip()
+    if name.upper() == "BYE":
+        return BYE
+    if not name or name.upper() == "TBD":
+        return None
+    try:
+        s = int(float(seed))
+    except (TypeError, ValueError):
+        s = None
+    return {"name": name, "school": (school or "").strip(), "seed": s}
+
+
+def _real(e) -> bool:
+    return isinstance(e, dict)
+
+
+def load_bracket_file(path: Path, default_gender: str) -> dict:
+    """-> {(category, gender, division, flight): {round: {position: (e1, e2)}}}"""
+    out: dict = defaultdict(lambda: defaultdict(dict))
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        for row in csv.DictReader(f):
+            mt = (row.get("match_type") or "").strip().lower()
+            category = "singles" if mt.startswith("s") else "doubles"
+            gender = (row.get("gender") or default_gender).strip().lower()
+            division = (row.get("division") or "").strip()
+            flight = (row.get("flight") or "").strip()
+            if not division or flight not in VALID_FLIGHTS:
+                continue
+            try:
+                rnd, pos = int(row["round"]), int(row["position"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            e1 = _parse_entrant(row.get("team1_players"), row.get("team1_school"), row.get("team1_seed"))
+            e2 = _parse_entrant(row.get("team2_players"), row.get("team2_school"), row.get("team2_seed"))
+            out[(category, gender, division, flight)][rnd][pos] = (e1, e2)
+    return out
+
+
+class _Resolver:
+    """Maps bracket entrants to ranking rows (same object every time, so
+    identity-based bookkeeping works). Unranked entrants get a synthetic row."""
+
+    def __init__(self, rows: list[dict]):
+        self.by_name, self.by_seed = {}, {}
+        for r in rows:
+            sch = _fold(r.get("school"))
+            self.by_name[(_norm_person(_player_name(r)), sch)] = r
+            self.by_seed[(sch, _seed_number(r))] = r
+        powers = [_power(r) for r in rows]
+        self.floor = (min(powers) - 0.5) if powers else 0.0
+        self.cache: dict = {}
+        self.synthetic = 0
+
+    def __call__(self, e):
+        if not _real(e):
+            return e
+        sch = _fold(e["school"])
+        k = (_norm_person(e["name"]), sch)
+        if k in self.cache:
+            return self.cache[k]
+        base = self.by_name.get(k) or self.by_seed.get((sch, e["seed"]))
+        if base is None:
+            self.synthetic += 1
+            row = {"name": e["name"], "pair_name": e["name"], "school": e["school"],
+                   "rank": e["seed"] if e["seed"] is not None else "",
+                   "power_rating": self.floor, "wins": 0, "losses": 0}
+        else:
+            row = dict(base)
+            if e["seed"] is not None:
+                row["rank"] = e["seed"]
+        self.cache[k] = row
+        return row
+
+
+def build_bracket_from_csv(key: tuple, rows: list[dict], rounds_data: dict, mode: str):
+    """-> (players, entrants, overrides, known) or None if the file's bracket
+    is unusable (caller falls back to the seeded draw)."""
+    r1 = rounds_data.get(1)
+    label = "{} {} div {} flight {}".format(key[1], key[0], key[2], key[3])
+    if not r1:
+        return None
+    n = len(r1)
+    if sorted(r1) != list(range(1, n + 1)) or n & (n - 1):
+        print(f"  WARNING: {label}: round 1 positions in brackets.csv are not a full "
+              f"power-of-two draw; using the seeded draw instead.")
+        return None
+    res = _Resolver(rows)
+    players = []
+    for pos in range(1, n + 1):
+        for e in r1[pos]:
+            if e is None:
+                print(f"  WARNING: {label}: TBD in round 1; using the seeded draw instead.")
+                return None
+            players.append(res(e))
+
+    overrides: dict = {}
+    known: dict = {}
+    if mode == "tbd":
+        n_rounds = int(round(math.log2(len(players))))
+        for rnd in range(2, n_rounds + 1):
+            for pos, (e1, e2) in rounds_data.get(rnd, {}).items():
+                r0, k = rnd - 1, pos - 1
+                a = res(e1) if _real(e1) else None
+                b = res(e2) if _real(e2) else None
+                if a is None and b is None:
+                    continue
+                overrides[(r0, k)] = (a, b)
+                # a player sitting in a later round already won the feeder match
+                if a is not None:
+                    known[(r0 - 1, 2 * k)] = a
+                if b is not None:
+                    known[(r0 - 1, 2 * k + 1)] = b
+    if res.synthetic:
+        print(f"  note: {label}: {res.synthetic} entrant(s) not in the rankings "
+              f"(rated just below the lowest ranked player).")
+    entrants = sorted((p for p in players if p is not BYE),
+                      key=lambda r: (_seed_number(r) is None, _seed_number(r) or 0))
+    return players, entrants, overrides, known
+
+
+# ============================================================================
 # 7.  Per-group processing: probabilities + deterministic bracket + team pts
 # ============================================================================
 
-def process_group(key: tuple, rows: list[dict]) -> dict:
+def process_group(key: tuple, rows: list[dict], bracket: dict | None = None,
+                  mode: str = "full") -> dict | None:
     category, gender, division, flight = key
-    players = build_bracket_players(rows)
+    built = build_bracket_from_csv(key, rows, bracket, mode) if bracket else None
+    if built:
+        players, table_rows, overrides, known = built
+        source = f"brackets.csv, {mode} mode"
+    else:
+        if not rows:
+            return None
+        players = build_bracket_players(rows)
+        table_rows = rows[:len(players)]
+        overrides, known = {}, {}
+        source = "seeded draw"
     bracket_size = len(players)
 
-    probs = compute_bracket_probabilities(players)
+    known_slots = {(k * 2 ** (r + 1), 2 ** (r + 1)): w for (r, k), w in known.items()}
+    probs = compute_bracket_probabilities(players, known_slots)
     champion_probs = probs.get(bracket_size, {})
     finalist_probs = probs.get(bracket_size // 2, {})
     semifinalist_probs = probs.get(bracket_size // 4, {}) if bracket_size >= 4 else {}
 
-    rounds = simulate_bracket(players)
+    rounds = simulate_bracket(players, overrides, known)
     finish = finish_round_reached(players, rounds)
 
     player_rows = []
-    for row in rows[:bracket_size]:
+    for row in table_rows:
         k = id(row)
         player_rows.append({
             "seed": row.get("rank"),
@@ -973,26 +1206,34 @@ def process_group(key: tuple, rows: list[dict]) -> dict:
         "bracket_size": bracket_size,
         "players": player_rows,
         "rounds": rounds,
+        "source": source,
     }
 
 
 def build_team_points(all_results: list[dict]) -> dict[tuple, dict[str, int]]:
     """
-    +1 predicted team point per real (non-bye) match win in each
-    deterministic bracket run, aggregated across every flight and
-    match_type (singles + doubles) within a (gender, division).
+    Team points per match win, aggregated across every flight and match_type
+    within a (gender, division). A bye is NOT a free point: the first match
+    won after a bye is worth 2 (1 + the bye); a player who loses that match
+    forfeits the bye point. Each match dict gets m["points"] (the winner's
+    award) for the CSV/HTML output.
     """
     team_points: dict[tuple, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     for result in all_results:
         _, gender, division, _flight = result["key"]
+        pending: dict[int, int] = defaultdict(int)   # id(player) -> unclaimed byes
         for rnd in result["rounds"]:
             for m in rnd:
-                if m["score"] == ["BYE"]:
-                    continue
                 winner = m["winner"]
+                if m["score"] == ["BYE"]:
+                    pending[id(winner)] += 1
+                    continue
+                pts = 1 + pending.pop(id(winner), 0)
+                pending.pop(id(m["loser"]), None)
+                m["points"] = pts
                 school = winner.get("school", "") if isinstance(winner, dict) else ""
                 if school:
-                    team_points[(gender, division)][school] += 1
+                    team_points[(gender, division)][school] += pts
     return team_points
 
 
@@ -1038,7 +1279,7 @@ def write_prediction_csvs(all_results: list[dict], team_points: dict) -> None:
                 "round", "player_a", "seed_a", "player_b", "seed_b",
                 "predicted_winner", "predicted_score", "win_prob_pct",
                 "exp_margin_games", "prob_three_sets_pct", "prob_7_6_tiebreak_pct",
-                "prob_7_5_set_pct",
+                "prob_7_5_set_pct", "status", "winner_points",
             ])
             for rnd_idx, rnd in enumerate(result["rounds"], start=1):
                 for m in rnd:
@@ -1056,6 +1297,7 @@ def write_prediction_csvs(all_results: list[dict], team_points: dict) -> None:
                         round((m.get("prob_three_sets") or 0.0) * 100, 1),
                         round((m.get("prob_tiebreak") or 0.0) * 100, 1),
                         round((m.get("prob_75") or 0.0) * 100, 1),
+                        m.get("status", "predicted"), m.get("points", ""),
                     ])
 
 
@@ -1071,6 +1313,8 @@ def _esc(v) -> str:
 def _bracket_path_html(result: dict) -> str:
     category, gender, division, flight = result["key"]
     label = f"{gender.title()} {category.title()} · Division {division} · Flight {flight}"
+    if result.get("source"):
+        label += f" ({result['source']})"
     rows_html = ""
     for rnd_idx, rnd in enumerate(result["rounds"], start=1):
         for m in rnd:
@@ -1093,7 +1337,7 @@ def _bracket_path_html(result: dict) -> str:
             rows_html += (
                 f"<tr><td>R{rnd_idx}</td>"
                 f"<td>{_esc(a_name)} (#{_esc(a_seed)}) vs {_esc(b_name)} (#{_esc(b_seed)})</td>"
-                f"<td><b>{_esc(winner_name)}</b></td><td>{_esc(score_str)}</td>"
+                f"<td><b>{_esc(winner_name)}</b> +{m.get('points', 1)}</td><td>{_esc(score_str)}</td>"
                 f"<td>{m['p_fav']*100:.0f}%</td>"
                 f"<td>{em_str}</td>"
                 f"<td>{p3_str}</td><td>{ptb_str}</td><td>{p75_str}</td></tr>"
@@ -1241,21 +1485,43 @@ def write_html_report(all_results: list[dict], team_points: dict) -> Path:
 # 10.  Orchestration
 # ============================================================================
 
-def run() -> None:
+def run(argv: list[str] | None = None) -> None:
+    ap = argparse.ArgumentParser(description="Project the MHSAA state tournament.")
+    ap.add_argument("--mode", choices=("full", "tbd"), default="full",
+                    help="full (default): predict everything from the round-1 draw in "
+                         "brackets.csv. tbd: keep matchups already set in later rounds "
+                         "and only predict the TBD ones.")
+    ap.add_argument("--year", type=int, default=None,
+                    help="look for historical/<year>/brackets.csv (default: current year)")
+    ap.add_argument("--brackets", default=None, help="explicit path to a brackets.csv")
+    ap.add_argument("--gender", default="boys", choices=("boys", "girls"),
+                    help="pool brackets.csv belongs to when it has no gender column")
+    args = ap.parse_args(argv)
+
     groups = load_groups()
-    if not groups:
+    bracket_data: dict = {}
+    bpath = find_brackets_csv(args.year, args.brackets)
+    if bpath:
+        bracket_data = load_bracket_file(bpath, args.gender)
+        print(f"  Using real brackets from {bpath} (mode={args.mode}, gender={args.gender})")
+    else:
+        print("  No brackets.csv found -> seeded draws from the rankings.")
+
+    if not groups and not bracket_data:
         print(f"  No ranking CSVs found under {SRC_DIR}. Run mhsaa_seeding_v2.py first.")
         return
 
     all_results = []
-    for key in sorted(groups, key=_group_sort_key):
-        result = process_group(key, groups[key])
+    for key in sorted(set(groups) | set(bracket_data), key=_group_sort_key):
+        result = process_group(key, groups.get(key, []), bracket_data.get(key), args.mode)
+        if result is None:
+            continue
         all_results.append(result)
         category, gender, division, flight = key
         champ = result["players"][0] if result["players"] else None
         champ_desc = f"{champ['name']} ({champ['p_champion']*100:.1f}%)" if champ else "n/a"
         print(f"  {gender:6} {category:8} div={division} flight={flight}  "
-              f"bracket={result['bracket_size']:3}  predicted champion: {champ_desc}")
+              f"bracket={result['bracket_size']:3}  predicted champion: {champ_desc}  [{result['source']}]")
 
     team_points = build_team_points(all_results)
 
