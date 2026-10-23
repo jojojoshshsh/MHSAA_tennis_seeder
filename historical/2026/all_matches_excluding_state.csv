@@ -21,7 +21,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1683243,Boys,Singles,1,Wesley Goodspeed,Kohl Brown,Allegan,Ovid-Elsie,3983,4104,['133776'],['134226'],3-6 6-0 10-3,2026-10-14T05:01:00,3366416.0,3366415.0,3877.0,906.0
 1683244,Boys,Singles,1,Casey Jackson,Lon Pringle,Traverse City St Francis,Eaton Rapids,3842,4168,['115681'],['201484'],6-2 6-1,2026-10-14T05:01:00,3366417.0,3366418.0,3877.0,906.0
 1683245,Boys,Singles,3,Gabe Cooper,Blake Bellingar,Jackson Lumen Christi,Williamston,4113,4493,['132202'],['176360'],6-0 6-0,2026-10-14T05:01:00,3366420.0,3366419.0,3877.0,906.0
-1683246,Boys,Singles,3,Tyler Keillor,Brayden Bowman,Ludington,Kalamazoo Christian,4045,4020,['134053'],['134090'],61-0 6-0,2026-10-14T05:01:00,3366421.0,3366422.0,3877.0,906.0
+1683246,Boys,Singles,3,Tyler Keillor,Brayden Bowman,Ludington,Kalamazoo Christian,4045,4020,['134053'],['134090'],6-1 6-0,2026-10-14T05:01:00,3366421.0,3366422.0,3877.0,906.0
 1683247,Boys,Singles,4,Levi Lamb,Jacob Ameling,Maple City Glen Lake,Paw Paw,3954,3864,['154447'],['135425'],6-0 6-0,2026-10-14T05:01:00,3366424.0,3366423.0,3877.0,906.0
 1683248,Boys,Singles,4,Tyler Hudson,Matthew Joshua,Goodrich,Ann Arbor Father Gabriel Richard,4580,116873,['183050'],['201073'],6-0 6-1,2026-10-14T05:01:00,3366426.0,3366425.0,3877.0,906.0
 1683249,Boys,Singles,4,Kyle Herder,Luke Manion,Kalamazoo Christian,Grand Rapids NorthPointe Christian,4020,4177,['138028'],['176230'],6-1 6-3,2026-10-14T05:01:00,3366428.0,3366427.0,3877.0,906.0
@@ -68,6 +68,18 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1683335,Boys,Singles,2,Yurii Polnyi,Jett Hogan,Grosse Pointe Woods University Liggett,Grandville Calvin Christian,3860,4018,['153029'],['155836'],7-6 6-7 6-1,2026-10-14T05:01:00,3366599.0,3366600.0,3877.0,906.0
 1683336,Boys,Singles,1,Euji Son,Hawthorn Sutherland,Berrien Springs,Maple City Glen Lake,3877,3954,['154001'],['134263'],7-5 7-5,2026-10-14T05:01:00,3366601.0,3366602.0,3877.0,906.0
 1683337,Boys,Singles,4,Kyle Herder,Jake Bixby,Kalamazoo Christian,Traverse City St Francis,4020,3842,['138028'],['202324'],6-7 6-3 6-4,2026-10-14T05:01:00,3366603.0,3366604.0,3877.0,906.0
+1683338,Boys,Singles,4,Ryder Saya,Wyatt Zeilstra,Ludington,Grandville Calvin Christian,4045,4018,['139773'],['177974'],6-0 6-0,2026-10-14T05:01:00,3366605.0,3366606.0,3877.0,906.0
+1683340,Boys,Singles,3,Tyler Keillor,Jacob Payne,Ludington,Lansing Catholic,4045,1,['134053'],['153842'],6-2 6-0,2026-10-14T05:01:00,3366609.0,3366610.0,3877.0,906.0
+1683341,Boys,Singles,2,Edwin Seo,TJ O’Neil,Berrien Springs,Jackson Lumen Christi,3877,4113,['131975'],['132205'],6-2 6-1,2026-10-14T05:01:00,3366612.0,3366611.0,3877.0,906.0
+1683342,Boys,Singles,4,Levi Lamb,Kyle Herder,Maple City Glen Lake,Kalamazoo Christian,3954,4020,['154447'],['138028'],6-1 6-2,2026-10-14T05:01:00,3366613.0,3366614.0,3877.0,906.0
+1683344,Boys,Singles,2,Oliver Kolb,Yurii Polnyi,Ludington,Grosse Pointe Woods University Liggett,4045,3860,['134051'],['153029'],6-1 6-3,2026-10-14T05:01:00,3366617.0,3366618.0,3877.0,906.0
+1683350,Boys,Singles,3,Justin Platt,Gabe Cooper,Grosse Pointe Woods University Liggett,Jackson Lumen Christi,3860,4113,['153033'],['132202'],6-3 4-6 6-1,2026-10-14T05:01:00,3366630.0,3366629.0,3877.0,906.0
+1683351,Boys,Singles,1,Mateus Pimentel,Jack Johnson,Goodrich,Grosse Ile,4580,3897,['201046'],['155974'],6-0 6-1,2026-10-14T05:01:00,3366632.0,3366631.0,3877.0,906.0
+1683352,Boys,Singles,1,Noah West,Euji Son,Lansing Catholic,Berrien Springs,1,3877,['153841'],['154001'],6-0 6-0,2026-10-14T05:01:00,3366633.0,3366634.0,3877.0,906.0
+1683354,Boys,Singles,4,Ryder Saya,Levi Lamb,Ludington,Maple City Glen Lake,4045,3954,['139773'],['154447'],6-0 6-2,2026-10-14T05:01:00,3366637.0,3366638.0,3877.0,906.0
+1683357,Boys,Singles,1,Noah West,Mateus Pimentel,Lansing Catholic,Goodrich,1,4580,['153841'],['201046'],6-2 6-2,2026-10-14T05:01:00,3366643.0,3366644.0,3877.0,906.0
+1683358,Boys,Singles,2,Oliver Kolb,Edwin Seo,Ludington,Berrien Springs,4045,3877,['134051'],['131975'],7-6 7-5,2026-10-14T05:01:00,3366645.0,3366646.0,3877.0,906.0
+1683361,Boys,Singles,3,Tyler Keillor,Justin Platt,Ludington,Grosse Pointe Woods University Liggett,4045,3860,['134053'],['153033'],6-4 6-4,2026-10-14T05:01:00,3366651.0,3366652.0,3877.0,906.0
 1683218,Boys,Doubles,1,Luco Wisniewski / David Shorter,Joel LaDuke / Tristan Durkin,Pontiac Notre Dame Prep,Traverse City St Francis,132199,3842,"['136271', '176100']","['155108', '155109']",6-0 6-1,2026-10-14T05:01:00,3366365.0,3366366.0,3877.0,906.0
 1683219,Boys,Doubles,1,Ryan Eicholtz / Levi Vander Moren,Ben Gilin / Declan Mahaffy,Kalamazoo Christian,Goodrich,4020,4580,"['175624', '175625']","['159009', '177153']",6-4 6-2,2026-10-14T05:01:00,3366368.0,3366367.0,3877.0,906.0
 1683220,Boys,Doubles,1,Simon Geffre / Isaac Geffre,Simon Schroer / Alex Skoczylas,Paw Paw,Ann Arbor Father Gabriel Richard,3864,116873,"['154573', '154574']","['160411', '201076']",6-0 6-0,2026-10-14T05:01:00,3366370.0,3366369.0,3877.0,906.0
@@ -136,6 +148,18 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1683331,Boys,Doubles,1,Caleb Kooistra / Logan Will,Gavin Cohoon / Ethan Blough,Grand Rapids NorthPointe Christian,Ludington,4177,4045,"['156511', '176225']","['154104', '176195']",6-1 6-2,2026-10-14T05:01:00,3366591.0,3366592.0,3877.0,906.0
 1683332,Boys,Doubles,1,Chase Schirmacher / Brogan Kelly,Elliot MacTavish / Keegan Bridges,Jackson Lumen Christi,Maple City Glen Lake,4113,3954,"['132203', '132209']","['154446', '175479']",6-3 3-6 7-6,2026-10-14T05:01:00,3366594.0,3366593.0,3877.0,906.0
 1683333,Boys,Doubles,1,Charlie Laethem / Davis Ford,Noah Kuebler / Ian Gaulke,Grosse Pointe Woods University Liggett,Allegan,3860,3983,"['133481', '133483']","['133755', '153941']",6-1 6-3,2026-10-14T05:01:00,3366596.0,3366595.0,3877.0,906.0
+1683339,Boys,Doubles,1,Matthew Brenzing / John Oliver,Caleb Kooistra / Logan Will,Grandville Calvin Christian,Grand Rapids NorthPointe Christian,4018,4177,"['155838', '205606']","['156511', '176225']",6-0 6-4,2026-10-14T05:01:00,3366607.0,3366608.0,3877.0,906.0
+1683343,Boys,Doubles,2,Lucas Ferguson / Ian Moya,Bryce Cundiff / Luke Selby,Grosse Pointe Woods University Liggett,Maple City Glen Lake,3860,3954,"['153032', '201279']","['134260', '175478']",6-2 6-0,2026-10-14T05:01:00,3366616.0,3366615.0,3877.0,906.0
+1683345,Boys,Doubles,1,Charlie Laethem / Davis Ford,Chase Schirmacher / Brogan Kelly,Grosse Pointe Woods University Liggett,Jackson Lumen Christi,3860,4113,"['133481', '133483']","['132203', '132209']",6-3 6-4,2026-10-14T05:01:00,3366619.0,3366620.0,3877.0,906.0
+1683346,Boys,Doubles,3,Harrison Botke / Vincent Tran,Sage Sanchez / Larsen Kibler,Jackson Lumen Christi,Berrien Springs,4113,3877,"['153112', '199989']","['131974', '175031']",7-5 6-3,2026-10-14T05:01:00,3366622.0,3366621.0,3877.0,906.0
+1683347,Boys,Doubles,3,Logan Spangler / Noah Koppenhofer,John DeLaet / Charlie Morris,Grand Rapids NorthPointe Christian,Allegan,4177,3983,"['156510', '201511']","['133775', '153939']",6-4 6-1,2026-10-14T05:01:00,3366623.0,3366624.0,3877.0,906.0
+1683348,Boys,Doubles,4,Ollie Pierpont / Stennson Shatto,Daniel Choi / Luke Kwon,Grand Rapids NorthPointe Christian,Berrien Springs,4177,3877,"['159204', '201514']","['154002', '201008']",1-6 6-1 6-3,2026-10-14T05:01:00,3366626.0,3366625.0,3877.0,906.0
+1683349,Boys,Doubles,2,Maden Brady / Theo McEldowney,Sawyer Volkers / Arend Clark,Jackson Lumen Christi,Grand Rapids NorthPointe Christian,4113,4177,"['132204', '173230']","['133228', '156512']",7-6 6-4,2026-10-14T05:01:00,3366627.0,3366628.0,3877.0,906.0
+1683353,Boys,Doubles,4,Shayan Challapalli / Gurmilan Singh,Devin Vliestra / Micah Koerner,Jackson Lumen Christi,Kalamazoo Christian,4113,4020,"['153113', '199990']","['175622', '175628']",5-7 6-1 6-3,2026-10-14T05:01:00,3366635.0,3366636.0,3877.0,906.0
+1683355,Boys,Doubles,1,Matthew Brenzing / John Oliver,Charlie Laethem / Davis Ford,Grandville Calvin Christian,Grosse Pointe Woods University Liggett,4018,3860,"['155838', '205606']","['133481', '133483']",6-4 6-4,2026-10-14T05:01:00,3366639.0,3366640.0,3877.0,906.0
+1683356,Boys,Doubles,3,Harrison Botke / Vincent Tran,Logan Spangler / Noah Koppenhofer,Jackson Lumen Christi,Grand Rapids NorthPointe Christian,4113,4177,"['153112', '199989']","['156510', '201511']",6-4 6-3,2026-10-14T05:01:00,3366642.0,3366641.0,3877.0,906.0
+1683359,Boys,Doubles,4,Shayan Challapalli / Gurmilan Singh,Ollie Pierpont / Stennson Shatto,Jackson Lumen Christi,Grand Rapids NorthPointe Christian,4113,4177,"['153113', '199990']","['159204', '201514']",7-5 6-4,2026-10-14T05:01:00,3366647.0,3366648.0,3877.0,906.0
+1683360,Boys,Doubles,2,Lucas Ferguson / Ian Moya,Maden Brady / Theo McEldowney,Grosse Pointe Woods University Liggett,Jackson Lumen Christi,3860,4113,"['153032', '201279']","['132204', '173230']",6-4 2-6 6-0,2026-10-14T05:01:00,3366650.0,3366649.0,3877.0,906.0
 1672866,Boys,Singles,4,Jacob Ameling,Declan Gordon,Paw Paw,South Haven,3864,4446,['135425'],['138614'],6-0 6-0,2026-10-07T05:01:00,3345662.0,3345661.0,3877.0,905.0
 1672867,Boys,Singles,3,"Taewon ""Evan"" Kim",Rafe Ruppert,Berrien Springs,South Haven,3877,4446,['200545'],['136389'],6-0 6-1,2026-10-07T05:01:00,3345663.0,3345664.0,3877.0,905.0
 1672956,Boys,Singles,1,George Haan,Malachi Gamble,Kalamazoo Christian,Niles Brandywine,4020,4375,['138029'],['155825'],6-2 6-3,2026-10-07T05:01:00,3345841.0,3345842.0,3877.0,905.0
@@ -8792,7 +8816,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1604651,Boys,Singles,3,Taj Varde,Matthew Wendrick,Bloomfield Hills,Brighton,9195,3834,['179351'],['132834'],6-1 6-3,2026-08-27T04:00:00,3209232.0,3209231.0,9195.0,
 1604653,Boys,Singles,4,Aaron Gendelman,Ryan Michaels,Bloomfield Hills,Brighton,9195,3834,['179358'],['138611'],7-5 6-7 10-7,2026-08-27T04:00:00,3209236.0,3209235.0,9195.0,
 1604655,Boys,Doubles,1,Krish Reddy / Maanav Majmudar,Kingston Goble / Jacob Ahmedani,Bloomfield Hills,Brighton,9195,3834,"['157013', '179353']","['174951', '200378']",6-0 6-1,2026-08-27T04:00:00,3209240.0,3209239.0,9195.0,
-1604656,Boys,Doubles,2,Luca Deangelis / Jordan Endelman,Joey Elawar / Sebastian Fagaras,Bloomfield Hills,Brighton,9195,3834,"['157011', '179354']","['200380', '200381']",7-5 6-3,2026-08-27T04:00:00,3209242.0,3209241.0,9195.0,
+1604656,Boys,Doubles,2,Luca Deangelis / Jordan Endelman,Joseph Elawar / Sebastian Fagaras,Bloomfield Hills,Brighton,9195,3834,"['157011', '179354']","['200380', '200381']",7-5 6-3,2026-08-27T04:00:00,3209242.0,3209241.0,9195.0,
 1604657,Boys,Doubles,3,Ari Raykenstein / Ari Young,Vinnie DeAngelis / Angelo Spagnoli,Bloomfield Hills,Brighton,9195,3834,"['179359', '202385']","['174953', '200385']",6-2 6-3,2026-08-27T04:00:00,3209244.0,3209243.0,9195.0,
 1604658,Boys,Doubles,4,Jack Weintraub / Tristan Omtvedt,Nick Brown / Will Kime,Bloomfield Hills,Brighton,9195,3834,"['202386', '202389']","['174950', '200384']",6-1 6-2,2026-08-27T04:00:00,3209246.0,3209245.0,9195.0,
 1604659,Boys,Doubles,5,Zuheir Sibai / Ethan Zuckerman,Weston Dawe / Andrew Austin,Bloomfield Hills,Brighton,9195,3834,"['202387', '202388']","['200379', '200383']",6-2 6-3,2026-08-27T04:00:00,3209248.0,3209247.0,9195.0,
@@ -8905,7 +8929,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1658543,Boys,Doubles,3,Jonathan Haig / Carter Leep,Brody Sayrath / Ethan Byrd,Holland Christian,Holland West Ottawa,4431,4417,"['160200', '178311']","['200613', '200614']",6-2 6-0,2026-09-28T04:00:00,3317015.0,3317016.0,4417.0,
 1658544,Boys,Doubles,4,Charlie DeVries / Drew Tanis,Landon Schwallier / Thomas Diekevers,Holland Christian,Holland West Ottawa,4431,4417,"['135770', '184867']","['200609', '200615']",6-4 7-5,2026-09-28T04:00:00,3317017.0,3317018.0,4417.0,
 1658545,Boys,Doubles,5,Andrew Boerman / Noah Adams,Ethan Gibson / Blake Theobald,Holland Christian,Holland West Ottawa,4431,4417,"['202234', '202235']","['184668', '200612']",6-1 6-1,2026-09-28T04:00:00,3317019.0,3317020.0,4417.0,
-1658556,Boys,Doubles,6,James Flemming / Vini Dias Fernandes Dantas,Clayton Genzink / Deeken Helms,Holland West Ottawa,Holland Christian,4417,4431,"['204069', '207232']","['208489', '208490']",7-5 7-5,2026-09-28T04:00:00,3317042.0,3317041.0,4417.0,
+1658556,Boys,Doubles,6,James Fleming / Vini Dias Fernandes Dantas,Clayton Genzink / Deeken Helms,Holland West Ottawa,Holland Christian,4417,4431,"['204069', '207232']","['208489', '208490']",7-5 7-5,2026-09-28T04:00:00,3317042.0,3317041.0,4417.0,
 1648032,Boys,Singles,1,Simon Wolters,Soren Traver,East Kentwood,Holland West Ottawa,4351,4417,['132872'],['175472'],6-2 6-1,2026-09-23T04:00:00,3295994.0,3295993.0,4417.0,
 1648033,Boys,Singles,2,Jack Zernicke,Varun Garigipati,Holland West Ottawa,East Kentwood,4417,4351,['175476'],['154599'],6-1 6-0,2026-09-23T04:00:00,3295995.0,3295996.0,4417.0,
 1648034,Boys,Singles,3,Isaac Watkin,Ty Burton,Holland West Ottawa,East Kentwood,4417,4351,['200610'],['175042'],6-2 7-6,2026-09-23T04:00:00,3295997.0,3295998.0,4417.0,
@@ -9011,7 +9035,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1601220,Boys,Singles,4,Gavin White,Keegan Welsh,Holland West Ottawa,Holland,4417,4381,['200611'],['175403'],6-0 6-0,2026-08-25T04:00:00,3202369.0,3202370.0,4417.0,
 1601221,Boys,Doubles,1,Lincoln Taylor / Dawson Linn,Hank Webb / Josiah VanFarowe,Holland West Ottawa,Holland,4417,4381,"['133274', '175477']","['133001', '153407']",6-2 6-1,2026-08-25T04:00:00,3202371.0,3202372.0,4417.0,
 1601222,Boys,Doubles,2,Josh Reimink / Jonah Hoff,Sam Huizenga / Sam Bordenkircher,Holland West Ottawa,Holland,4417,4381,"['175473', '184667']","['175391', '202659']",6-1 6-0,2026-08-25T04:00:00,3202373.0,3202374.0,4417.0,
-1601223,Boys,Doubles,3,Brody Sayrath / James Flemming,Greyson Mackechnie / Seth Vyosky,Holland West Ottawa,Holland,4417,4381,"['200613', '204069']","['175394', '175401']",6-0 6-1,2026-08-25T04:00:00,3202375.0,3202376.0,4417.0,
+1601223,Boys,Doubles,3,Brody Sayrath / James Fleming,Greyson Mackechnie / Seth Vyosky,Holland West Ottawa,Holland,4417,4381,"['200613', '204069']","['175394', '175401']",6-0 6-1,2026-08-25T04:00:00,3202375.0,3202376.0,4417.0,
 1601224,Boys,Doubles,4,Landon Schwallier / Thomas Diekevers,Elias Baer / Urijah Cuellar,Holland West Ottawa,Holland,4417,4381,"['200609', '200615']","['202662', '202663']",6-0 6-0,2026-08-25T04:00:00,3202377.0,3202378.0,4417.0,
 1601225,Boys,Doubles,5,Ethan Gibson / Blake Theobald,Felix Robert / Pepi Ferguson,Holland West Ottawa,Holland,4417,4381,"['184668', '200612']","['175399', '202664']",6-0 6-1,2026-08-25T04:00:00,3202379.0,3202380.0,4417.0,
 1597354,Boys,Singles,1,Graham Long,Soren Traver,Detroit Catholic Central,Holland West Ottawa,4239,4417,['156599'],['175472'],6-1 6-3,2026-08-22T04:00:00,3194638.0,3194637.0,4417.0,
@@ -9022,7 +9046,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1597360,Boys,Doubles,2,Brody Craig / Dominic Thompson,Josh Reimink / Jonah Hoff,Detroit Catholic Central,Holland West Ottawa,4239,4417,"['178432', '202566']","['175473', '184667']",4-6 6-2 10-8,2026-08-22T04:00:00,3194650.0,3194649.0,4417.0,
 1597361,Boys,Doubles,3,Andrew Strychar / Sam Coscarelli,Blake Theobald / Brody Sayrath,Detroit Catholic Central,Holland West Ottawa,4239,4417,"['158449', '178764']","['200612', '200613']",6-3 6-3,2026-08-22T04:00:00,3194652.0,3194651.0,4417.0,
 1597362,Boys,Doubles,4,Landon Schwallier / Thomas Diekevers,Cooper Juchno / Sean Dewan,Holland West Ottawa,Detroit Catholic Central,4417,4239,"['200609', '200615']","['202568', '202570']",4-6 7-6 10-7,2026-08-22T04:00:00,3194653.0,3194654.0,4417.0,
-1597363,Boys,Doubles,5,Damijian Savich / Lucas Liron,James Flemming / Logan Dykstra,Detroit Catholic Central,Holland West Ottawa,4239,4417,"['202571', '202572']","['204069', '204070']",6-0 6-1,2026-08-22T04:00:00,3194656.0,3194655.0,4417.0,
+1597363,Boys,Doubles,5,Damijian Savich / Lucas Liron,James Fleming / Logan Dykstra,Detroit Catholic Central,Holland West Ottawa,4239,4417,"['202571', '202572']","['204069', '204070']",6-0 6-1,2026-08-22T04:00:00,3194656.0,3194655.0,4417.0,
 1597365,Boys,Singles,1,Lucas Chang,Soren Traver,Rochester,Holland West Ottawa,4449,4417,['133508'],['175472'],6-1 7-6,2026-08-22T04:00:00,3194660.0,3194659.0,4417.0,
 1597366,Boys,Singles,2,Jack Zernicke,Yibei Guo,Holland West Ottawa,Rochester,4417,4449,['175476'],['177515'],6-4 6-1,2026-08-22T04:00:00,3194661.0,3194662.0,4417.0,
 1597367,Boys,Singles,3,Scott Stylianou,Isaac Watkin,Rochester,Holland West Ottawa,4449,4417,['177517'],['200610'],6-3 7-6,2026-08-22T04:00:00,3194664.0,3194663.0,4417.0,
@@ -9031,7 +9055,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1597370,Boys,Doubles,2,Josh Reimink / Jonah Hoff,Dylan Amman / Ben Keary,Holland West Ottawa,Rochester,4417,4449,"['175473', '184667']","['201445', '201447']",6-2 6-1,2026-08-22T04:00:00,3194669.0,3194670.0,4417.0,
 1597371,Boys,Doubles,3,Blake Theobald / Brody Sayrath,Moosa Shafique / Ben Taylor,Holland West Ottawa,Rochester,4417,4449,"['200612', '200613']","['183942', '201448']",1-6 6-4 13-11,2026-08-22T04:00:00,3194671.0,3194672.0,4417.0,
 1597372,Boys,Doubles,4,Nithin Madhusudhan / Kane Roberts,Landon Schwallier / Thomas Diekevers,Rochester,Holland West Ottawa,4449,4417,"['156477', '177516']","['200609', '200615']",6-1 6-2,2026-08-22T04:00:00,3194674.0,3194673.0,4417.0,
-1597373,Boys,Doubles,5,James Flemming / Logan Dykstra,Shaurya Lad / Ben Gough,Holland West Ottawa,Rochester,4417,4449,"['204069', '204070']","['201449', '201450']",6-1 2-6 10-7,2026-08-22T04:00:00,3194675.0,3194676.0,4417.0,
+1597373,Boys,Doubles,5,James Fleming / Logan Dykstra,Shaurya Lad / Ben Gough,Holland West Ottawa,Rochester,4417,4449,"['204069', '204070']","['201449', '201450']",6-1 2-6 10-7,2026-08-22T04:00:00,3194675.0,3194676.0,4417.0,
 1597386,Boys,Singles,1,Soren Traver,default default,Holland West Ottawa,Northville,4417,4337,['175472'],['204071'],2-0 2-0,2026-08-22T04:00:00,3194701.0,3194702.0,4417.0,
 1597387,Boys,Singles,2,Pranshu Gandhe,Jack Zernicke,Northville,Holland West Ottawa,4337,4417,['159668'],['175476'],6-4 6-1,2026-08-22T04:00:00,3194704.0,3194703.0,4417.0,
 1597388,Boys,Singles,3,Isaac Watkin,Allan Hu,Holland West Ottawa,Northville,4417,4337,['200610'],['159671'],6-2 6-3,2026-08-22T04:00:00,3194705.0,3194706.0,4417.0,
@@ -9040,7 +9064,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1597391,Boys,Doubles,2,Josh Reimink / Jonah Hoff,Edwin Lee / Ananth Kannappan,Holland West Ottawa,Northville,4417,4337,"['175473', '184667']","['159672', '183777']",6-2 6-0,2026-08-22T04:00:00,3194711.0,3194712.0,4417.0,
 1597392,Boys,Doubles,3,Blake Theobald / Brody Sayrath,Nye Piyabongkarn / Daniel Miranda,Holland West Ottawa,Northville,4417,4337,"['200612', '200613']","['183781', '202204']",3-6 6-4 12-10,2026-08-22T04:00:00,3194713.0,3194714.0,4417.0,
 1597393,Boys,Doubles,4,Landon Schwallier / Thomas Diekevers,"Anthony ""Cole"" Marchelleta / Anvesh Pochareddy",Holland West Ottawa,Northville,4417,4337,"['200609', '200615']","['159673', '159676']",6-4 7-5,2026-08-22T04:00:00,3194715.0,3194716.0,4417.0,
-1597394,Boys,Doubles,5,James Flemming / Logan Dykstra,Brian Zhang / Geo Park,Holland West Ottawa,Northville,4417,4337,"['204069', '204070']","['183780', '202218']",6-1 6-7 10-6,2026-08-22T04:00:00,3194717.0,3194718.0,4417.0,
+1597394,Boys,Doubles,5,James Fleming / Logan Dykstra,Brian Zhang / Geo Park,Holland West Ottawa,Northville,4417,4337,"['204069', '204070']","['183780', '202218']",6-1 6-7 10-6,2026-08-22T04:00:00,3194717.0,3194718.0,4417.0,
 1593968,Boys,Singles,1,Drake Apol,Soren Traver,Jenison,Holland West Ottawa,4126,4417,['159164'],['175472'],6-3 6-4,2026-08-20T04:00:00,3187866.0,3187865.0,4417.0,
 1593969,Boys,Singles,2,Jack Zernicke,Calvin Soukup,Holland West Ottawa,Jenison,4417,4126,['175476'],['153981'],6-3 7-5,2026-08-20T04:00:00,3187867.0,3187868.0,4417.0,
 1593970,Boys,Singles,3,Isaac Watkin,Jack Devereaux,Holland West Ottawa,Jenison,4417,4126,['200610'],['175058'],6-7 6-1 6-3,2026-08-20T04:00:00,3187869.0,3187870.0,4417.0,
@@ -9189,7 +9213,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1609392,Boys,Singles,3,Mihir Anand,Matthew Wendrick,Ann Arbor Skyline,Brighton,3957,3834,['157327'],['132834'],6-4 6-3,2026-08-29T04:00:00,3218714.0,3218713.0,3957.0,
 1609394,Boys,Singles,4,Ryan Michaels,Agnes Ferancova,Brighton,Ann Arbor Skyline,3834,3957,['138611'],['202924'],6-3 7-5,2026-08-29T04:00:00,3218717.0,3218718.0,3957.0,
 1609396,Boys,Doubles,1,Thomas Wang / Benjman Wang,Kingston Goble / Jacob Ahmedani,Ann Arbor Skyline,Brighton,3957,3834,"['157322', '179808']","['174951', '200378']",6-1 6-3,2026-08-29T04:00:00,3218722.0,3218721.0,3957.0,
-1609399,Boys,Doubles,2,Joey Elawar / Sebastian Fagaras,Albert Wiseley / Anthony Lee,Brighton,Ann Arbor Skyline,3834,3957,"['200380', '200381']","['184878', '202919']",6-2 7-5,2026-08-29T04:00:00,3218727.0,3218728.0,3957.0,
+1609399,Boys,Doubles,2,Joseph Elawar / Sebastian Fagaras,Albert Wiseley / Anthony Lee,Brighton,Ann Arbor Skyline,3834,3957,"['200380', '200381']","['184878', '202919']",6-2 7-5,2026-08-29T04:00:00,3218727.0,3218728.0,3957.0,
 1609403,Boys,Doubles,3,Sam Davidson / Devan Kinra,Vinnie DeAngelis / Angelo Spagnoli,Ann Arbor Skyline,Brighton,3957,3834,"['160713', '202916']","['174953', '200385']",6-2 6-4,2026-08-29T04:00:00,3218736.0,3218735.0,3957.0,
 1609406,Boys,Doubles,4,Caleb Ellies / Brendan Sukenic,Nick Brown / Will Kime,Ann Arbor Skyline,Brighton,3957,3834,"['202914', '202923']","['174950', '200384']",6-2 7-5,2026-08-29T04:00:00,3218742.0,3218741.0,3957.0,
 1609410,Boys,Doubles,5,Benjamin Huang / Mahyar Salehi,Weston Dawe / Andrew Austin,Ann Arbor Skyline,Brighton,3957,3834,"['202915', '202921']","['200379', '200383']",6-1 0-6 11-9,2026-08-29T04:00:00,3218750.0,3218749.0,3957.0,
@@ -11105,7 +11129,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1601528,Boys,Singles,3,Nikhil Verma,Matthew Wendrick,Detroit Catholic Central,Brighton,4239,3834,['156605'],['132834'],7-5 6-3,2026-08-25T04:00:00,3202986.0,3202985.0,4239.0,
 1601530,Boys,Singles,4,Rocco Lachapelle,Ryan Michaels,Detroit Catholic Central,Brighton,4239,3834,['202565'],['138611'],6-2 5-7 6-2,2026-08-25T04:00:00,3202990.0,3202989.0,4239.0,
 1601532,Boys,Doubles,1,Saathvik Koneru / Max Metropulos,Kingston Goble / Jacob Ahmedani,Detroit Catholic Central,Brighton,4239,3834,"['135264', '178435']","['174951', '200378']",6-0 6-2,2026-08-25T04:00:00,3202994.0,3202993.0,4239.0,
-1601543,Boys,Doubles,2,Brody Craig / Dominic Thompson,Joey Elawar / Sebastian Fagaras,Detroit Catholic Central,Brighton,4239,3834,"['178432', '202566']","['200380', '200381']",6-0 6-0,2026-08-25T04:00:00,3203016.0,3203015.0,4239.0,
+1601543,Boys,Doubles,2,Brody Craig / Dominic Thompson,Joseph Elawar / Sebastian Fagaras,Detroit Catholic Central,Brighton,4239,3834,"['178432', '202566']","['200380', '200381']",6-0 6-0,2026-08-25T04:00:00,3203016.0,3203015.0,4239.0,
 1601556,Boys,Doubles,3,Andrew Strychar / Sam Coscarelli,Vinnie DeAngelis / Angelo Spagnoli,Detroit Catholic Central,Brighton,4239,3834,"['158449', '178764']","['174953', '200385']",6-0 6-2,2026-08-25T04:00:00,3203042.0,3203041.0,4239.0,
 1601562,Boys,Doubles,4,Cooper Juchno / Sean Dewan,Nick Brown / Will Kime,Detroit Catholic Central,Brighton,4239,3834,"['202568', '202570']","['174950', '200384']",6-3 6-4,2026-08-25T04:00:00,3203054.0,3203053.0,4239.0,
 1601566,Boys,Doubles,5,Damijian Savich / Lucas Liron,Weston Dawe / Andrew Austin,Detroit Catholic Central,Brighton,4239,3834,"['202571', '202572']","['200379', '200383']",6-2 6-2,2026-08-25T04:00:00,3203062.0,3203061.0,4239.0,
@@ -11373,7 +11397,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1645082,Boys,Singles,3,Nate Keller,Matthew Wendrick,Clarkston,Brighton,4052,3834,['134453'],['132834'],6-1 6-3,2026-09-22T04:00:00,3290095.0,3290093.0,4052.0,
 1645086,Boys,Singles,4,Athan Brozovich,Ryan Michaels,Clarkston,Brighton,4052,3834,['202378'],['138611'],6-2 6-2,2026-09-22T04:00:00,3290102.0,3290101.0,4052.0,
 1645089,Boys,Doubles,1,Kiyan Shushtari / Charlie Sanderson,Kingston Goble / Jacob Ahmedani,Clarkston,Brighton,4052,3834,"['157008', '181160']","['174951', '200378']",6-1 6-0,2026-09-22T04:00:00,3290108.0,3290107.0,4052.0,
-1645092,Boys,Doubles,2,Kamy Shushtari / Henry Haviland,Joey Elawar / Sebastian Fagaras,Clarkston,Brighton,4052,3834,"['157009', '157289']","['200380', '200381']",6-0 6-2,2026-09-22T04:00:00,3290114.0,3290113.0,4052.0,
+1645092,Boys,Doubles,2,Kamy Shushtari / Henry Haviland,Joseph Elawar / Sebastian Fagaras,Clarkston,Brighton,4052,3834,"['157009', '157289']","['200380', '200381']",6-0 6-2,2026-09-22T04:00:00,3290114.0,3290113.0,4052.0,
 1645104,Boys,Doubles,3,Vinnie DeAngelis / Angelo Spagnoli,Harry Jacobson / Aiden Stover,Brighton,Clarkston,3834,4052,"['174953', '200385']","['178925', '178926']",6-2 7-6,2026-09-22T04:00:00,3290137.0,3290138.0,4052.0,
 1645108,Boys,Doubles,4,Nick Brown / Will Kime,Ian Flint / Alejandro Gonzalvo,Brighton,Clarkston,3834,4052,"['174950', '200384']","['182504', '202379']",3-6 6-2 6-4,2026-09-22T04:00:00,3290145.0,3290146.0,4052.0,
 1645112,Boys,Doubles,5,Carter Bryson / Matthew McCormick,Bradyn Penner / Matthew Looney,Clarkston,Brighton,4052,3834,"['202380', '202381']","['200377', '200382']",6-4 4-6 6-0,2026-09-22T04:00:00,3290154.0,3290153.0,4052.0,
@@ -11755,7 +11779,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1623251,Boys,Singles,3,Matthew Wendrick,Bruce Weng,Brighton,Salem,3834,4142,['132834'],['155093'],6-0 6-0,2026-09-10T04:00:00,3246431.0,3246432.0,4142.0,
 1623262,Boys,Singles,4,Ryan Michaels,Dev Patel,Brighton,Salem,3834,4142,['138611'],['155092'],6-0 6-0,2026-09-10T04:00:00,3246453.0,3246454.0,4142.0,
 1623274,Boys,Doubles,1,Kingston Goble / Jacob Ahmedani,Thomas Hierman / Ashwanth Babukumar,Brighton,Salem,3834,4142,"['174951', '200378']","['179643', '183381']",6-1 6-2,2026-09-10T04:00:00,3246477.0,3246478.0,4142.0,
-1623285,Boys,Doubles,2,Joey Elawar / Sebastian Fagaras,Suhas Surapati / Tarun Krishna,Brighton,Salem,3834,4142,"['200380', '200381']","['202991', '202992']",7-5 6-3,2026-09-10T04:00:00,3246499.0,3246500.0,4142.0,
+1623285,Boys,Doubles,2,Joseph Elawar / Sebastian Fagaras,Suhas Surapati / Tarun Krishna,Brighton,Salem,3834,4142,"['200380', '200381']","['202991', '202992']",7-5 6-3,2026-09-10T04:00:00,3246499.0,3246500.0,4142.0,
 1623287,Boys,Doubles,3,Vinnie DeAngelis / Angelo Spagnoli,Daniel Chen / Ethan Liao,Brighton,Salem,3834,4142,"['174953', '200385']","['179789', '179790']",7-5 6-2,2026-09-10T04:00:00,3246503.0,3246504.0,4142.0,
 1623294,Boys,Doubles,4,Nick Brown / Will Kime,Hitesh Pilliai / Shashanth Gopinathan,Brighton,Salem,3834,4142,"['174950', '200384']","['202993', '202994']",6-2 4-6 6-4,2026-09-10T04:00:00,3246517.0,3246518.0,4142.0,
 1623299,Boys,Doubles,5,Bradyn Penner / Matthew Looney,Vivan Chauhan / Saransh Suri,Brighton,Salem,3834,4142,"['200377', '200382']","['184792', '202995']",6-2 6-7 10-7,2026-09-10T04:00:00,3246527.0,3246528.0,4142.0,
@@ -14732,7 +14756,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1633740,Boys,Singles,3,Matthew Wendrick,Tyler Tanudjaja,Brighton,Plymouth,3834,4050,['132834'],['201628'],6-1 6-1,2026-09-15T04:00:00,3267410.0,3267409.0,4050.0,
 1633741,Boys,Singles,4,Ryan Michaels,Arnav Ranjan,Brighton,Plymouth,3834,4050,['138611'],['158834'],2-0 2-0,2026-09-15T04:00:00,3267412.0,3267411.0,4050.0,
 1633743,Boys,Doubles,1,Kingston Goble / Jacob Ahmedani,Nikola Georgiev / Shuban Suryavanshi,Brighton,Plymouth,3834,4050,"['174951', '200378']","['175063', '175065']",4-6 6-2 10-7,2026-09-15T04:00:00,3267416.0,3267415.0,4050.0,
-1633744,Boys,Doubles,2,Joey Elawar / Sebastian Fagaras,Soumil Patel / Cameron Adamski,Brighton,Plymouth,3834,4050,"['200380', '200381']","['175066', '175067']",6-3 6-2,2026-09-15T04:00:00,3267418.0,3267417.0,4050.0,
+1633744,Boys,Doubles,2,Joseph Elawar / Sebastian Fagaras,Soumil Patel / Cameron Adamski,Brighton,Plymouth,3834,4050,"['200380', '200381']","['175066', '175067']",6-3 6-2,2026-09-15T04:00:00,3267418.0,3267417.0,4050.0,
 1633745,Boys,Doubles,3,Vinnie DeAngelis / Angelo Spagnoli,Del Mackett / Brennan Downey,Brighton,Plymouth,3834,4050,"['174953', '200385']","['175069', '175071']",6-2 6-0,2026-09-15T04:00:00,3267420.0,3267419.0,4050.0,
 1633746,Boys,Doubles,4,Nick Brown / Will Kime,Akshay Sambhara / Micah Yoshida,Brighton,Plymouth,3834,4050,"['174950', '200384']","['175068', '201632']",2-6 7-6 10-7,2026-09-15T04:00:00,3267422.0,3267421.0,4050.0,
 1633747,Boys,Doubles,5,Tristan Andridge / Sahib Maan,Bradyn Penner / Matthew Looney,Plymouth,Brighton,4050,3834,"['183244', '201629']","['200377', '200382']",6-4 6-4,2026-09-15T04:00:00,3267423.0,3267424.0,4050.0,
@@ -14918,7 +14942,7 @@ match_id,gender,match_type,flight,winner_names,loser_names,winner_school,loser_s
 1613652,Boys,Singles,1,Keegan Parrish,Ryan Marschak,Brighton,Canton,3834,4284,['132835'],['178840'],6-1 6-1,2026-09-01T04:00:00,3227233.0,3227234.0,4284.0,
 1613654,Boys,Singles,2,Lucas Furness,Aryan Chaoji,Brighton,Canton,3834,4284,['154897'],['153385'],6-4 6-3,2026-09-01T04:00:00,3227237.0,3227238.0,4284.0,
 1613657,Boys,Singles,3,Joseph Schilling,Kingston Goble,Canton,Brighton,4284,3834,['153389'],['174951'],3-6 6-1 10-3,2026-09-01T04:00:00,3227244.0,3227243.0,4284.0,
-1613661,Boys,Singles,4,Joey Elawar,Pranav Murthy,Brighton,Canton,3834,4284,['200380'],['203439'],6-2 6-3,2026-09-01T04:00:00,3227251.0,3227252.0,4284.0,
+1613661,Boys,Singles,4,Joseph Elawar,Pranav Murthy,Brighton,Canton,3834,4284,['200380'],['203439'],6-2 6-3,2026-09-01T04:00:00,3227251.0,3227252.0,4284.0,
 1613667,Boys,Doubles,1,Matthew Wendrick / Ryan Michaels,Arjun Swaminathan / Rishank Minumula,Brighton,Canton,3834,4284,"['132834', '138611']","['153384', '203437']",6-1 6-1,2026-09-01T04:00:00,3227263.0,3227264.0,4284.0,
 1613671,Boys,Doubles,2,Jacob Ahmedani / Sebastian Fagaras,Anish Nair / Shiv Patel,Brighton,Canton,3834,4284,"['200378', '200381']","['153383', '182599']",6-1 6-1,2026-09-01T04:00:00,3227271.0,3227272.0,4284.0,
 1613673,Boys,Doubles,3,Vinnie DeAngelis / Angelo Spagnoli,Kavin Dave / Henry Kuhns,Brighton,Canton,3834,4284,"['174953', '200385']","['153382', '184772']",6-1 6-1,2026-09-01T04:00:00,3227275.0,3227276.0,4284.0,
